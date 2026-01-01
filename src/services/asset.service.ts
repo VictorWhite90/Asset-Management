@@ -211,7 +211,7 @@ export const getAgencyAssets = async (agencyId: string): Promise<Asset[]> => {
     return querySnapshot.docs.map((doc) => ({
       ...doc.data(),
       id: doc.id,
-    })) as Asset[];
+    })) as unknown as Asset[];
   } catch (error: any) {
     console.error('Error fetching agency assets:', error);
     throw new Error(getFirestoreErrorMessage(error.code));
@@ -230,7 +230,7 @@ export const getAllAssets = async (): Promise<Asset[]> => {
     return querySnapshot.docs.map((doc) => ({
       ...doc.data(),
       id: doc.id,
-    })) as Asset[];
+    })) as unknown as Asset[];
   } catch (error: any) {
     console.error('Error fetching all assets:', error);
     throw new Error(getFirestoreErrorMessage(error.code));

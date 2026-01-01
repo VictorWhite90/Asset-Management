@@ -9,7 +9,7 @@ import {
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { UserRegistrationData, User } from '@/types/user.types';
-import { COLLECTIONS, SUCCESS_MESSAGES, ERROR_MESSAGES } from '@/utils/constants';
+import { COLLECTIONS, ERROR_MESSAGES } from '@/utils/constants';
 
 /**
  * Register a new agency user

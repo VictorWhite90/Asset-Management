@@ -67,7 +67,19 @@ export const NIGERIAN_STATES = [
 
 export type NigerianState = typeof NIGERIAN_STATES[number];
 
-export const ASSET_CATEGORIES: AssetCategory[] = [
+// Define AssetCategory type first
+export type AssetCategory =
+  | 'Office Equipment'
+  | 'Furniture & Fittings'
+  | 'Motor Vehicle'
+  | 'Plant/Generator'
+  | 'Building'
+  | 'Land'
+  | 'Stocks'
+  | 'Others';
+
+// Then define the array with the type
+export const ASSET_CATEGORIES: readonly AssetCategory[] = [
   'Office Equipment',
   'Furniture & Fittings',
   'Motor Vehicle',
@@ -76,6 +88,4 @@ export const ASSET_CATEGORIES: AssetCategory[] = [
   'Land',
   'Stocks',
   'Others',
-];
-
-export type AssetCategory = typeof ASSET_CATEGORIES[number];
+] as const;
