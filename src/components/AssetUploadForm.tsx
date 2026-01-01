@@ -78,9 +78,7 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
     formState: { errors },
     watch,
     reset,
-    setValue,
     setError: setFormError,
-    clearErrors,
     unregister,
   } = useForm<any>({
     resolver: yupResolver(yup.object().shape(baseSchema)),
@@ -173,7 +171,7 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
       }
 
       // Create asset
-      const assetId = await createAsset(assetFormData, userData.userId, userData.agencyName);
+      await createAsset(assetFormData, userData.userId, userData.agencyName);
 
       // Success
       toast.success(SUCCESS_MESSAGES.ASSETS.UPLOAD);
