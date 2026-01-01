@@ -1,0 +1,5 @@
+# This folder will contain service files
+# - firebase.ts (Firebase initialization and config)
+# - auth.service.ts (Authentication operations)
+# - firestore.service.ts (Database operations)
+# - excel.service.ts (Excel parsing and export)

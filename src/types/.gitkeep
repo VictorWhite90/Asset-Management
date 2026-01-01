@@ -1,0 +1,4 @@
+# This folder will contain TypeScript type definitions
+# - user.types.ts
+# - asset.types.ts
+# - common.types.ts

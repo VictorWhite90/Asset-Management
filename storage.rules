@@ -1,0 +1,41 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAgency() {
+      return isAuthenticated();
+    }
+
+    // Bulk upload files (Excel files for processing)
+    match /bulk-uploads/{userId}/{fileName} {
+      // Allow read/write only to the file owner
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+
+      // Limit file size to 10MB
+      allow write: if request.resource.size < 10 * 1024 * 1024;
+
+      // Only allow Excel files
+      allow write: if request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
+                     request.resource.contentType.matches('application/vnd.ms-excel');
+    }
+
+    // Asset documents (if storing PDFs or images for assets in future)
+    match /asset-documents/{agencyId}/{assetId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == agencyId;
+
+      // Limit file size to 5MB
+      allow write: if request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // Deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# This folder will contain React components
+# - Auth components (Login, Register, PasswordReset)
+# - Dashboard components (Agency, Admin)
+# - Common components (Navbar, Footer, etc.)

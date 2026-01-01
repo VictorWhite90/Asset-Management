@@ -1,0 +1,4 @@
+# This folder will contain utility functions
+# - validation.ts (input validation helpers)
+# - formatters.ts (date, currency formatters)
+# - constants.ts (app constants, categories, etc.)

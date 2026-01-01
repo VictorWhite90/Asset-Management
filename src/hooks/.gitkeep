@@ -1,0 +1,4 @@
+# This folder will contain custom React hooks
+# - useAuth (authentication state)
+# - useFirestore (Firestore operations)
+# - useForm (form handling)
