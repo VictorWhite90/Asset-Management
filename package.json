@@ -12,7 +12,8 @@
     "emulators": "firebase emulators:start",
     "deploy": "npm run build && firebase deploy",
     "seed": "node scripts/seed.cjs",
-    "seed:firestore": "node scripts/seedFirestore.cjs"
+    "seed:firestore": "node scripts/seedFirestore.cjs",
+    "seed:users": "node scripts/seedTestUsers.cjs"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",

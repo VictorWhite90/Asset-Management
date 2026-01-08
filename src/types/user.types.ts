@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type UserRole = 'agency' | 'admin';
+export type UserRole = 'agency' | 'agency-approver' | 'admin';
 
 export interface User {
   userId: string;
@@ -17,6 +17,7 @@ export interface UserRegistrationData {
   email: string;
   password: string;
   agencyName: string;
+  role: UserRole; // User selects their role during registration
   region: string;
   ministryType?: string;
 }

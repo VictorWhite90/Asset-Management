@@ -17,10 +17,12 @@ import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import VerifyEmailPage from '@/pages/VerifyEmailPage';
+import EmailActionPage from '@/pages/EmailActionPage';
 import DashboardPage from '@/pages/DashboardPage';
 import AssetUploadPage from '@/pages/AssetUploadPage';
 import BulkUploadPage from '@/pages/BulkUploadPage';
 import AgencyAssetsPage from '@/pages/AgencyAssetsPage';
+import ReviewUploadsPage from '@/pages/ReviewUploadsPage';
 import AdminAssetsPage from '@/pages/AdminAssetsPage';
 
 // Nigeria flag colors theme
@@ -67,6 +69,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/auth/action" element={<EmailActionPage />} />
 
             {/* Protected Routes */}
             <Route
@@ -113,6 +116,18 @@ function App() {
                 <ProtectedRoute requireEmailVerification={true}>
                   <RoleBasedRoute allowedRoles={['agency']}>
                     <AgencyAssetsPage />
+                  </RoleBasedRoute>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Approver Routes (Agency Approver Only) */}
+            <Route
+              path="/approver/review-uploads"
+              element={
+                <ProtectedRoute requireEmailVerification={true}>
+                  <RoleBasedRoute allowedRoles={['agency-approver']}>
+                    <ReviewUploadsPage />
                   </RoleBasedRoute>
                 </ProtectedRoute>
               }

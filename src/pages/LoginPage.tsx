@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -32,9 +32,22 @@ const loginSchema = yup.object().shape({
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Check for success message from email verification
+  useEffect(() => {
+    const state = location.state as { message?: string } | null;
+    if (state?.message) {
+      setSuccessMessage(state.message);
+      toast.success(state.message);
+      // Clear the state to prevent showing message on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const {
     register,
@@ -107,6 +120,13 @@ const LoginPage: React.FC = () => {
           <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
             Nigeria Government Asset Management System
           </Typography>
+
+          {/* Success Alert */}
+          {successMessage && (
+            <Alert severity="success" sx={{ width: '100%', mb: 2 }}>
+              {successMessage}
+            </Alert>
+          )}
 
           {/* Error Alert */}
           {error && (

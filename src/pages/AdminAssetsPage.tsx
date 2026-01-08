@@ -71,8 +71,10 @@ const AdminAssetsPage = () => {
     setError(null);
     try {
       const allAssets = await getAllAssets();
-      setAssets(allAssets);
-      setFilteredAssets(allAssets);
+      // Admin only sees approved assets
+      const approvedAssets = allAssets.filter(asset => asset.status === 'approved');
+      setAssets(approvedAssets);
+      setFilteredAssets(approvedAssets);
     } catch (err: any) {
       setError(err.message || 'Failed to load assets');
       toast.error(err.message || 'Failed to load assets');

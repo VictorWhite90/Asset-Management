@@ -41,6 +41,10 @@ const registerSchema = yup.object().shape({
     .string()
     .required('Agency/Ministry name is required')
     .min(3, 'Agency name must be at least 3 characters'),
+  role: yup
+    .string()
+    .required('Please select your role')
+    .oneOf(['agency', 'agency-approver'], 'Invalid role selected'),
   region: yup.string().required('Please select your state/region'),
   ministryType: yup.string().optional(),
 });
@@ -153,6 +157,48 @@ const RegisterPage: React.FC = () => {
                   error={!!errors.agencyName}
                   helperText={errors.agencyName?.message}
                 />
+              </Grid>
+
+              {/* Role Selection */}
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  select
+                  id="role"
+                  label="Your Role"
+                  {...register('role')}
+                  error={!!errors.role}
+                  helperText={errors.role?.message || 'Select your role within the agency'}
+                  defaultValue=""
+                >
+                  <MenuItem value="" disabled>
+                    Select Your Role
+                  </MenuItem>
+                  <MenuItem value="agency">
+                    <Box>
+                      <Typography variant="body2" fontWeight="bold">
+                        Asset Uploader
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Upload and manage asset records for your agency
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                  <MenuItem value="agency-approver">
+                    <Box>
+                      <Typography variant="body2" fontWeight="bold">
+                        Agency Approver
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Review and approve asset uploads before submission to federal admin
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                </TextField>
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                  Note: Federal Administrator accounts are created by authorized personnel only.
+                </Typography>
               </Grid>
 
               {/* Email */}

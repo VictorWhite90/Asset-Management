@@ -1,5 +1,7 @@
 import { Timestamp } from 'firebase/firestore';
 
+export type AssetStatus = 'pending' | 'approved' | 'rejected';
+
 export type AssetCategory =
   | 'Office Equipment'
   | 'Furniture & Fittings'
@@ -19,6 +21,7 @@ export interface AssetDate {
 }
 
 export interface Asset {
+  id?: string; // Firestore document ID
   assetId: string; // Can be manual like "AE-23-001" or auto-generated
   agencyId: string; // Reference to user who uploaded
   agencyName?: string; // Denormalized for quick display
@@ -28,10 +31,24 @@ export interface Asset {
   purchasedDate: AssetDate; // Split into day/month/year
   purchaseCost: number;
   marketValue?: number; // Current market worth of the asset
+
+  // Approval workflow fields
+  status: AssetStatus; // pending, approved, rejected
+  uploadedBy: string; // userId of uploader
+  uploadTimestamp: Timestamp;
+
+  approvedBy?: string; // userId of approver (if approved)
+  approvedAt?: Timestamp;
+
+  rejectedBy?: string; // userId of approver (if rejected)
+  rejectedAt?: Timestamp;
+  rejectionReason?: string;
+
+  // Legacy fields (keeping for backward compatibility)
   verifiedBy?: string;
   verifiedDate?: Timestamp;
-  uploadTimestamp: Timestamp;
   remarks?: string;
+
   // Optional category-specific fields based on requiredFields
   [key: string]: any; // Allows dynamic fields like make, model, year, etc.
 }

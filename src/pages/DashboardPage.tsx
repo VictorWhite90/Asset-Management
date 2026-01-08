@@ -11,7 +11,7 @@ import {
   Grid,
   Alert,
 } from '@mui/material';
-import { Logout, Dashboard as DashboardIcon, Person, Email, Add, UploadFile, ViewList } from '@mui/icons-material';
+import { Logout, Dashboard as DashboardIcon, Person, Email, Add, UploadFile, ViewList, RateReview } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { SUCCESS_MESSAGES } from '@/utils/constants';
@@ -181,6 +181,33 @@ const DashboardPage: React.FC = () => {
           </Paper>
         )}
 
+        {/* Approver Actions (Agency Approver Only) */}
+        {userData?.role === 'agency-approver' && currentUser?.emailVerified && (
+          <Paper elevation={2} sx={{ padding: 3, mb: 3, backgroundColor: '#fff8e1' }}>
+            <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
+              Review & Approval
+            </Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
+              Review and approve asset uploads from your agency
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Button
+                  component={Link}
+                  to="/approver/review-uploads"
+                  variant="contained"
+                  fullWidth
+                  startIcon={<RateReview />}
+                  size="large"
+                  color="warning"
+                >
+                  Review Pending Uploads
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        )}
+
         {/* Admin Actions (Admin Only) */}
         {userData?.role === 'admin' && currentUser?.emailVerified && (
           <Paper elevation={2} sx={{ padding: 3, mb: 3, backgroundColor: '#f0f4f7' }}>
@@ -238,13 +265,35 @@ const DashboardPage: React.FC = () => {
             </Box>
           )}
 
+          {userData?.role === 'agency-approver' && currentUser?.emailVerified && (
+            <Box sx={{ mt: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Approver Responsibilities
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                As an agency approver, you are responsible for reviewing and approving asset uploads before they are sent to the federal admin.
+              </Typography>
+              <Box component="ul" sx={{ pl: 3, mb: 0 }}>
+                <Typography variant="body2" color="text.secondary" component="li" sx={{ mb: 1 }}>
+                  Review pending asset uploads from your agency
+                </Typography>
+                <Typography variant="body2" color="text.secondary" component="li" sx={{ mb: 1 }}>
+                  Approve accurate and complete submissions
+                </Typography>
+                <Typography variant="body2" color="text.secondary" component="li">
+                  Reject submissions with errors or missing information
+                </Typography>
+              </Box>
+            </Box>
+          )}
+
           {userData?.role === 'admin' && currentUser?.emailVerified && (
             <Box sx={{ mt: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Administrator Access
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                As an administrator, you have access to view all assets across agencies and ministries.
+                As an administrator, you have access to view all approved assets across agencies and ministries.
                 Use the Admin Panel above to access comprehensive asset reports and analytics.
               </Typography>
             </Box>

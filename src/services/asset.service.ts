@@ -4,13 +4,14 @@ import {
   setDoc,
   getDoc,
   addDoc,
+  updateDoc,
   Timestamp,
   query,
   where,
   getDocs,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Asset, AssetFormData } from '@/types/asset.types';
+import { Asset, AssetFormData, AssetStatus } from '@/types/asset.types';
 import { Category } from '@/types/category.types';
 import { COLLECTIONS, ERROR_MESSAGES } from '@/utils/constants';
 import { isValidAssetDate, sanitizeDocumentId, generateAssetId } from '@/utils/assetHelpers';
@@ -130,6 +131,10 @@ export const createAsset = async (
       purchasedDate: assetData.purchasedDate,
       purchaseCost: assetData.purchaseCost,
       uploadTimestamp: Timestamp.now(),
+
+      // Approval workflow fields
+      status: 'pending', // New uploads start as pending
+      uploadedBy: userId,
     };
 
     // Add optional fields only if they have values (Firestore doesn't accept undefined)
@@ -234,5 +239,151 @@ export const getAllAssets = async (): Promise<Asset[]> => {
   } catch (error: any) {
     console.error('Error fetching all assets:', error);
     throw new Error(getFirestoreErrorMessage(error.code));
+  }
+};
+
+/**
+ * Get pending assets for a specific agency (for approvers)
+ * @param agencyId - User ID of the agency
+ * @returns Array of pending assets
+ */
+export const getPendingAssets = async (agencyId: string): Promise<Asset[]> => {
+  try {
+    const assetsRef = collection(db, COLLECTIONS.ASSETS);
+    const q = query(
+      assetsRef,
+      where('agencyId', '==', agencyId),
+      where('status', '==', 'pending')
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    })) as unknown as Asset[];
+  } catch (error: any) {
+    console.error('Error fetching pending assets:', error);
+    throw new Error(getFirestoreErrorMessage(error.code));
+  }
+};
+
+/**
+ * Get assets by status for a specific agency
+ * @param agencyId - User ID of the agency
+ * @param status - Asset status to filter by
+ * @returns Array of assets with the specified status
+ */
+export const getAssetsByStatus = async (
+  agencyId: string,
+  status: AssetStatus
+): Promise<Asset[]> => {
+  try {
+    const assetsRef = collection(db, COLLECTIONS.ASSETS);
+    const q = query(
+      assetsRef,
+      where('agencyId', '==', agencyId),
+      where('status', '==', status)
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    })) as unknown as Asset[];
+  } catch (error: any) {
+    console.error('Error fetching assets by status:', error);
+    throw new Error(getFirestoreErrorMessage(error.code));
+  }
+};
+
+/**
+ * Approve an asset (Agency Approver only)
+ * @param assetId - Document ID of the asset to approve
+ * @param approverId - User ID of the approver
+ */
+export const approveAsset = async (
+  assetId: string,
+  approverId: string
+): Promise<void> => {
+  try {
+    const assetRef = doc(db, COLLECTIONS.ASSETS, assetId);
+    await updateDoc(assetRef, {
+      status: 'approved',
+      approvedBy: approverId,
+      approvedAt: Timestamp.now(),
+    });
+  } catch (error: any) {
+    console.error('Error approving asset:', error);
+    throw new Error('Failed to approve asset. Please try again.');
+  }
+};
+
+/**
+ * Reject an asset with a reason (Agency Approver only)
+ * @param assetId - Document ID of the asset to reject
+ * @param approverId - User ID of the approver
+ * @param rejectionReason - Reason for rejection
+ */
+export const rejectAsset = async (
+  assetId: string,
+  approverId: string,
+  rejectionReason: string
+): Promise<void> => {
+  try {
+    const assetRef = doc(db, COLLECTIONS.ASSETS, assetId);
+    await updateDoc(assetRef, {
+      status: 'rejected',
+      rejectedBy: approverId,
+      rejectedAt: Timestamp.now(),
+      rejectionReason,
+    });
+  } catch (error: any) {
+    console.error('Error rejecting asset:', error);
+    throw new Error('Failed to reject asset. Please try again.');
+  }
+};
+
+/**
+ * Update a rejected asset (allows uploader to fix and resubmit)
+ * @param assetId - Document ID of the asset
+ * @param assetData - Updated asset data
+ * @param userId - User ID of the uploader
+ */
+export const updateRejectedAsset = async (
+  assetId: string,
+  assetData: Partial<AssetFormData>,
+  userId: string
+): Promise<void> => {
+  try {
+    const assetRef = doc(db, COLLECTIONS.ASSETS, assetId);
+    const assetDoc = await getDoc(assetRef);
+
+    if (!assetDoc.exists()) {
+      throw new Error('Asset not found');
+    }
+
+    const currentAsset = assetDoc.data() as Asset;
+
+    // Only allow updates if asset is rejected and user is the uploader
+    if (currentAsset.status !== 'rejected') {
+      throw new Error('Only rejected assets can be updated');
+    }
+
+    if (currentAsset.uploadedBy !== userId) {
+      throw new Error('You can only update your own assets');
+    }
+
+    // Reset to pending status and clear rejection fields
+    await updateDoc(assetRef, {
+      ...assetData,
+      status: 'pending',
+      rejectedBy: null,
+      rejectedAt: null,
+      rejectionReason: null,
+      uploadTimestamp: Timestamp.now(), // Update timestamp for resubmission
+    });
+  } catch (error: any) {
+    console.error('Error updating rejected asset:', error);
+    throw new Error(error.message || 'Failed to update asset. Please try again.');
   }
 };

@@ -23,6 +23,9 @@ import {
   Alert,
   IconButton,
   InputAdornment,
+  Tabs,
+  Tab,
+  Tooltip,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -34,7 +37,7 @@ import * as XLSX from 'xlsx';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAgencyAssets } from '@/services/asset.service';
-import { Asset } from '@/types/asset.types';
+import { Asset, AssetStatus } from '@/types/asset.types';
 import { ASSET_CATEGORIES } from '@/utils/constants';
 
 const AgencyAssetsPage = () => {
@@ -50,6 +53,7 @@ const AgencyAssetsPage = () => {
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all'); // all, pending, approved, rejected
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
   const [dateFromFilter, setDateFromFilter] = useState<string>('');
   const [dateToFilter, setDateToFilter] = useState<string>('');
@@ -62,7 +66,7 @@ const AgencyAssetsPage = () => {
   // Apply filters when any filter changes
   useEffect(() => {
     applyFilters();
-  }, [searchQuery, categoryFilter, dateFromFilter, dateToFilter, assets]);
+  }, [searchQuery, statusFilter, categoryFilter, dateFromFilter, dateToFilter, assets]);
 
   const fetchAssets = async () => {
     if (!userData?.userId) {
@@ -98,6 +102,11 @@ const AgencyAssetsPage = () => {
           asset.location?.toLowerCase().includes(query) ||
           asset.category?.toLowerCase().includes(query)
       );
+    }
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((asset) => asset.status === statusFilter);
     }
 
     // Apply category filter
@@ -283,6 +292,32 @@ const AgencyAssetsPage = () => {
             </Paper>
           </Box>
 
+          {/* Status Tabs */}
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Tabs
+              value={statusFilter}
+              onChange={(_, value) => setStatusFilter(value)}
+              aria-label="asset status tabs"
+            >
+              <Tab
+                label={`All (${assets.length})`}
+                value="all"
+              />
+              <Tab
+                label={`Pending (${assets.filter(a => a.status === 'pending').length})`}
+                value="pending"
+              />
+              <Tab
+                label={`Approved (${assets.filter(a => a.status === 'approved').length})`}
+                value="approved"
+              />
+              <Tab
+                label={`Rejected (${assets.filter(a => a.status === 'rejected').length})`}
+                value="rejected"
+              />
+            </Tabs>
+          </Box>
+
           {/* Filters */}
           <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
             <TextField
@@ -407,6 +442,7 @@ const AgencyAssetsPage = () => {
                       <TableCell><strong>Location</strong></TableCell>
                       <TableCell><strong>Purchase Date</strong></TableCell>
                       <TableCell><strong>Upload Date</strong></TableCell>
+                      <TableCell><strong>Status</strong></TableCell>
                       <TableCell align="right"><strong>Purchase Cost</strong></TableCell>
                       <TableCell align="right"><strong>Market Value</strong></TableCell>
                     </TableRow>
@@ -425,6 +461,20 @@ const AgencyAssetsPage = () => {
                           {asset.uploadTimestamp?.toDate?.()
                             ? new Date(asset.uploadTimestamp.toDate()).toLocaleDateString()
                             : '-'}
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip title={asset.status === 'rejected' ? `Reason: ${asset.rejectionReason}` : ''}>
+                            <Chip
+                              label={asset.status?.toUpperCase() || 'PENDING'}
+                              size="small"
+                              color={
+                                asset.status === 'approved' ? 'success' :
+                                asset.status === 'rejected' ? 'error' :
+                                'warning'
+                              }
+                              variant={asset.status === 'pending' ? 'outlined' : 'filled'}
+                            />
+                          </Tooltip>
                         </TableCell>
                         <TableCell align="right">{formatCurrency(asset.purchaseCost)}</TableCell>
                         <TableCell align="right">

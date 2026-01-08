@@ -37,7 +37,7 @@ export const registerAgency = async (
       userId: user.uid,
       email: registrationData.email,
       agencyName: registrationData.agencyName,
-      role: 'agency',
+      role: registrationData.role, // Use role selected during registration
       region: registrationData.region,
       ministryType: registrationData.ministryType,
       createdAt: Timestamp.now(),
@@ -46,8 +46,14 @@ export const registerAgency = async (
 
     await setDoc(doc(db, COLLECTIONS.USERS, user.uid), userData);
 
-    // Send email verification
-    await sendEmailVerification(user);
+    // Send email verification with custom action URL to prevent spam
+    // This directs to our custom EmailActionPage for better UX
+    const actionCodeSettings = {
+      url: `${window.location.origin}/auth/action`,
+      handleCodeInApp: false,
+    };
+
+    await sendEmailVerification(user, actionCodeSettings);
 
     return { user, userData };
   } catch (error: any) {
@@ -89,7 +95,11 @@ export const resetPassword = async (email: string): Promise<void> => {
  */
 export const resendVerificationEmail = async (user: FirebaseUser): Promise<void> => {
   try {
-    await sendEmailVerification(user);
+    const actionCodeSettings = {
+      url: `${window.location.origin}/auth/action`,
+      handleCodeInApp: false,
+    };
+    await sendEmailVerification(user, actionCodeSettings);
   } catch (error: any) {
     console.error('Email verification error:', error);
     throw new Error(getAuthErrorMessage(error.code));
