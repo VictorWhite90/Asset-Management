@@ -34,13 +34,13 @@ const CATEGORIES = [
     id: 'land',
     name: 'Land',
     description: 'Real estate properties including plots in Lagos and other locations, undeveloped land, and land parcels',
-    requiredFields: ['sizeInAcres', 'landTitleType', 'zoning', 'surveyPlanNumber'],
+    requiredFields: ['sizeInHectares', 'landTitleType', 'state', 'surveyPlanNumber', 'condition', 'currentlyInUse', 'usageDescription'],
   },
   {
     id: 'building',
     name: 'Building',
     description: 'Structures including office blocks, residential buildings, warehouses, and other constructed facilities',
-    requiredFields: ['buildingType', 'numberOfFloors', 'yearBuilt', 'buildingArea', 'condition'],
+    requiredFields: ['buildingType', 'numberOfFloors', 'yearBuilt', 'buildingArea', 'condition', 'currentlyInUse', 'usageDescription'],
   },
   {
     id: 'office-equipment',
@@ -70,13 +70,13 @@ const CATEGORIES = [
     id: 'extractive-assets',
     name: 'Extractive Assets',
     description: 'Natural resource assets including oil fields, mining operations, and extractive industry assets',
-    requiredFields: ['assetType', 'location', 'estimatedReserves', 'operationalStatus'],
+    requiredFields: ['assetType', 'location', 'estimatedReserves', 'quantities', 'operationalStatus'],
   },
   {
-    id: 'corporate-financial-assets',
-    name: 'Corporate/Financial Assets',
-    description: 'Financial instruments including shares, stocks, bonds, and other corporate/financial holdings',
-    requiredFields: ['assetType', 'tickerSymbol', 'numberOfShares', 'purchasePrice'],
+    id: 'securities-financial-assets',
+    name: 'Securities/Financial Assets',
+    description: 'Financial instruments including shares, stocks, bonds, securities, and other financial holdings',
+    requiredFields: ['assetType', 'tickerSymbol', 'units', 'purchasePrice'],
   },
   {
     id: 'others',
@@ -156,6 +156,7 @@ async function seed() {
 
 // Run the seeder
 seed();
+
 
 
 

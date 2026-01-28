@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types/user.types';
 import { toast } from 'react-toastify';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Box, CircularProgress } from '@mui/material';
 
 interface RoleBasedRouteProps {
@@ -17,15 +17,19 @@ interface RoleBasedRouteProps {
  */
 const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ children, allowedRoles }) => {
   const { userData, loading } = useAuth();
-  const [hasShownError, setHasShownError] = useState(false);
 
   useEffect(() => {
-    // Show error toast if user doesn't have required role
-    if (!loading && userData && !allowedRoles.includes(userData.role) && !hasShownError) {
-      toast.error('You do not have permission to access this page');
-      setHasShownError(true);
+    // Show error toast if user doesn't have required role (only once per navigation)
+    if (!loading && userData && !allowedRoles.includes(userData.role)) {
+      const errorKey = `role-error-${window.location.pathname}`;
+      const hasShown = sessionStorage.getItem(errorKey);
+
+      if (!hasShown) {
+        toast.error('You do not have permission to access this page');
+        sessionStorage.setItem(errorKey, 'true');
+      }
     }
-  }, [userData, loading, allowedRoles, hasShownError]);
+  }, [userData, loading, allowedRoles]);
 
   // Show loading spinner while checking auth
   if (loading) {

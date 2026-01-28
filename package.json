@@ -13,18 +13,24 @@
     "deploy": "npm run build && firebase deploy",
     "seed": "node scripts/seed.cjs",
     "seed:firestore": "node scripts/seedFirestore.cjs",
-    "seed:users": "node scripts/seedTestUsers.cjs"
+    "seed:users": "node scripts/seedTestUsers.cjs",
+    "delete:non-admins": "node scripts/deleteAllExceptAdmin.cjs",
+    "sync:ministries": "node scripts/syncMinistryStatus.cjs"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@hookform/resolvers": "^3.3.2",
     "@mui/icons-material": "^5.14.19",
+    "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.14.20",
     "@mui/x-data-grid": "^6.18.5",
     "date-fns": "^2.30.0",
     "dotenv": "^17.2.3",
     "firebase": "^10.7.1",
+    "firebase-admin": "^13.6.0",
+    "jspdf": "^4.0.0",
+    "jspdf-autotable": "^5.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",
@@ -34,6 +40,7 @@
     "yup": "^1.3.3"
   },
   "devDependencies": {
+    "@types/jspdf": "^1.3.3",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",

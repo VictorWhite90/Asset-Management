@@ -3,7 +3,9 @@
     "allow": [
       "Bash(firebase deploy:*)",
       "Bash(npm install:*)",
-      "Bash(npm run seed:*)"
+      "Bash(npm run seed:*)",
+      "Bash(npm run build:*)",
+      "Bash(node scripts/seedFirestore.cjs:*)"
     ]
   }
 }

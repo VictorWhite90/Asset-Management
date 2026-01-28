@@ -7,41 +7,80 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+functions/node_modules/
+
+# Build outputs
 dist
 dist-ssr
+build/
 *.local
 
-# Editor directories and files
+# Windows reserved files and system files
+nul
+.DS_Store
+thumbs.db
+
+# IDE and Editor directories
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
+.cursor/
+.claude/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
-# Environment variables
+# Environment variables (NEVER commit these!)
 .env
 .env.local
 .env.production
 .env.development
 .env.*.local
 
-# Firebase
+# Firebase (DO NOT COMMIT CREDENTIALS!)
 .firebase/
 .firebaserc
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
-functions/node_modules/
 functions/lib/
+serviceAccountKey.json
 
 # Testing
 coverage/
 .nyc_output/
+.jest_cache/
 
-# Build
-build/
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.bak
+*~
+.~*
+
+# Package manager lockfiles (optional - keep if you want consistency)
+# Uncomment if you want to ignore lockfiles:
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Misc
+.cache/
+.vscode-test
+out

@@ -1,83 +1,254 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
+    // ============================================================================
+    // HELPER FUNCTIONS
+    // ============================================================================
+
+    // Check if user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    function isAdmin() {
-      return isAuthenticated() &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    // Get user's role from custom claims
+    function getUserRole() {
+      return request.auth.token.role;
     }
 
-    function isAgency() {
-      return isAuthenticated() &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'agency';
+    // Get user's ministry ID from custom claims
+    function getUserMinistryId() {
+      return request.auth.token.ministryId;
     }
 
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+    // Check if user has a specific role
+    function hasRole(role) {
+      return isAuthenticated() && getUserRole() == role;
     }
 
-    // Users collection rules
+    // Check if user belongs to a specific ministry
+    function belongsToMinistry(ministryId) {
+      return isAuthenticated() && getUserMinistryId() == ministryId;
+    }
+
+    // Check if user is federal admin
+    function isFederalAdmin() {
+      return hasRole('admin');
+    }
+
+    // Check if user is ministry admin
+    function isMinistryAdmin() {
+      return hasRole('ministry-admin');
+    }
+
+    // Check if user is uploader
+    function isUploader() {
+      return hasRole('agency');
+    }
+
+    // Check if user is approver
+    function isApprover() {
+      return hasRole('agency-approver');
+    }
+
+    // Check if user is staff (uploader or approver)
+    function isStaff() {
+      return isUploader() || isApprover();
+    }
+
+    // ============================================================================
+    // USERS COLLECTION
+    // ============================================================================
+
     match /users/{userId} {
-      // Allow read if authenticated
-      allow read: if isAuthenticated();
+      // Anyone can read their own profile
+      allow read: if isAuthenticated() && request.auth.uid == userId;
 
-      // Allow create only for new users during registration
-      allow create: if isAuthenticated() &&
-                      request.auth.uid == userId &&
-                      request.resource.data.role == 'agency'; // Only agencies can self-register
+      // Federal admin can read all users
+      allow read: if isFederalAdmin();
 
-      // Allow update only to own profile
-      allow update: if isOwner(userId);
+      // Ministry admin can read users in their ministry
+      allow read: if isMinistryAdmin() && resource.data.ministryId == getUserMinistryId();
 
-      // Prevent delete (only admin via Cloud Functions can delete)
+      // Users can create their own account (during registration)
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+
+      // Users can update their own profile (limited fields)
+      // Allow emailVerified and accountStatus update ONLY when syncing email verification
+      allow update: if isAuthenticated()
+                    && request.auth.uid == userId
+                    && (
+                      // Normal profile updates (no sensitive fields)
+                      !request.resource.data.diff(resource.data).affectedKeys()
+                           .hasAny(['role', 'accountStatus', 'isMinistryOwner', 'ownedMinistryId'])
+                      ||
+                      // Email verification sync: allow emailVerified and accountStatus update
+                      // Only when setting emailVerified to true and accountStatus to pending_ministry_approval
+                      (request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['emailVerified', 'accountStatus'])
+                       && request.resource.data.emailVerified == true
+                       && (request.resource.data.accountStatus == 'pending_ministry_approval'
+                           || request.resource.data.accountStatus == resource.data.accountStatus))
+                    );
+
+      // Federal admin can update users (approval workflow handled by Cloud Functions)
+      // Ministry admin CANNOT directly update user docs (Cloud Functions only)
+      // This prevents bypass of approval workflow
+      allow update: if isFederalAdmin();
+
+      // No one can delete users (use Cloud Functions to mark as rejected)
       allow delete: if false;
     }
 
-    // Assets collection rules
-    match /assets/{assetId} {
-      // Admin can read all assets
-      // Agencies can only read their own assets
-      allow read: if isAdmin() ||
-                    (isAgency() && resource.data.agencyId == request.auth.uid);
+    // ============================================================================
+    // MINISTRIES COLLECTION
+    // ============================================================================
 
-      // Only agencies can create assets (linked to their ID)
-      allow create: if isAgency() &&
-                      request.resource.data.agencyId == request.auth.uid &&
-                      request.resource.data.keys().hasAll(['agencyId', 'description', 'category', 'location']);
+    match /ministries/{ministryId} {
+      // Anyone (including unauthenticated users) can read verified ministries (for registration dropdown)
+      allow read: if resource.data.status == 'verified';
 
-      // Only asset owner can update their assets
-      allow update: if isAgency() &&
-                      resource.data.agencyId == request.auth.uid &&
-                      request.resource.data.agencyId == request.auth.uid; // Prevent changing ownership
+      // Federal admin can read all ministries
+      allow read: if isFederalAdmin();
 
-      // Only asset owner can delete their assets
-      allow delete: if isAgency() && resource.data.agencyId == request.auth.uid;
+      // Ministry admin can read their own ministry
+      allow read: if isMinistryAdmin() && resource.data.ownerId == request.auth.uid;
+
+      // Ministry admin can read any ministry (for checking duplicates during registration)
+      allow read: if isMinistryAdmin();
+
+      // Staff (uploaders and approvers) can read their own ministry
+      allow read: if isStaff() && belongsToMinistry(ministryId);
+
+      // Ministry admin can create ministry (only if they don't already own one)
+      allow create: if isMinistryAdmin();
+
+      // Federal admin can update ministries (approval workflow)
+      allow update: if isFederalAdmin();
+
+      // Ministry admin can update their own ministry (limited fields)
+      allow update: if isMinistryAdmin()
+                    && resource.data.ownerId == request.auth.uid
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                         .hasAny(['status', 'ownerId', 'verifiedAt', 'verifiedBy']);
+
+      // No one can delete ministries
+      allow delete: if false;
     }
 
-    // Logs collection rules (write-only for auditing)
-    match /logs/{logId} {
-      // Only admin can read logs
-      allow read: if isAdmin();
+    // ============================================================================
+    // ASSETS COLLECTION
+    // ============================================================================
 
-      // Cloud Functions can write logs
-      allow create: if true; // Controlled by Cloud Functions
+    match /assets/{assetId} {
+      // Federal admin can read all assets
+      allow read: if isFederalAdmin();
 
-      // Prevent update and delete
+      // Uploaders can read their own assets
+      allow read: if isUploader() && resource.data.uploadedBy == request.auth.uid;
+
+      // Approvers can read all assets from their ministry
+      allow read: if isApprover() && belongsToMinistry(resource.data.ministryId);
+
+      // Ministry admin can read all assets from their ministry (read-only access to view all)
+      allow read: if isMinistryAdmin() && belongsToMinistry(resource.data.ministryId);
+
+      // Approvers can read assets in their ministry
+      allow read: if isApprover() && belongsToMinistry(resource.data.ministryId);
+
+      // Uploaders can create assets for their ministry
+      allow create: if isUploader()
+                    && belongsToMinistry(request.resource.data.ministryId)
+                    && request.resource.data.uploadedBy == request.auth.uid
+                    && request.resource.data.status == 'pending';
+
+      // Uploaders can update their own pending or rejected assets only (cannot edit approved/under review assets)
+      allow update: if isUploader()
+                    && resource.data.uploadedBy == request.auth.uid
+                    && (resource.data.status == 'pending' || resource.data.status == 'rejected');
+
+      // Approvers can update assets in their ministry (approve/reject/send to ministry)
+      // Relies on query-layer filtering: getPendingAssets already filters by ministryId
+      // This allows authenticated approvers to update pending assets
+      allow update: if isAuthenticated()
+                    && hasRole('agency-approver')
+                    && resource.data.status == 'pending'
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['status', 'approvedBy', 'approvedAt', 'sentToMinistryAdminBy', 'sentToMinistryAdminAt', 'rejectionReason', 'rejectedBy', 'rejectedAt', 'rejectionLevel']);
+
+      // Ministry admin can update assets in their ministry (approve/reject pending_ministry_review assets)
+      // Check if asset belongs to the ministry that this ministry admin owns
+      allow update: if isMinistryAdmin()
+                    && resource.data.ministryId == request.auth.token.ownedMinistryId
+                    && resource.data.status == 'pending_ministry_review'
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['status', 'approvedByMinistry', 'approvedByMinistryAt', 'rejectionReason', 'rejectedBy', 'rejectedAt', 'rejectionLevel']);
+
+      // Federal admin can update any asset
+      allow update: if isFederalAdmin();
+
+      // Only uploaders can delete their own pending assets
+      allow delete: if isUploader()
+                    && resource.data.uploadedBy == request.auth.uid
+                    && resource.data.status == 'pending';
+    }
+
+    // ============================================================================
+    // CATEGORIES COLLECTION
+    // ============================================================================
+
+    match /categories/{categoryId} {
+      // Any authenticated user can read categories (needed for asset upload form)
+      allow read: if isAuthenticated();
+
+      // Only federal admin can create/update/delete categories
+      allow create, update, delete: if isFederalAdmin();
+    }
+
+    // ============================================================================
+    // AUDIT LOGS COLLECTION
+    // ============================================================================
+
+    match /auditLogs/{logId} {
+      // Only federal admin can read audit logs
+      allow read: if isFederalAdmin();
+
+      // Cloud Functions can create audit logs (via Admin SDK)
+      // Users cannot create audit logs directly
+      allow create: if false;
+
+      // No one can update or delete audit logs
       allow update, delete: if false;
     }
 
-    // Categories collection (predefined data, read-only)
-    match /categories/{categoryId} {
-      allow read: if true; // Public read
-      allow write: if false; // Only via Cloud Functions or manual admin
+    // ============================================================================
+    // NOTIFICATIONS COLLECTION
+    // ============================================================================
+
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Cloud Functions can create notifications (via Admin SDK)
+      // Users cannot create notifications directly
+      allow create: if false;
+
+      // Users can update their own notifications (mark as read)
+      allow update: if isAuthenticated()
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['read', 'readAt']);
+
+      // Users can delete their own notifications
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 
-    // Deny all other collections by default
+    // ============================================================================
+    // DEFAULT DENY
+    // ============================================================================
+
+    // Deny all other access
     match /{document=**} {
       allow read, write: if false;
     }

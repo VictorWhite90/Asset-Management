@@ -64,17 +64,22 @@ if (useEmulators && import.meta.env.DEV) {
   }
 }
 
+// TESTING MODE: Persistence disabled to allow multiple tabs
 // Enable offline persistence for Firestore (helpful for low-bandwidth regions)
-import { enableIndexedDbPersistence } from 'firebase/firestore';
-
-if (typeof window !== 'undefined') {
-  enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('The current browser does not support offline persistence');
-    }
-  });
-}
+// import { enableIndexedDbPersistence } from 'firebase/firestore';
+//
+// if (typeof window !== 'undefined') {
+//   enableIndexedDbPersistence(db).catch((err) => {
+//     if (err.code === 'failed-precondition') {
+//       console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+//     } else if (err.code === 'unimplemented') {
+//       console.warn('The current browser does not support offline persistence');
+//     }
+//   });
+// }
+//
+// PRODUCTION: Uncomment above code to enable offline persistence
+// NOTE: With persistence enabled, only ONE tab can access the app at a time
+console.log('🔧 Testing Mode: Firestore persistence disabled (allows multiple tabs)');
 
 export default app;

@@ -10,9 +10,73 @@ export const ASSET_CATEGORIES: AssetCategory[] = [
   'Land',
   'Infrastructure',
   'Extractive Assets',
-  'Corporate/Financial Assets',
+  'Securities/Financial Assets',
   'Others',
 ];
+
+// Land Title Types
+export const LAND_TITLE_TYPES = [
+  'R of O (Right of Occupancy)',
+  'C of O (Certificate of Occupancy)',
+  'Deed of Conveyance',
+  'Deed of Assignment',
+  'Sub-Lease',
+  'Others',
+];
+
+// Asset Condition Options by Category
+export const LAND_CONDITIONS = [
+  'Developed',
+  'Undeveloped',
+  'Fenced',
+  'Unfenced',
+];
+
+export const VEHICLE_CONDITIONS = [
+  'Excellent',
+  'Good',
+  'Fair',
+  'Poor',
+  'Not Working',
+];
+
+export const BUILDING_CONDITIONS = [
+  'Excellent',
+  'Good',
+  'Needs Minor Repairs',
+  'Needs Major Repairs',
+  'Dilapidated',
+];
+
+export const EQUIPMENT_CONDITIONS = [
+  'Excellent',
+  'Good',
+  'Fair',
+  'Poor',
+  'Not Working',
+];
+
+export const INFRASTRUCTURE_CONDITIONS = [
+  'Excellent',
+  'Good',
+  'Fair',
+  'Poor',
+  'Under Construction',
+  'Needs Rehabilitation',
+];
+
+export const GENERAL_CONDITIONS = [
+  'Excellent',
+  'Good',
+  'Fair',
+  'Poor',
+];
+
+// Legacy export for backward compatibility
+export const ASSET_CONDITIONS = LAND_CONDITIONS;
+
+// Asset Statuses
+export const ASSET_STATUSES = ['pending', 'approved', 'rejected'] as const;
 
 // Nigerian States
 export const NIGERIAN_STATES = [
@@ -55,12 +119,10 @@ export const NIGERIAN_STATES = [
   'Zamfara',
 ];
 
-// Ministry/Agency Types
+// Ministry/Agency Types (Federal Level Only)
 export const MINISTRY_TYPES = [
   'Federal Ministry',
-  'State Ministry',
   'Federal Agency',
-  'State Agency',
   'Parastatal',
   'Department',
   'Commission',
@@ -122,6 +184,14 @@ export const EXCEL_COLUMN_MAP = {
 export const APP_NAME = 'Nigeria Government Asset Management System';
 export const APP_SHORT_NAME = 'NGAMS';
 export const APP_VERSION = '1.0.0';
+
+// Ministry role limits
+export const MINISTRY_ROLE_LIMITS = {
+  MAX_UPLOADERS: 6, // Maximum number of uploaders per ministry
+  MAX_APPROVERS: 5,  // Maximum number of approvers per ministry
+  DEFAULT_MAX_UPLOADERS: 6,
+  DEFAULT_MAX_APPROVERS: 5,
+};
 
 // Firebase collection names
 export const COLLECTIONS = {

@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type AssetStatus = 'pending' | 'approved' | 'rejected';
+export type AssetStatus = 'pending' | 'pending_ministry_review' | 'approved' | 'rejected';
 
 export type AssetCategory =
   | 'Office Equipment'
@@ -11,7 +11,7 @@ export type AssetCategory =
   | 'Land'
   | 'Infrastructure'
   | 'Extractive Assets'
-  | 'Corporate/Financial Assets'
+  | 'Securities/Financial Assets'
   | 'Others';
 
 export interface AssetDate {
@@ -24,10 +24,13 @@ export interface Asset {
   id?: string; // Firestore document ID
   assetId: string; // Can be manual like "AE-23-001" or auto-generated
   agencyId: string; // Reference to user who uploaded
-  agencyName?: string; // Denormalized for quick display
+  ministryId: string; // Reference to ministry document (for multi-user ministry access)
+  agencyName?: string; // Denormalized for quick display (e.g., "Ministry of Works")
+  region?: string; // Uploader's state (e.g., "Abuja", "Lagos") - for approver matching
+  ministryType?: string; // Uploader's ministry type (e.g., "Federal Agency")
   description: string;
   category: AssetCategory;
-  location: string; // e.g., "Ikorodu Lagos" - where the asset is located
+  location: string; // e.g., "Ikorodu Lagos" - where the asset is physically located
   purchasedDate: AssetDate; // Split into day/month/year
   purchaseCost: number;
   marketValue?: number; // Current market worth of the asset
@@ -37,12 +40,21 @@ export interface Asset {
   uploadedBy: string; // userId of uploader
   uploadTimestamp: Timestamp;
 
-  approvedBy?: string; // userId of approver (if approved)
-  approvedAt?: Timestamp;
-
-  rejectedBy?: string; // userId of approver (if rejected)
+  // Approver action (Agency Approver sends to Ministry Admin)
+  approvedBy?: string; // userId of agency approver (if approved by approver)
+  approvedAt?: Timestamp; // When approver approved it
+  
+  // Ministry Admin action
+  sentToMinistryAdminBy?: string; // userId of approver who sent it
+  sentToMinistryAdminAt?: Timestamp; // When sent to ministry admin
+  
+  approvedByMinistry?: string; // userId of ministry admin (if approved by ministry)
+  approvedByMinistryAt?: Timestamp; // When ministry admin approved
+  
+  rejectedBy?: string; // userId of who rejected it (approver or ministry admin)
   rejectedAt?: Timestamp;
   rejectionReason?: string;
+  rejectionLevel?: 'approver' | 'ministry-admin' | 'federal-admin'; // Which level rejected it
 
   // Legacy fields (keeping for backward compatibility)
   verifiedBy?: string;
