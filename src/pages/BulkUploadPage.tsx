@@ -16,6 +16,7 @@ import {
   TableRow,
   Chip,
   IconButton,
+  Tooltip,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -24,6 +25,7 @@ import {
   Delete,
   CheckCircle,
   Error as ErrorIcon,
+  CloudUpload,
 } from '@mui/icons-material';
 import * as XLSX from 'xlsx';
 import { toast } from 'react-toastify';
@@ -31,6 +33,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { createAsset } from '@/services/asset.service';
 import { AssetFormData } from '@/types/asset.types';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES, ASSET_CATEGORIES } from '@/utils/constants';
+import AppLayout from '@/components/AppLayout';
 
 interface BulkUploadRow {
   rowNumber: number;
@@ -48,7 +51,7 @@ interface BulkUploadRow {
 }
 
 const BulkUploadPage = () => {
-  const { userData } = useAuth();
+  const { userData, currentUser } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [rows, setRows] = useState<BulkUploadRow[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -299,7 +302,16 @@ const BulkUploadPage = () => {
         };
 
         // Upload asset (skip category-specific field validation for bulk uploads)
-        await createAsset(assetFormData, userData.userId, userData.agencyName, true);
+        await createAsset(
+          assetFormData,
+          userData.userId,
+          userData.agencyName,
+          true,
+          currentUser?.email || undefined,
+          userData.role,
+          userData.ministryId, // Pass ministry ID for access control
+          userData.ministryType // Pass uploader's ministry type
+        );
 
         // Update row status to success
         setRows(prevRows =>
@@ -331,6 +343,12 @@ const BulkUploadPage = () => {
 
     if (failedCount === 0) {
       toast.success(SUCCESS_MESSAGES.ASSETS.BULK_UPLOAD(successCount));
+      if (userData?.agencyName && userData?.location) {
+        toast.info(
+          `Uploads sent to your agency head for approval. Ensure your ${userData.agencyName} (${userData.location}) has an approver account registered.`,
+          { autoClose: 8000 }
+        );
+      }
     } else {
       toast.warning(`${successCount} succeeded, ${failedCount} failed`);
     }
@@ -340,32 +358,53 @@ const BulkUploadPage = () => {
   const validRowCount = rows.filter(r => r.errors.length === 0).length;
 
   return (
-    <Container component="main" maxWidth="lg">
-      <Box sx={{ marginTop: 4, marginBottom: 4 }}>
+    <AppLayout>
+      <Container component="main" maxWidth="lg">
         {/* Back Button */}
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 3 }}>
           <Button
             component={Link}
             to="/dashboard"
             startIcon={<ArrowBack />}
-            variant="text"
+            sx={{
+              color: 'rgba(255, 255, 255, 0.7)',
+              '&:hover': {
+                color: '#00ff88',
+                backgroundColor: 'transparent',
+              },
+            }}
           >
             Back to Dashboard
           </Button>
         </Box>
 
-        <Paper elevation={3} sx={{ padding: 4 }}>
-          {/* Page Title */}
-          <Typography component="h1" variant="h4" gutterBottom>
-            Bulk Upload Assets
-          </Typography>
+        {/* Page Header */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            mb: 3,
+            background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.2) 0%, rgba(0, 135, 81, 0.05) 100%)',
+            borderLeft: '4px solid #008751',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <CloudUpload sx={{ fontSize: 40, color: '#00ff88' }} />
+            <Box>
+              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                Bulk Upload Assets
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5 }}>
+                Upload multiple assets at once using an Excel file. Download the template to get started.
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
 
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Upload multiple assets at once using an Excel file. Download the template to get started.
-          </Typography>
-
-          {/* Download Template */}
-          <Box sx={{ mb: 3 }}>
+        {/* Actions Row */}
+        <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+            {/* Download Template */}
             <Button
               variant="outlined"
               startIcon={<Download />}
@@ -374,10 +413,8 @@ const BulkUploadPage = () => {
             >
               Download Excel Template
             </Button>
-          </Box>
 
-          {/* File Upload */}
-          <Box sx={{ mb: 3 }}>
+            {/* File Upload */}
             <input
               accept=".xlsx,.xls"
               style={{ display: 'none' }}
@@ -396,122 +433,198 @@ const BulkUploadPage = () => {
               </Button>
             </label>
             {file && (
-              <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                 Selected: {file.name} ({Math.round(file.size / 1024)} KB)
               </Typography>
             )}
           </Box>
+        </Paper>
 
-          {/* Upload Progress */}
-          {uploading && (
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="body2" gutterBottom>
-                Uploading assets... {Math.round(uploadProgress)}%
+        {/* Upload Progress */}
+        {uploading && (
+          <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
+            <Typography variant="body2" sx={{ color: '#00ff88', mb: 1 }}>
+              Uploading assets... {Math.round(uploadProgress)}%
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={uploadProgress}
+              sx={{
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: 'rgba(0, 135, 81, 0.2)',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: '#00ff88',
+                },
+              }}
+            />
+          </Paper>
+        )}
+
+        {/* Upload Summary */}
+        {uploadSummary && (
+          <Alert
+            severity={uploadSummary.failed === 0 ? 'success' : 'warning'}
+            sx={{
+              mb: 3,
+              backgroundColor: uploadSummary.failed === 0 ? 'rgba(46, 125, 50, 0.1)' : 'rgba(237, 108, 2, 0.1)',
+              border: `1px solid ${uploadSummary.failed === 0 ? 'rgba(46, 125, 50, 0.3)' : 'rgba(237, 108, 2, 0.3)'}`,
+            }}
+          >
+            Upload complete: {uploadSummary.success} succeeded, {uploadSummary.failed} failed
+          </Alert>
+        )}
+
+        {/* Preview Table */}
+        {rows.length > 0 && (
+          <Paper elevation={0}>
+            <Box
+              sx={{
+                p: 2,
+                borderBottom: '1px solid rgba(0, 135, 81, 0.3)',
+                background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.15) 0%, rgba(0, 135, 81, 0.05) 100%)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                Preview ({validRowCount} valid, {rows.length - validRowCount} errors)
               </Typography>
-              <LinearProgress variant="determinate" value={uploadProgress} />
+              <Button
+                variant="contained"
+                onClick={handleBulkUpload}
+                disabled={uploading || hasErrors || validRowCount === 0}
+                size="large"
+              >
+                Upload {validRowCount} Asset{validRowCount !== 1 ? 's' : ''}
+              </Button>
             </Box>
-          )}
 
-          {/* Upload Summary */}
-          {uploadSummary && (
-            <Alert severity={uploadSummary.failed === 0 ? 'success' : 'warning'} sx={{ mb: 3 }}>
-              Upload complete: {uploadSummary.success} succeeded, {uploadSummary.failed} failed
-            </Alert>
-          )}
+            {hasErrors && (
+              <Alert
+                severity="error"
+                sx={{
+                  m: 2,
+                  backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                  border: '1px solid rgba(211, 47, 47, 0.3)',
+                }}
+              >
+                Some rows have errors. Please fix them or remove the rows before uploading.
+              </Alert>
+            )}
 
-          {/* Preview Table */}
-          {rows.length > 0 && (
-            <>
-              <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h6">
-                  Preview ({validRowCount} valid, {rows.length - validRowCount} errors)
-                </Typography>
-                <Button
-                  variant="contained"
-                  onClick={handleBulkUpload}
-                  disabled={uploading || hasErrors || validRowCount === 0}
-                  size="large"
-                >
-                  Upload {validRowCount} Asset{validRowCount !== 1 ? 's' : ''}
-                </Button>
-              </Box>
-
-              {hasErrors && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  Some rows have errors. Please fix them or remove the rows before uploading.
-                </Alert>
-              )}
-
-              <TableContainer sx={{ maxHeight: 500 }}>
-                <Table stickyHeader size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Row</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Description</TableCell>
-                      <TableCell>Category</TableCell>
-                      <TableCell>Location</TableCell>
-                      <TableCell>Purchase Date</TableCell>
-                      <TableCell>Cost</TableCell>
-                      <TableCell>Errors</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map((row) => (
-                      <TableRow
-                        key={row.rowNumber}
-                        sx={{
-                          backgroundColor:
-                            row.status === 'error'
-                              ? 'rgba(211, 47, 47, 0.08)'
-                              : row.status === 'success'
-                              ? 'rgba(46, 125, 50, 0.08)'
-                              : 'inherit',
-                        }}
-                      >
-                        <TableCell>{row.rowNumber}</TableCell>
-                        <TableCell>
-                          {row.status === 'pending' && <Chip label="Pending" size="small" />}
-                          {row.status === 'uploading' && <Chip label="Uploading" color="info" size="small" />}
-                          {row.status === 'success' && (
-                            <Chip icon={<CheckCircle />} label="Success" color="success" size="small" />
-                          )}
-                          {row.status === 'error' && (
-                            <Chip icon={<ErrorIcon />} label="Error" color="error" size="small" />
-                          )}
-                        </TableCell>
-                        <TableCell>{row.description}</TableCell>
-                        <TableCell>{row.category}</TableCell>
-                        <TableCell>{row.location}</TableCell>
-                        <TableCell>{row.purchaseDate}</TableCell>
-                        <TableCell>₦{row.purchaseCost.toLocaleString()}</TableCell>
-                        <TableCell>
-                          {row.errors.length > 0 && (
-                            <Typography variant="caption" color="error">
-                              {row.errors.join(', ')}
-                            </Typography>
-                          )}
-                        </TableCell>
-                        <TableCell>
+            <TableContainer sx={{ maxHeight: 500 }}>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Row</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Status</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Description</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Category</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Location</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Purchase Date</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Cost</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Errors</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow
+                      key={row.rowNumber}
+                      sx={{
+                        backgroundColor:
+                          row.status === 'error'
+                            ? 'rgba(211, 47, 47, 0.08)'
+                            : row.status === 'success'
+                            ? 'rgba(46, 125, 50, 0.08)'
+                            : 'inherit',
+                        '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.1)' },
+                        borderBottom: '1px solid rgba(0, 135, 81, 0.1)',
+                      }}
+                    >
+                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{row.rowNumber}</TableCell>
+                      <TableCell>
+                        {row.status === 'pending' && (
+                          <Chip
+                            label="Pending"
+                            size="small"
+                            sx={{ backgroundColor: 'rgba(0, 135, 81, 0.2)', color: 'rgba(255, 255, 255, 0.8)' }}
+                          />
+                        )}
+                        {row.status === 'uploading' && (
+                          <Chip
+                            label="Uploading"
+                            size="small"
+                            sx={{ backgroundColor: 'rgba(25, 118, 210, 0.2)', color: '#64b5f6' }}
+                          />
+                        )}
+                        {row.status === 'success' && (
+                          <Chip
+                            icon={<CheckCircle sx={{ fontSize: 14, color: '#4caf50 !important' }} />}
+                            label="Success"
+                            size="small"
+                            sx={{ backgroundColor: 'rgba(76, 175, 80, 0.15)', color: '#4caf50' }}
+                          />
+                        )}
+                        {row.status === 'error' && (
+                          <Chip
+                            icon={<ErrorIcon sx={{ fontSize: 14, color: '#f44336 !important' }} />}
+                            label="Error"
+                            size="small"
+                            sx={{ backgroundColor: 'rgba(244, 67, 54, 0.15)', color: '#f44336' }}
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF' }}>{row.description}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={row.category}
+                          size="small"
+                          sx={{
+                            backgroundColor: 'rgba(0, 135, 81, 0.1)',
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            border: '1px solid rgba(0, 135, 81, 0.3)',
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{row.location}</TableCell>
+                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{row.purchaseDate}</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 600 }}>₦{row.purchaseCost.toLocaleString()}</TableCell>
+                      <TableCell>
+                        {row.errors.length > 0 && (
+                          <Typography variant="caption" sx={{ color: '#f44336' }}>
+                            {row.errors.join(', ')}
+                          </Typography>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title="Remove row">
                           <IconButton
                             size="small"
                             onClick={() => removeRow(row.rowNumber)}
                             disabled={uploading}
+                            sx={{
+                              color: '#f44336',
+                              '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.1)' },
+                            }}
                           >
                             <Delete fontSize="small" />
                           </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          )}
-        </Paper>
-      </Box>
-    </Container>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        )}
+      </Container>
+    </AppLayout>
   );
 };
 

@@ -64,17 +64,7 @@ if (useEmulators && import.meta.env.DEV) {
   }
 }
 
-// Enable offline persistence for Firestore (helpful for low-bandwidth regions)
-import { enableIndexedDbPersistence } from 'firebase/firestore';
-
-if (typeof window !== 'undefined') {
-  enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('The current browser does not support offline persistence');
-    }
-  });
-}
+// Offline persistence is currently disabled to allow multiple browser tabs.
+// To enable for production, use enableIndexedDbPersistence(db) from 'firebase/firestore'.
 
 export default app;

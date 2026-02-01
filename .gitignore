@@ -38,6 +38,7 @@ firestore-debug.log
 ui-debug.log
 functions/node_modules/
 functions/lib/
+serviceAccountKey.json
 
 # Testing
 coverage/
