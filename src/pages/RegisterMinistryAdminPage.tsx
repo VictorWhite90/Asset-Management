@@ -766,6 +766,7 @@ const RegisterMinistryAdminPage = () => {
                   {/* Action Buttons */}
                   <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
                     <Button
+                      type="button"
                       variant="outlined"
                       size="large"
                       onClick={handleBack}
@@ -792,7 +793,8 @@ const RegisterMinistryAdminPage = () => {
                       sx={{
                         py: 1.5,
                         fontWeight: 700,
-                        letterSpacing: 1,
+                        letterSpacing: { xs: 0, sm: 1 },
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' },
                         backgroundColor: '#008751',
                         '&:hover': { backgroundColor: '#006038' },
                       }}

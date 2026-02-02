@@ -196,11 +196,11 @@ const AdminMinistryAdminVerificationsPage = () => {
             borderLeft: '4px solid #008751',
           }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <AdminPanelSettings sx={{ fontSize: 40, color: '#00ff88' }} />
+              <AdminPanelSettings sx={{ fontSize: { xs: 30, sm: 40 }, color: '#00ff88' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 0.5 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2.125rem' } }}>
                   Ministry Admin Verifications
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
@@ -213,9 +213,11 @@ const AdminMinistryAdminVerificationsPage = () => {
               startIcon={<Refresh />}
               onClick={fetchPendingAdmins}
               disabled={loading}
+              size="small"
               sx={{
                 borderColor: 'rgba(0, 255, 136, 0.5)',
                 color: '#00ff88',
+                whiteSpace: 'nowrap',
                 '&:hover': {
                   borderColor: '#00ff88',
                   backgroundColor: 'rgba(0, 255, 136, 0.1)',

@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import {
   User as FirebaseUser,
   onAuthStateChanged,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '@/services/firebase';
 import { User } from '@/types/user.types';
 import { COLLECTIONS } from '@/utils/constants';
@@ -30,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const prevAccountStatusRef = useRef<string | undefined>(undefined);
 
   // Fetch user data from Firestore
   const fetchUserData = async (uid: string): Promise<User | null> => {
@@ -108,20 +109,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Listen to auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeSnapshot: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      // Clean up previous Firestore listener
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+
       setCurrentUser(user);
 
       if (user) {
         // Force token refresh to get updated custom claims
-        // This ensures that if a user's role or ministry was updated,
-        // they get the latest claims without having to log out/in
         try {
           await user.getIdToken(true);
         } catch (error) {
           console.warn('Failed to refresh token:', error);
         }
 
-        // Fetch additional user data from Firestore
+        // Fetch initial user data from Firestore
         let data = await fetchUserData(user.uid);
 
         // Sync email verification if needed
@@ -130,14 +137,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         setUserData(data);
+        setLoading(false);
+
+        // Track the initial account status
+        prevAccountStatusRef.current = data?.accountStatus;
+
+        // Listen for real-time changes to the user's Firestore document
+        // When ministry admin approves, accountStatus changes to 'verified'
+        // and we automatically refresh the token to pick up new custom claims
+        unsubscribeSnapshot = onSnapshot(
+          doc(db, COLLECTIONS.USERS, user.uid),
+          async (snapshot) => {
+            if (!snapshot.exists()) return;
+
+            const updatedData = snapshot.data() as User;
+
+            setUserData(updatedData);
+
+            // If account status just changed to 'verified', refresh the token
+            // to pick up the custom claims set by the Cloud Function
+            if (
+              updatedData.accountStatus === 'verified' &&
+              prevAccountStatusRef.current !== 'verified'
+            ) {
+              try {
+                await user.getIdToken(true);
+              } catch (error) {
+                console.error('Failed to refresh token after approval:', error);
+              }
+            }
+
+            prevAccountStatusRef.current = updatedData.accountStatus;
+          },
+          (error) => {
+            console.error('Error listening to user document:', error);
+          }
+        );
       } else {
         setUserData(null);
+        setLoading(false);
       }
-
-      setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+      }
+    };
   }, []);
 
   const value: AuthContextType = {
