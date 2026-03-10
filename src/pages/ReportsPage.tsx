@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -50,6 +51,7 @@ import {
   PieChart,
   Timeline,
   Description,
+  ArrowBack,
 } from '@mui/icons-material';
 import AppLayout from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -70,12 +72,13 @@ import {
   getUniqueLocations,
   formatCurrency,
 } from '@/services/report.service';
-import { ASSET_CATEGORIES, ASSET_STATUSES } from '@/utils/constants';
+import { ASSET_CATEGORIES } from '@/utils/constants';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 const ReportsPage: React.FC = () => {
+  const navigate = useNavigate();
   const { userData, currentUser } = useAuth();
   const isAdmin = userData?.role === 'admin';
   const isMinistryAdmin = userData?.role === 'ministry-admin';
@@ -92,6 +95,9 @@ const ReportsPage: React.FC = () => {
     includeDetailedTables: true,
     includeSummaryInsights: true,
   });
+  // Single-select state for asset type and status (fixes dropdown-stays-open issue)
+  const [singleAssetType, setSingleAssetType] = useState('');
+  const [singleStatus, setSingleStatus] = useState('');
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
   const [generatedReport, setGeneratedReport] = useState<GeneratedReport | null>(null);
@@ -111,7 +117,7 @@ const ReportsPage: React.FC = () => {
         setLoadingFilters(true);
         const [ministriesData, locationsData] = await Promise.all([
           getMinistriesForFilter(),
-          getUniqueLocations(),
+          getUniqueLocations(isMinistryAdmin ? userData?.ministryId : undefined),
         ]);
         setMinistries(ministriesData);
         setLocations(locationsData);
@@ -149,6 +155,8 @@ const ReportsPage: React.FC = () => {
     try {
       const reportFilters: ReportFilters = {
         ...filters,
+        assetTypes: singleAssetType ? [singleAssetType] : [],
+        statuses: singleStatus ? [singleStatus] : [],
         dateFrom: dateFrom || undefined,
         dateTo: dateTo || undefined,
       };
@@ -325,16 +333,18 @@ const ReportsPage: React.FC = () => {
       ];
       XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(byTypeData), 'By Type');
 
-      // By Ministry
-      const byMinistryData = [
-        ['Ministry', 'Count', 'Total Value'],
-        ...data.byMinistry.map((item) => [item.name, item.count, item.value]),
-      ];
-      XLSX.utils.book_append_sheet(
-        workbook,
-        XLSX.utils.aoa_to_sheet(byMinistryData),
-        'By Ministry'
-      );
+      // By Ministry — only for federal admin
+      if (!isMinistryAdmin) {
+        const byMinistryData = [
+          ['Ministry', 'Count', 'Total Value'],
+          ...data.byMinistry.map((item) => [item.name, item.count, item.value]),
+        ];
+        XLSX.utils.book_append_sheet(
+          workbook,
+          XLSX.utils.aoa_to_sheet(byMinistryData),
+          'By Ministry'
+        );
+      }
 
       // All Assets
       if (data.assets.length > 0) {
@@ -421,25 +431,6 @@ const ReportsPage: React.FC = () => {
         'Risk Distribution'
       );
 
-      // High Risk Assets
-      if (data.highRiskAssets.length > 0) {
-        const highRiskData = [
-          ['ID', 'Name', 'Type', 'Location', 'Risk Score', 'Value'],
-          ...data.highRiskAssets.map((a) => [
-            a.id,
-            a.name,
-            a.type,
-            a.location,
-            a.riskScore || 'N/A',
-            a.currentValue,
-          ]),
-        ];
-        XLSX.utils.book_append_sheet(
-          workbook,
-          XLSX.utils.aoa_to_sheet(highRiskData),
-          'High Risk Assets'
-        );
-      }
     }
 
     XLSX.writeFile(workbook, `${generatedReport.title.replace(/\s+/g, '_')}_${Date.now()}.xlsx`);
@@ -624,25 +615,13 @@ const ReportsPage: React.FC = () => {
         {/* Asset Types Filter */}
         <Grid item xs={12} md={isAdmin ? 4 : 6}>
           <FormControl fullWidth size="small">
-            <InputLabel>Asset Types</InputLabel>
+            <InputLabel>Asset Type</InputLabel>
             <Select
-              multiple
-              value={filters.assetTypes || []}
-              onChange={handleMultiSelectChange('assetTypes')}
-              input={<OutlinedInput label="Asset Types" />}
-              renderValue={(selected) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {(selected as string[]).map((value) => (
-                    <Chip
-                      key={value}
-                      label={value}
-                      size="small"
-                      sx={{ backgroundColor: 'rgba(0, 135, 81, 0.3)' }}
-                    />
-                  ))}
-                </Box>
-              )}
+              value={singleAssetType}
+              onChange={(e) => setSingleAssetType(e.target.value as string)}
+              input={<OutlinedInput label="Asset Type" />}
             >
+              <MenuItem value="">All Asset Types</MenuItem>
               {ASSET_CATEGORIES.map((category) => (
                 <MenuItem key={category} value={category}>
                   {category}
@@ -655,30 +634,17 @@ const ReportsPage: React.FC = () => {
         {/* Status Filter */}
         <Grid item xs={12} md={isAdmin ? 4 : 6}>
           <FormControl fullWidth size="small">
-            <InputLabel>Statuses</InputLabel>
+            <InputLabel>Status</InputLabel>
             <Select
-              multiple
-              value={filters.statuses || []}
-              onChange={handleMultiSelectChange('statuses')}
-              input={<OutlinedInput label="Statuses" />}
-              renderValue={(selected) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {(selected as string[]).map((value) => (
-                    <Chip
-                      key={value}
-                      label={value}
-                      size="small"
-                      sx={{ backgroundColor: 'rgba(0, 135, 81, 0.3)' }}
-                    />
-                  ))}
-                </Box>
-              )}
+              value={singleStatus}
+              onChange={(e) => setSingleStatus(e.target.value as string)}
+              input={<OutlinedInput label="Status" />}
             >
-              {ASSET_STATUSES.map((status: string) => (
-                <MenuItem key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </MenuItem>
-              ))}
+              <MenuItem value="">All Statuses</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="pending_ministry_review">Ministry Review</MenuItem>
+              <MenuItem value="approved">Approved</MenuItem>
+              <MenuItem value="rejected">Rejected</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -761,6 +727,8 @@ const ReportsPage: React.FC = () => {
               includeDetailedTables: true,
               includeSummaryInsights: true,
             });
+            setSingleAssetType('');
+            setSingleStatus('');
             setDateFrom(null);
             setDateTo(null);
           }}
@@ -796,6 +764,14 @@ const ReportsPage: React.FC = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <Box>
+              <Button
+                startIcon={<ArrowBack />}
+                onClick={() => navigate(-1)}
+                size="small"
+                sx={{ color: 'rgba(255,255,255,0.6)', mb: 1, '&:hover': { color: '#00ff88' }, pl: 0 }}
+              >
+                Back
+              </Button>
               <Typography variant="h5" sx={{ color: '#00ff88', fontWeight: 700, mb: 1 }}>
                 {generatedReport.title}
               </Typography>
@@ -938,8 +914,8 @@ const ReportsPage: React.FC = () => {
     if (generatedReport.type === 'asset_inventory') {
       const data = generatedReport.data as AssetInventoryData;
       return (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={3}>
+        <Grid container spacing={3} justifyContent="center">
+          <Grid item xs={12} sm={4} md={3}>
             <Card sx={{ background: 'linear-gradient(135deg, #008751 0%, #006038 100%)' }}>
               <CardContent>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -951,7 +927,7 @@ const ReportsPage: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} sm={4} md={3}>
             <Card sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)' }}>
               <CardContent>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -963,7 +939,7 @@ const ReportsPage: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} sm={4} md={3}>
             <Card sx={{ background: 'linear-gradient(135deg, #b8860b 0%, #8b6914 100%)' }}>
               <CardContent>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -971,18 +947,6 @@ const ReportsPage: React.FC = () => {
                 </Typography>
                 <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
                   {data.byType.length}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <Card sx={{ background: 'linear-gradient(135deg, #c62828 0%, #8e0000 100%)' }}>
-              <CardContent>
-                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                  High Risk Assets
-                </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
-                  {data.topHighRiskAssets.length}
                 </Typography>
               </CardContent>
             </Card>
@@ -1211,8 +1175,8 @@ const ReportsPage: React.FC = () => {
             </Table>
           </TableContainer>
 
-          {/* By Ministry Table */}
-          {data.byMinistry.length > 0 && (
+          {/* By Ministry Table — only meaningful for federal admin viewing multiple ministries */}
+          {!isMinistryAdmin && data.byMinistry.length > 0 && (
             <>
               <Typography variant="h6" sx={{ color: '#00ff88', mb: 2 }}>
                 Assets by Ministry
@@ -1240,51 +1204,6 @@ const ReportsPage: React.FC = () => {
             </>
           )}
 
-          {/* High Risk Assets */}
-          {data.topHighRiskAssets.length > 0 && (
-            <>
-              <Typography variant="h6" sx={{ color: '#ef5350', mb: 2 }}>
-                High Risk Assets
-              </Typography>
-              <TableContainer component={Paper}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Asset Name</TableCell>
-                      <TableCell>Type</TableCell>
-                      <TableCell>Location</TableCell>
-                      <TableCell align="right">Risk Score</TableCell>
-                      <TableCell align="right">Value</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {data.topHighRiskAssets.map((asset) => (
-                      <TableRow key={asset.id}>
-                        <TableCell>{asset.name}</TableCell>
-                        <TableCell>{asset.type}</TableCell>
-                        <TableCell>{asset.location}</TableCell>
-                        <TableCell align="right">
-                          <Chip
-                            label={`${asset.riskScore}%`}
-                            size="small"
-                            sx={{
-                              backgroundColor:
-                                (asset.riskScore || 0) >= 70
-                                  ? 'rgba(244, 67, 54, 0.2)'
-                                  : 'rgba(255, 152, 0, 0.2)',
-                              color:
-                                (asset.riskScore || 0) >= 70 ? '#ef5350' : '#ff9800',
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell align="right">{formatCurrency(asset.currentValue)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          )}
         </Box>
       );
     }
@@ -1503,47 +1422,6 @@ const ReportsPage: React.FC = () => {
             </Table>
           </TableContainer>
 
-          {/* High Risk Assets */}
-          {data.highRiskAssets.length > 0 && (
-            <>
-              <Typography variant="h6" sx={{ color: '#ef5350', mb: 2 }}>
-                High Risk Assets
-              </Typography>
-              <TableContainer component={Paper}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Asset Name</TableCell>
-                      <TableCell>Type</TableCell>
-                      <TableCell>Location</TableCell>
-                      <TableCell align="right">Risk Score</TableCell>
-                      <TableCell align="right">Current Value</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {data.highRiskAssets.map((asset) => (
-                      <TableRow key={asset.id}>
-                        <TableCell>{asset.name}</TableCell>
-                        <TableCell>{asset.type}</TableCell>
-                        <TableCell>{asset.location}</TableCell>
-                        <TableCell align="right">
-                          <Chip
-                            label={`${asset.riskScore}%`}
-                            size="small"
-                            sx={{
-                              backgroundColor: 'rgba(244, 67, 54, 0.2)',
-                              color: '#ef5350',
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell align="right">{formatCurrency(asset.currentValue)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          )}
         </Box>
       );
     }

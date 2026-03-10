@@ -3,7 +3,7 @@
  * Handles data aggregation and report generation for Federal and Ministry Admins
  */
 
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from './firebase';
 import { Asset } from '@/types/asset.types';
 import {
@@ -92,8 +92,7 @@ const calculateRiskScore = (asset: Asset): number => {
   }
 
   // Status factor
-  if (asset.status === 'rejected') riskScore += 30;
-  else if (asset.status === 'pending') riskScore += 10;
+  if (asset.status === 'pending') riskScore += 10;
 
   // Value depreciation factor
   if (asset.marketValue && asset.purchaseCost) {
@@ -117,20 +116,33 @@ export const fetchAssetsForReport = async (
     const assetsRef = collection(db, ASSETS_COLLECTION);
     let assets: Asset[] = [];
 
-    // Base query
-    const querySnapshot = await getDocs(assetsRef);
-    assets = querySnapshot.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    })) as Asset[];
-
-    // Ministry-level filtering
+    // Use filtered query for ministry admin (Firestore rules only allow reading own ministry assets)
     if (isMinistryAdmin && userMinistryId) {
-      assets = assets.filter((a) => a.ministryId === userMinistryId);
-    } else if (filters.ministryIds && filters.ministryIds.length > 0) {
-      assets = assets.filter((a) => filters.ministryIds?.includes(a.ministryId || ''));
-    } else if (filters.ministryId) {
-      assets = assets.filter((a) => a.ministryId === filters.ministryId);
+      const q = query(assetsRef, where('ministryId', '==', userMinistryId));
+      const querySnapshot = await getDocs(q);
+      assets = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      })) as Asset[];
+    } else {
+      // Federal admin: fetch all assets
+      const querySnapshot = await getDocs(assetsRef);
+      assets = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      })) as Asset[];
+
+      // Apply ministry filters if set
+      if (filters.ministryIds && filters.ministryIds.length > 0) {
+        assets = assets.filter((a) => filters.ministryIds?.includes(a.ministryId || ''));
+      } else if (filters.ministryId) {
+        assets = assets.filter((a) => a.ministryId === filters.ministryId);
+      }
+    }
+
+    // Exclude rejected assets by default unless the user explicitly filters for them
+    if (!filters.statuses || filters.statuses.length === 0) {
+      assets = assets.filter((a) => a.status !== 'rejected');
     }
 
     // Apply additional filters
@@ -904,10 +916,13 @@ const getReportTitle = (type: ReportType): string => {
 /**
  * Get all unique locations from assets
  */
-export const getUniqueLocations = async (): Promise<string[]> => {
+export const getUniqueLocations = async (ministryId?: string): Promise<string[]> => {
   try {
     const assetsRef = collection(db, ASSETS_COLLECTION);
-    const querySnapshot = await getDocs(assetsRef);
+    const q = ministryId
+      ? query(assetsRef, where('ministryId', '==', ministryId))
+      : assetsRef;
+    const querySnapshot = await getDocs(q);
 
     const locations = new Set<string>();
     querySnapshot.docs.forEach((doc) => {

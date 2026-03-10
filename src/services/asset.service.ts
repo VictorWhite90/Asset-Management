@@ -752,7 +752,8 @@ export const getAdminDashboardStats = async (): Promise<AdminDashboardStats> => 
 
     const statusCounts = {
       approved: assets.filter(a => a.status === 'approved').length,
-      pending: assets.filter(a => a.status === 'pending').length,
+      // Include pending_ministry_review in the pending count for federal admin
+      pending: assets.filter(a => a.status === 'pending' || a.status === 'pending_ministry_review').length,
       rejected: assets.filter(a => a.status === 'rejected').length,
     };
 

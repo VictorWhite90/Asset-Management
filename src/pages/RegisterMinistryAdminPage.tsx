@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
+  Alert,
   Box,
   Button,
   Container,
@@ -11,7 +12,6 @@ import {
   Typography,
   Paper,
   Link,
-  Alert,
   InputAdornment,
   IconButton,
   Chip,
@@ -620,6 +620,19 @@ const RegisterMinistryAdminPage = () => {
                       />
                     </Grid>
                   </Grid>
+
+                  {/* Password Requirements */}
+                  <Alert
+                    severity="info"
+                    sx={{
+                      mt: 2,
+                      backgroundColor: 'rgba(0, 135, 81, 0.1)',
+                      border: '1px solid rgba(0, 135, 81, 0.3)',
+                      '& .MuiAlert-icon': { color: '#00ff88' },
+                    }}
+                  >
+                    Password must be at least 8 characters and contain uppercase, lowercase, and numbers
+                  </Alert>
 
                   {/* Continue Button */}
                   <Box sx={{ mt: 4 }}>

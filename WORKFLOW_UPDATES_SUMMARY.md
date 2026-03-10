@@ -8,11 +8,13 @@
 ## 🎯 New Workflow Architecture
 
 ### Previous Workflow (❌ DEPRECATED)
+
 ```
 Uploader → Approver → Federal Admin (DIRECT APPROVAL)
 ```
 
 ### New Workflow (✅ IMPLEMENTED)
+
 ```
 Uploader → Approver → Ministry Admin → Federal Admin
    |          |           |              |
@@ -26,13 +28,19 @@ Uploader → Approver → Ministry Admin → Federal Admin
 ## 📊 Asset Status Types
 
 ### Updated AssetStatus Type
+
 **File:** `src/types/asset.types.ts`
 
 ```typescript
-export type AssetStatus = 'pending' | 'pending_ministry_review' | 'approved' | 'rejected';
+export type AssetStatus =
+  | "pending"
+  | "pending_ministry_review"
+  | "approved"
+  | "rejected";
 ```
 
 **Status Flow:**
+
 - `pending` → Awaiting approver review (initial upload)
 - `pending_ministry_review` → Approver approved, sent to ministry admin for final review
 - `approved` → Ministry admin approved, ready for federal submission
@@ -43,6 +51,7 @@ export type AssetStatus = 'pending' | 'pending_ministry_review' | 'approved' | '
 ## 🔄 Asset Approval Workflow Fields
 
 ### New Asset Fields Added
+
 **File:** `src/types/asset.types.ts`
 
 ```typescript
@@ -58,7 +67,7 @@ approvedByMinistryAt?: Timestamp;     // When ministry admin approved
 
 // Rejection tracking
 rejectedBy?: string;                  // Who rejected it
-rejectedAt?: Timestamp;               
+rejectedAt?: Timestamp;
 rejectionReason?: string;
 rejectionLevel?: 'approver' | 'ministry-admin' | 'federal-admin'; // Track rejection source
 ```
@@ -72,22 +81,27 @@ rejectionLevel?: 'approver' | 'ministry-admin' | 'federal-admin'; // Track rejec
 ### New Functions in `asset.service.ts`
 
 #### 1. **getAssetsForMinistryReview()**
+
 ```typescript
 export const getAssetsForMinistryReview = async (ministryId: string): Promise<Asset[]>
 ```
+
 - Gets assets with status `pending_ministry_review`
 - Ministry admins use this to see what needs their approval
 - Filters by ministry automatically
 
 #### 2. **getAllMinistryAssets()**
+
 ```typescript
 export const getAllMinistryAssets = async (ministryId: string): Promise<Asset[]>
 ```
+
 - Gets ALL assets (all statuses) for a ministry
 - Used by ministry admin to see complete asset inventory
 - Includes pending, approved, and rejected assets
 
 #### 3. **approveAssetByMinistry()**
+
 ```typescript
 export const approveAssetByMinistry = async (
   assetId: string,
@@ -96,12 +110,14 @@ export const approveAssetByMinistry = async (
   agencyName?: string
 ): Promise<void>
 ```
+
 - Ministry admin approves an asset
 - Sets status to `approved`
 - Records approver info and timestamp
 - Logs action in audit trail
 
 #### 4. **rejectAssetByMinistry()**
+
 ```typescript
 export const rejectAssetByMinistry = async (
   assetId: string,
@@ -111,17 +127,20 @@ export const rejectAssetByMinistry = async (
   agencyName?: string
 ): Promise<void>
 ```
+
 - Ministry admin rejects an asset
 - Sets status to `rejected`
 - Records rejection reason and level
 - Logs action with details
 
 #### 5. **Updated approveAsset()**
+
 - NOW sends to `pending_ministry_review` instead of directly approving
 - Records both approver and ministry admin tracking fields
 - Audit log notes: "sent to Ministry Admin"
 
 #### 6. **Updated rejectAsset()**
+
 - Added `rejectionLevel` parameter to track who rejected it
 - Can be called by approver or ministry admin
 
@@ -130,9 +149,11 @@ export const rejectAssetByMinistry = async (
 ## 🔐 Security Rules Updates
 
 ### Firestore Rules Changes
+
 **File:** `firestore.rules`
 
 #### Asset Read Permissions
+
 ```plaintext
 - Federal admin: Can read ALL assets
 - Uploaders: Can read ONLY their own assets
@@ -143,22 +164,26 @@ export const rejectAssetByMinistry = async (
 #### Asset Update Permissions
 
 **Uploaders:**
+
 - Can only update their own `pending` or `rejected` assets
 - CANNOT edit approved or under-review assets
 - Prevents tampering after approver review
 
 **Approvers:**
+
 - Can update assets in their ministry with status `pending` only
 - Can modify: status, approvedBy, approvedAt, sentToMinistryAdminBy, sentToMinistryAdminAt, rejectionReason, rejectedBy, rejectedAt, rejectionLevel
 - Cannot edit approved assets
 
 **Ministry Admin:**
+
 - Can update assets from their ministry with status `pending_ministry_review` only
 - Can modify: status, approvedByMinistry, approvedByMinistryAt, rejectionReason, rejectedBy, rejectedAt, rejectionLevel
 - Cannot edit other statuses
 - Cannot edit base asset data
 
 **Federal Admin:**
+
 - Can update ANY asset
 - No restrictions
 
@@ -167,10 +192,12 @@ export const rejectAssetByMinistry = async (
 ## 📱 UI Components Implemented
 
 ### 1. ViewUploadsPage.tsx (NEW)
+
 **Route:** `/assets/view-uploads`  
 **Access:** Uploaders and Approvers
 
 **Features:**
+
 - ✅ Displays user's uploads or ministry assets
 - ✅ 3-tab interface: Pending | Approved | Rejected
 - ✅ Search functionality (Asset ID, Description, Category, Location)
@@ -180,15 +207,18 @@ export const rejectAssetByMinistry = async (
 - ✅ Displays rejection reasons if rejected
 
 **Status Badges:**
+
 - Pending: Yellow with clock icon
 - Ministry Review: Blue with pending icon
 - Approved: Green with checkmark
 - Rejected: Red with X icon
 
 ### 2. Enhanced MinistryAdminDashboardPage.tsx
+
 **Updated Assets Tab with 3 Sub-tabs:**
 
 #### Tab 1: Pending Ministry Review
+
 - Shows assets awaiting ministry admin approval
 - Assets sent by approvers appear here
 - Shows: Asset ID, Description, Category, Value, Uploaded By, Approved By
@@ -198,12 +228,14 @@ export const rejectAssetByMinistry = async (
 - **Rejection Dialog:** Captures detailed rejection reason
 
 #### Tab 2: Approved Assets
+
 - Shows only `approved` assets
 - Summary stats: Count and total value
 - **Submit Button:** "Submit All" to send to Federal Admin (coming soon)
 - Table shows: Asset ID, Description, Category, Value, Status
 
 #### Tab 3: All Assets
+
 - Complete view of all ministry assets (all statuses)
 - Color-coded status chips:
   - Pending: Orange with clock
@@ -217,6 +249,7 @@ export const rejectAssetByMinistry = async (
 ## 🎯 User Permissions Summary
 
 ### Uploader (role: `agency`)
+
 - ✅ Can upload assets (status: `pending`)
 - ✅ Can view their own uploads via ViewUploadsPage
 - ✅ Can edit their own `pending` or `rejected` assets
@@ -225,6 +258,7 @@ export const rejectAssetByMinistry = async (
 - ❌ Cannot access Ministry or Federal dashboards
 
 ### Approver (role: `agency-approver`)
+
 - ✅ Can view all assets from their ministry via ViewUploadsPage
 - ✅ Can approve assets (sets status to `pending_ministry_review`)
 - ✅ Can reject assets with reason (sets status to `rejected`)
@@ -234,6 +268,7 @@ export const rejectAssetByMinistry = async (
 - ❌ Cannot access Ministry or Federal dashboards
 
 ### Ministry Admin (role: `ministry-admin`)
+
 - ✅ Can view ALL assets from their ministry
 - ✅ Can approve assets (sets status to `approved`)
 - ✅ Can reject assets with detailed reason
@@ -245,6 +280,7 @@ export const rejectAssetByMinistry = async (
 - ❌ Cannot access Federal Admin dashboard
 
 ### Federal Admin (role: `admin`)
+
 - ✅ Can view ALL assets across all ministries
 - ✅ Can access all dashboards
 - ✅ Can generate global reports
@@ -257,7 +293,9 @@ export const rejectAssetByMinistry = async (
 ## 📋 Audit Trail Records
 
 ### Actions Logged
+
 Each action records:
+
 - `userId`: Who performed the action
 - `userEmail`: Their email
 - `agencyName`: Their ministry/agency
@@ -268,6 +306,7 @@ Each action records:
 - `metadata`: Additional context (asset IDs, values, reasons, etc.)
 
 ### Example Log Entries
+
 ```
 1. Uploader uploads asset:
    Action: asset.upload
@@ -291,12 +330,14 @@ Each action records:
 ## 🚀 Routes Updated
 
 ### New Route Added
+
 - **Route:** `/assets/view-uploads`
 - **Component:** `ViewUploadsPage.tsx`
 - **Protection:** ProtectedRoute + RoleBasedRoute
 - **Allowed Roles:** `agency`, `agency-approver`
 
 ### Updated Routes
+
 - `/dashboard` - Shows role-based dashboard (includes stats about pending ministry reviews for admins)
 - `/ministry-admin/dashboard` - Now shows 3 asset tabs instead of just approved assets
 
@@ -305,6 +346,7 @@ Each action records:
 ## 🔧 Migration Notes
 
 ### Breaking Changes
+
 1. **Asset Status Values Changed**
    - Old: `pending` → `approved` → (Federal Admin sees it)
    - New: `pending` → `pending_ministry_review` → `approved` → (Federal Admin sees it)
@@ -315,6 +357,7 @@ Each action records:
    - New: Approver now sends to `pending_ministry_review` for ministry admin review
 
 ### Data Considerations
+
 - Existing assets with status `approved` are valid and don't need changes
 - Audit logs will have new action types for ministry-level operations
 - No database migration required - new fields are optional and back-compatible
@@ -324,6 +367,7 @@ Each action records:
 ## ✅ Testing Checklist
 
 ### Uploader Tests
+
 - [ ] Upload asset → appears as `pending`
 - [ ] View uploads → shows in Pending tab
 - [ ] Edit pending asset → changes saved
@@ -333,6 +377,7 @@ Each action records:
 - [ ] Cannot approve/reject assets
 
 ### Approver Tests
+
 - [ ] View all ministry assets → ViewUploadsPage shows them
 - [ ] Approve asset → status becomes `pending_ministry_review`
 - [ ] Reject asset → status becomes `rejected`, reason saved
@@ -341,6 +386,7 @@ Each action records:
 - [ ] Cannot access ministry dashboard
 
 ### Ministry Admin Tests
+
 - [ ] View all ministry assets → Dashboard tab 3 shows all
 - [ ] Pending Ministry Review tab → shows pending_ministry_review assets
 - [ ] Approve asset → status becomes `approved`
@@ -350,6 +396,7 @@ Each action records:
 - [ ] Submit button ready for federal submission
 
 ### Federal Admin Tests
+
 - [ ] Access all dashboards
 - [ ] View all assets from all ministries
 - [ ] Can view complete audit trail
@@ -357,6 +404,7 @@ Each action records:
 - [ ] Can see all approval workflows
 
 ### Security Tests
+
 - [ ] Uploader cannot edit approved assets
 - [ ] Uploader cannot see other ministry assets
 - [ ] Approver cannot edit asset data
@@ -367,6 +415,7 @@ Each action records:
 ---
 
 ## 📚 Related Documentation
+
 - See `MINISTRY_ADMIN_IMPLEMENTATION.md` for staff management details
 - See `FIRESTORE_SECURITY_RULES.md` for complete security rule documentation
 - See `SYSTEM_ANALYSIS.md` for overall system architecture

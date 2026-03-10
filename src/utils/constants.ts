@@ -206,7 +206,7 @@ export const ERROR_MESSAGES = {
   AUTH: {
     INVALID_EMAIL: 'Please enter a valid email address',
     WEAK_PASSWORD: 'Password must be at least 8 characters',
-    EMAIL_IN_USE: 'This email is already registered',
+    EMAIL_IN_USE: 'This email is already registered. Ministry Administrators cannot register as staff using their admin email.',
     WRONG_PASSWORD: 'Incorrect password',
     USER_NOT_FOUND: 'No account found with this email',
     TOO_MANY_REQUESTS: 'Too many attempts. Please try again later',

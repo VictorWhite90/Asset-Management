@@ -31,19 +31,23 @@ import {
   DoneAll,
   Visibility,
   Schedule,
+  History,
 } from '@mui/icons-material';
+import { Tabs, Tab } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
-import { getPendingAssets, approveAsset, rejectAsset } from '@/services/asset.service';
+import { getPendingAssets, approveAsset, rejectAsset, getApproverAssets } from '@/services/asset.service';
 import { Asset } from '@/types/asset.types';
 import AppLayout from '@/components/AppLayout';
 
 const ReviewUploadsPage = () => {
   const { userData, currentUser } = useAuth();
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [allAssets, setAllAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   // Pagination
   const [page, setPage] = useState(0);
@@ -68,9 +72,13 @@ const ReviewUploadsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      // Fetch pending assets from the approver's ministry
-      const pendingAssets = await getPendingAssets(userData.ministryId);
+      // Fetch pending assets and all ministry assets in parallel
+      const [pendingAssets, ministryAssets] = await Promise.all([
+        getPendingAssets(userData.ministryId),
+        getApproverAssets(userData.ministryId),
+      ]);
       setAssets(pendingAssets);
+      setAllAssets(ministryAssets);
     } catch (err: any) {
       setError(err.message || 'Failed to load pending assets');
       toast.error(err.message || 'Failed to load pending assets');
@@ -84,6 +92,15 @@ const ReviewUploadsPage = () => {
 
     setProcessingId(assetId);
     try {
+      // Debug: verify token claims (role, ministryId) before approve – helps diagnose permission errors
+      if (import.meta.env.DEV && currentUser) {
+        const token = await currentUser.getIdTokenResult(true);
+        console.log('[ReviewUploads] Token claims before approve:', {
+          role: token.claims.role,
+          ministryId: token.claims.ministryId,
+          uid: currentUser.uid,
+        });
+      }
       await approveAsset(
         assetId,
         userData.userId,
@@ -118,6 +135,7 @@ const ReviewUploadsPage = () => {
         selectedAsset.id,
         userData.userId,
         rejectionReason,
+        'approver',
         currentUser?.email || undefined,
         userData.agencyName
       );
@@ -341,6 +359,24 @@ const ReviewUploadsPage = () => {
         {/* Summary and Assets Table - Only show if account is verified */}
         {(!userData?.accountStatus || userData?.accountStatus === 'verified') && (
           <>
+            {/* Tabs: Pending vs History */}
+            <Tabs
+              value={activeTab}
+              onChange={(_e, v) => { setActiveTab(v); setPage(0); }}
+              sx={{
+                mb: 2,
+                '& .MuiTab-root': { color: 'rgba(255,255,255,0.6)' },
+                '& .Mui-selected': { color: '#00ff88' },
+                '& .MuiTabs-indicator': { backgroundColor: '#00ff88' },
+              }}
+            >
+              <Tab icon={<Schedule sx={{ fontSize: 18 }} />} iconPosition="start" label={`Pending (${assets.length})`} />
+              <Tab icon={<History sx={{ fontSize: 18 }} />} iconPosition="start" label={`History (${allAssets.filter(a => a.status !== 'pending').length})`} />
+            </Tabs>
+
+            {/* PENDING TAB */}
+            {activeTab === 0 && (
+            <>
             {/* Summary Card */}
             <Paper
               elevation={0}
@@ -487,6 +523,85 @@ const ReviewUploadsPage = () => {
                   }}
                 />
               </Paper>
+            )}
+            </>
+            )}
+
+            {/* HISTORY TAB */}
+            {activeTab === 1 && (
+              <>
+                {allAssets.filter(a => a.status !== 'pending').length === 0 ? (
+                  <Paper elevation={0} sx={{ p: 5, textAlign: 'center' }}>
+                    <History sx={{ fontSize: 60, color: 'rgba(255,255,255,0.3)', mb: 2 }} />
+                    <Typography variant="h6" sx={{ color: '#FFFFFF' }}>No processed assets yet</Typography>
+                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', mt: 1 }}>
+                      Assets you approve or reject will appear here
+                    </Typography>
+                  </Paper>
+                ) : (
+                  <Paper elevation={0} sx={{ p: { xs: 1, sm: 2 } }}>
+                    <TableContainer sx={{ overflowX: 'auto', maxWidth: '100%' }}>
+                      <Table size="small" sx={{ minWidth: 800 }}>
+                        <TableHead>
+                          <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
+                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Asset ID</TableCell>
+                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Description</TableCell>
+                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Category</TableCell>
+                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Location</TableCell>
+                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Cost</TableCell>
+                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Status</TableCell>
+                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Rejection Reason</TableCell>
+                            <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>View</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {allAssets
+                            .filter(a => a.status !== 'pending')
+                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                            .map((asset) => (
+                              <TableRow key={asset.id} sx={{ '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
+                                <TableCell>
+                                  <Typography variant="body2" sx={{ color: '#00ff88', fontWeight: 600 }}>{asset.assetId}</Typography>
+                                </TableCell>
+                                <TableCell sx={{ color: '#FFFFFF' }}>{asset.description}</TableCell>
+                                <TableCell>
+                                  <Chip label={asset.category} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.1)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,135,81,0.3)' }} />
+                                </TableCell>
+                                <TableCell sx={{ color: 'rgba(255,255,255,0.8)' }}>{asset.location}</TableCell>
+                                <TableCell sx={{ color: '#FFFFFF', fontWeight: 600 }}>{formatCurrency(asset.purchaseCost)}</TableCell>
+                                <TableCell>
+                                  {asset.status === 'approved' && <Chip label="Approved" size="small" sx={{ backgroundColor: 'rgba(76,175,80,0.15)', color: '#4caf50', border: '1px solid rgba(76,175,80,0.3)' }} />}
+                                  {asset.status === 'pending_ministry_review' && <Chip label="Ministry Review" size="small" sx={{ backgroundColor: 'rgba(33,150,243,0.15)', color: '#2196f3', border: '1px solid rgba(33,150,243,0.3)' }} />}
+                                  {asset.status === 'rejected' && <Chip label="Rejected" size="small" sx={{ backgroundColor: 'rgba(244,67,54,0.15)', color: '#f44336', border: '1px solid rgba(244,67,54,0.3)' }} />}
+                                </TableCell>
+                                <TableCell sx={{ color: 'rgba(255,100,100,0.9)', fontSize: '0.8rem', maxWidth: 200 }}>
+                                  {asset.rejectionReason || '—'}
+                                </TableCell>
+                                <TableCell align="center">
+                                  <Tooltip title="View Details">
+                                    <IconButton size="small" component={Link} to={`/assets/view/${asset.id}`} sx={{ color: '#00ff88' }}>
+                                      <Visibility />
+                                    </IconButton>
+                                  </Tooltip>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                    <TablePagination
+                      rowsPerPageOptions={[5, 10, 25, 50]}
+                      component="div"
+                      count={allAssets.filter(a => a.status !== 'pending').length}
+                      rowsPerPage={rowsPerPage}
+                      page={page}
+                      onPageChange={handleChangePage}
+                      onRowsPerPageChange={handleChangeRowsPerPage}
+                      sx={{ color: 'rgba(255,255,255,0.7)', '.MuiTablePagination-selectIcon': { color: 'rgba(255,255,255,0.7)' } }}
+                    />
+                  </Paper>
+                )}
+              </>
             )}
           </>
         )}

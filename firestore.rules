@@ -169,21 +169,20 @@ service cloud.firestore {
                     && (resource.data.status == 'pending' || resource.data.status == 'rejected');
 
       // Approvers can update assets in their ministry (approve/reject/send to ministry)
-      // Relies on query-layer filtering: getPendingAssets already filters by ministryId
-      // This allows authenticated approvers to update pending assets
-      allow update: if isAuthenticated()
-                    && hasRole('agency-approver')
+      // Must match asset ministryId to token.ministryId (same as read rule)
+      allow update: if isApprover()
+                    && belongsToMinistry(resource.data.ministryId)
                     && resource.data.status == 'pending'
                     && request.resource.data.diff(resource.data).affectedKeys()
                          .hasOnly(['status', 'approvedBy', 'approvedAt', 'sentToMinistryAdminBy', 'sentToMinistryAdminAt', 'rejectionReason', 'rejectedBy', 'rejectedAt', 'rejectionLevel']);
 
-      // Ministry admin can update assets in their ministry (approve/reject pending_ministry_review assets)
-      // Check if asset belongs to the ministry that this ministry admin owns
+      // Ministry admin can approve or reject assets in pending_ministry_review status
       allow update: if isMinistryAdmin()
-                    && resource.data.ministryId == request.auth.token.ownedMinistryId
+                    && belongsToMinistry(resource.data.ministryId)
                     && resource.data.status == 'pending_ministry_review'
                     && request.resource.data.diff(resource.data).affectedKeys()
-                         .hasOnly(['status', 'approvedByMinistry', 'approvedByMinistryAt', 'rejectionReason', 'rejectedBy', 'rejectedAt', 'rejectionLevel']);
+                         .hasOnly(['status', 'approvedByMinistry', 'approvedByMinistryAt',
+                                   'rejectedBy', 'rejectedAt', 'rejectionReason', 'rejectionLevel']);
 
       // Federal admin can update any asset
       allow update: if isFederalAdmin();

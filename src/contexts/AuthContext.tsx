@@ -127,9 +127,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Sync email verification if needed
         if (data) {
           data = await syncEmailVerification(user, data);
+          setUserData(data);
+        } else {
+          // Firestore profile missing — account was deleted from DB but Auth still exists.
+          // Force sign out so they can't access the app.
+          console.warn('No Firestore profile found for authenticated user. Signing out.');
+          await firebaseSignOut(auth);
+          setCurrentUser(null);
+          setUserData(null);
         }
-
-        setUserData(data);
       } else {
         setUserData(null);
       }

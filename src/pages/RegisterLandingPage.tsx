@@ -176,6 +176,7 @@ const RegisterLandingPage: React.FC = () => {
                 fontWeight: 700,
                 letterSpacing: 1,
                 mb: 2,
+                fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' },
               }}
             >
               Create Your Account
@@ -192,9 +193,10 @@ const RegisterLandingPage: React.FC = () => {
           </Box>
 
           {/* Registration Options */}
-          <Grid container spacing={4} sx={{ maxWidth: 1000, mx: 'auto', px: { xs: 2, sm: 1, md: 0 } }}>
-            {/* Option 1: Ministry Admin Registration */}
-            <Grid item xs={12} md={6}>
+          <Box sx={{ px: { xs: 1.5, sm: 2, md: 0 }, display: 'flex', justifyContent: 'center' }}>
+            <Grid container spacing={4} sx={{ maxWidth: 1000, width: '100%' }}>
+              {/* Option 1: Ministry Admin Registration */}
+              <Grid item xs={12} md={6}>
               <Paper
                 elevation={0}
                 sx={{
@@ -398,7 +400,8 @@ const RegisterLandingPage: React.FC = () => {
                 </Button>
               </Paper>
             </Grid>
-          </Grid>
+            </Grid>
+          </Box>
 
           {/* Help Section */}
           <Paper

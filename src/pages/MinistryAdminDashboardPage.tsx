@@ -43,7 +43,6 @@ import {
   Inventory,
   Send,
   AttachMoney,
-  CheckCircleOutline,
   PendingActions,
   Business,
   Warning,
@@ -63,13 +62,7 @@ import {
   disableStaff,
   enableStaff,
 } from '@/services/user.service';
-import {
-  getAssetsByMinistryId,
-  getAssetsForMinistryReview,
-  getAllMinistryAssets,
-  approveAssetByMinistry,
-  rejectAssetByMinistry,
-} from '@/services/asset.service';
+import { getAllMinistryAssets, approveAssetByMinistry, rejectAssetByMinistry } from '@/services/asset.service';
 import { getMinistryById } from '@/services/ministry.service';
 import { User } from '@/types/user.types';
 import { Asset } from '@/types/asset.types';
@@ -130,11 +123,13 @@ const MinistryAdminDashboardPage = () => {
   const [disableDialogOpen, setDisableDialogOpen] = useState(false);
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const [uuidDialogOpen, setUuidDialogOpen] = useState(false);
-  const [assetRejectDialogOpen, setAssetRejectDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [reason, setReason] = useState('');
-  const [assetRejectReason, setAssetRejectReason] = useState('');
+
+  // Asset action dialog states
+  const [assetRejectDialogOpen, setAssetRejectDialogOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [assetRejectionReason, setAssetRejectionReason] = useState('');
   const [approvedStaffData, setApprovedStaffData] = useState<{
     uuid: string;
     userEmail: string;
@@ -349,16 +344,87 @@ const MinistryAdminDashboardPage = () => {
   };
 
   const handleSubmitToFederal = () => {
-    if (approvedAssets.length === 0) {
-      toast.warning('No approved assets to submit');
+    if (pendingMinistryReviewAssets.length === 0) {
+      toast.warning('No assets awaiting review to send');
       return;
     }
     setSubmitDialogOpen(true);
   };
 
   const handleSubmitToFederalConfirm = async () => {
-    toast.info('Submit to Federal feature coming soon!');
+    // Bulk-approve all pending_ministry_review assets → sends them to federal admin
+    setActionLoading(true);
+    let successCount = 0;
+    let failCount = 0;
+    for (const asset of pendingMinistryReviewAssets) {
+      try {
+        await approveAssetByMinistry(
+          asset.id!,
+          userData!.userId,
+          currentUser!.email || undefined,
+          userData!.agencyName
+        );
+        successCount++;
+      } catch {
+        failCount++;
+      }
+    }
+    if (successCount > 0) toast.success(`${successCount} asset(s) sent to Federal Admin`);
+    if (failCount > 0) toast.warning(`${failCount} asset(s) failed`);
     setSubmitDialogOpen(false);
+    setActionLoading(false);
+    await loadData();
+  };
+
+  const handleSendToFederal = async (asset: Asset) => {
+    if (!asset.id || !userData || !currentUser) return;
+    setActionLoading(true);
+    try {
+      await approveAssetByMinistry(
+        asset.id,
+        userData.userId,
+        currentUser.email || undefined,
+        userData.agencyName
+      );
+      toast.success('Asset sent to Federal Admin');
+      await loadData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send asset to Federal Admin');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRejectAssetClick = (asset: Asset) => {
+    setSelectedAsset(asset);
+    setAssetRejectionReason('');
+    setAssetRejectDialogOpen(true);
+  };
+
+  const handleRejectAssetConfirm = async () => {
+    if (!selectedAsset?.id || !userData || !currentUser || !assetRejectionReason.trim()) {
+      toast.error('Please provide a rejection reason');
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await rejectAssetByMinistry(
+        selectedAsset.id,
+        userData.userId,
+        assetRejectionReason,
+        currentUser.email || undefined,
+        userData.agencyName
+      );
+      toast.success('Asset rejected');
+      setAssetRejectDialogOpen(false);
+      setSelectedAsset(null);
+      setAssetRejectionReason('');
+      await loadData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to reject asset');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -371,70 +437,6 @@ const MinistryAdminDashboardPage = () => {
 
   const handleAssetTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setAssetTabValue(newValue);
-  };
-
-  // Asset approval handlers for Ministry Admin
-  const handleApproveAsset = async (asset: Asset) => {
-    if (!currentUser || !userData || !userData.ownedMinistryId) {
-      toast.error('User context missing');
-      return;
-    }
-
-    setActionLoading(true);
-    try {
-      await approveAssetByMinistry(
-        asset.id || '',
-        currentUser.uid,
-        currentUser.email || '',
-        userData.agencyName
-      );
-      toast.success(`Asset "${asset.assetId}" approved successfully`);
-      await loadData();
-    } catch (err: any) {
-      console.error('Error approving asset:', err);
-      toast.error(err.message || 'Failed to approve asset');
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleRejectAsset = (asset: Asset) => {
-    setSelectedAsset(asset);
-    setAssetRejectReason('');
-    setAssetRejectDialogOpen(true);
-  };
-
-  const handleRejectAssetConfirm = async () => {
-    if (!currentUser || !userData || !selectedAsset) {
-      toast.error('User or asset context missing');
-      return;
-    }
-
-    if (!assetRejectReason.trim()) {
-      toast.error('Please provide a rejection reason');
-      return;
-    }
-
-    setActionLoading(true);
-    try {
-      await rejectAssetByMinistry(
-        selectedAsset.id || '',
-        currentUser.uid,
-        assetRejectReason,
-        currentUser.email || '',
-        userData.agencyName
-      );
-      toast.success(`Asset "${selectedAsset.assetId}" rejected successfully`);
-      setAssetRejectDialogOpen(false);
-      setSelectedAsset(null);
-      setAssetRejectReason('');
-      await loadData();
-    } catch (err: any) {
-      console.error('Error rejecting asset:', err);
-      toast.error(err.message || 'Failed to reject asset');
-    } finally {
-      setActionLoading(false);
-    }
   };
 
   const getRoleLabel = (role: string) => {
@@ -734,7 +736,7 @@ const MinistryAdminDashboardPage = () => {
                   variant="contained"
                   startIcon={<Send />}
                   onClick={handleSubmitToFederal}
-                  disabled={approvedAssets.length === 0}
+                  disabled={pendingMinistryReviewAssets.length === 0}
                   sx={{
                     py: 1.5,
                     backgroundColor: '#008751',
@@ -745,7 +747,7 @@ const MinistryAdminDashboardPage = () => {
                     },
                   }}
                 >
-                  Submit to Federal ({approvedAssets.length})
+                  Send All to Federal Admin ({pendingMinistryReviewAssets.length})
                 </Button>
               </Grid>
             </Grid>
@@ -1012,12 +1014,12 @@ const MinistryAdminDashboardPage = () => {
             {/* Pending Ministry Review Tab */}
             <TabPanel value={assetTabValue} index={0}>
               {pendingMinistryReviewAssets.length === 0 ? (
-                <Alert severity="info">No assets pending your ministry review</Alert>
+                <Alert severity="info">No assets pending ministry review</Alert>
               ) : (
                 <>
-                  <Alert severity="warning" sx={{ mb: 2 }}>
+                  <Alert severity="info" sx={{ mb: 2 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {pendingMinistryReviewAssets.length} asset(s) awaiting your approval
+                      {pendingMinistryReviewAssets.length} asset(s) awaiting your review — click <strong>Send to Federal Admin</strong> to forward, or <strong>Reject</strong> to return to uploader.
                     </Typography>
                   </Alert>
                   <TableContainer component={Paper}>
@@ -1028,43 +1030,41 @@ const MinistryAdminDashboardPage = () => {
                           <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Description</TableCell>
                           <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Category</TableCell>
                           <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Value</TableCell>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Uploaded By</TableCell>
                           <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Approved By</TableCell>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }} align="right">
-                            Actions
-                          </TableCell>
+                          <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {pendingMinistryReviewAssets.map((asset) => (
                           <TableRow key={asset.id} hover>
-                            <TableCell sx={{ fontWeight: 'bold' }}>{asset.assetId}</TableCell>
+                            <TableCell sx={{ fontWeight: 'bold', color: '#00ff88' }}>{asset.assetId}</TableCell>
                             <TableCell>{asset.description}</TableCell>
                             <TableCell>{asset.category}</TableCell>
                             <TableCell>₦{asset.purchaseCost?.toLocaleString() || 0}</TableCell>
-                            <TableCell sx={{ color: '#00ff88' }}>{asset.uploadedBy}</TableCell>
                             <TableCell sx={{ color: '#2196f3' }}>{asset.approvedBy || 'N/A'}</TableCell>
-                            <TableCell align="right">
-                              <Tooltip title="Approve">
-                                <IconButton
+                            <TableCell align="center">
+                              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
+                                <Button
                                   size="small"
-                                  color="success"
-                                  onClick={() => handleApproveAsset(asset)}
+                                  variant="contained"
+                                  startIcon={<Send />}
+                                  onClick={() => handleSendToFederal(asset)}
                                   disabled={actionLoading}
+                                  sx={{ backgroundColor: '#008751', '&:hover': { backgroundColor: '#006038' }, fontSize: '0.7rem', whiteSpace: 'nowrap' }}
                                 >
-                                  <CheckCircle />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Reject">
-                                <IconButton
+                                  Send to Federal
+                                </Button>
+                                <Button
                                   size="small"
-                                  color="error"
-                                  onClick={() => handleRejectAsset(asset)}
+                                  variant="outlined"
+                                  startIcon={<Cancel />}
+                                  onClick={() => handleRejectAssetClick(asset)}
                                   disabled={actionLoading}
+                                  sx={{ borderColor: '#f44336', color: '#f44336', '&:hover': { backgroundColor: 'rgba(244,67,54,0.1)' }, fontSize: '0.7rem' }}
                                 >
-                                  <Cancel />
-                                </IconButton>
-                              </Tooltip>
+                                  Reject
+                                </Button>
+                              </Box>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -1085,13 +1085,13 @@ const MinistryAdminDashboardPage = () => {
                   variant="contained"
                   startIcon={<Send />}
                   onClick={handleSubmitToFederal}
-                  disabled={approvedAssets.length === 0 || actionLoading}
+                  disabled={pendingMinistryReviewAssets.length === 0 || actionLoading}
                   sx={{
                     backgroundColor: '#008751',
                     '&:hover': { backgroundColor: '#006038' },
                   }}
                 >
-                  Submit All ({approvedAssets.length})
+                  Send All to Federal Admin ({pendingMinistryReviewAssets.length})
                 </Button>
               </Box>
 
@@ -1191,13 +1191,13 @@ const MinistryAdminDashboardPage = () => {
                     <TableBody>
                       {allAssets.map((asset) => {
                         let statusColor = '#aaa';
-                        let statusIcon = null;
+                        let statusIcon: React.ReactNode = null;
                         let statusLabel = asset.status;
 
                         if (asset.status === 'pending_ministry_review') {
                           statusColor = '#2196f3';
                           statusIcon = <PendingActions />;
-                          statusLabel = 'Pending Review';
+                          statusLabel = 'Pending Review' as any;
                         } else if (asset.status === 'approved') {
                           statusColor = '#4caf50';
                           statusIcon = <CheckCircle />;
@@ -1217,7 +1217,7 @@ const MinistryAdminDashboardPage = () => {
                             <TableCell>₦{asset.purchaseCost?.toLocaleString() || 0}</TableCell>
                             <TableCell>
                               <Chip
-                                icon={statusIcon}
+                                icon={statusIcon || undefined}
                                 label={statusLabel}
                                 size="small"
                                 sx={{
@@ -1280,16 +1280,59 @@ const MinistryAdminDashboardPage = () => {
           </DialogTitle>
           <DialogContent>
             <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
-              Submitting <strong>{approvedAssets.length} asset{approvedAssets.length > 1 ? 's' : ''}</strong> to Federal Administrator
+              Sending <strong>{pendingMinistryReviewAssets.length} asset{pendingMinistryReviewAssets.length > 1 ? 's' : ''}</strong> to Federal Administrator
             </Typography>
             <Alert sx={{ mt: 2, backgroundColor: 'rgba(33, 150, 243, 0.1)', border: '1px solid rgba(33, 150, 243, 0.3)' }}>
-              Total Value: <strong>{formatCurrency(calculateTotalValue(approvedAssets))}</strong>
+              Total Value: <strong>{formatCurrency(calculateTotalValue(pendingMinistryReviewAssets))}</strong>
             </Alert>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setSubmitDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSubmitToFederalConfirm} variant="contained" sx={{ backgroundColor: '#008751' }}>
               Submit
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Asset Rejection Dialog */}
+        <Dialog
+          open={assetRejectDialogOpen}
+          onClose={() => setAssetRejectDialogOpen(false)}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{ sx: { backgroundColor: '#0d2818', border: '1px solid rgba(0,135,81,0.3)' } }}
+        >
+          <DialogTitle sx={{ color: '#f44336', fontWeight: 600 }}>Reject Asset</DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2 }}>
+              Provide a reason for rejecting this asset. The uploader will see this message.
+            </Typography>
+            {selectedAsset && (
+              <Box sx={{ p: 2, mb: 2, backgroundColor: 'rgba(0,135,81,0.1)', borderRadius: 1 }}>
+                <Typography variant="body2" sx={{ color: '#00ff88', fontWeight: 600 }}>{selectedAsset.assetId}</Typography>
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>{selectedAsset.description}</Typography>
+              </Box>
+            )}
+            <TextField
+              autoFocus
+              multiline
+              rows={3}
+              fullWidth
+              label="Rejection Reason"
+              value={assetRejectionReason}
+              onChange={(e) => setAssetRejectionReason(e.target.value)}
+              placeholder="e.g., Incorrect details, missing documentation..."
+            />
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button onClick={() => setAssetRejectDialogOpen(false)} sx={{ color: 'rgba(255,255,255,0.7)' }}>Cancel</Button>
+            <Button
+              onClick={handleRejectAssetConfirm}
+              variant="contained"
+              disabled={!assetRejectionReason.trim() || actionLoading}
+              sx={{ backgroundColor: '#c62828', '&:hover': { backgroundColor: '#8e0000' } }}
+            >
+              Confirm Rejection
             </Button>
           </DialogActions>
         </Dialog>
@@ -1389,55 +1432,6 @@ const MinistryAdminDashboardPage = () => {
             </Button>
             <Button onClick={handleCloseUuidDialog} variant="contained" sx={{ backgroundColor: '#008751' }}>
               Done
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* Asset Rejection Dialog */}
-        <Dialog
-          open={assetRejectDialogOpen}
-          onClose={() => setAssetRejectDialogOpen(false)}
-          maxWidth="sm"
-          fullWidth
-          PaperProps={{ sx: { backgroundColor: '#0d2818', border: '1px solid rgba(0, 135, 81, 0.3)' } }}
-        >
-          <DialogTitle sx={{ color: '#ff9800', fontWeight: 600 }}>
-            Reject Asset: {selectedAsset?.assetId}
-          </DialogTitle>
-          <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
-              Please provide a reason for rejecting this asset.
-            </Typography>
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              label="Rejection Reason"
-              value={assetRejectReason}
-              onChange={(e) => setAssetRejectReason(e.target.value)}
-              placeholder="e.g., Missing documentation, incomplete information, etc."
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(0, 20, 10, 0.5)',
-                },
-              }}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => {
-              setAssetRejectDialogOpen(false);
-              setSelectedAsset(null);
-              setAssetRejectReason('');
-            }}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleRejectAssetConfirm}
-              variant="contained"
-              sx={{ backgroundColor: '#f44336' }}
-              disabled={actionLoading || !assetRejectReason.trim()}
-            >
-              Reject Asset
             </Button>
           </DialogActions>
         </Dialog>

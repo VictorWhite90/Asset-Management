@@ -186,7 +186,9 @@ export const formatAction = (action: AuditAction): string => {
     // Asset actions
     'asset.upload': 'Uploaded Asset',
     'asset.approve': 'Approved Asset',
+    'asset.approve_by_ministry': 'Sent Asset to Federal Admin',
     'asset.reject': 'Rejected Asset',
+    'asset.reject_by_ministry': 'Rejected Asset (Ministry)',
     'asset.edit': 'Edited Asset',
     'asset.view': 'Viewed Asset',
     'asset.delete': 'Deleted Asset',

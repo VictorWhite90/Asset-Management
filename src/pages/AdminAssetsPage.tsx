@@ -73,7 +73,7 @@ const AdminAssetsPage = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [ministryFilter, setMinistryFilter] = useState<string>('');
   const [stateFilter, setStateFilter] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<AssetStatus | ''>('');
+  const [statusFilter, setStatusFilter] = useState<AssetStatus | ''>('approved');
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');

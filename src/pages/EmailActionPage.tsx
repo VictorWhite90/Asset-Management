@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { applyActionCode } from 'firebase/auth';
+import { applyActionCode, reload } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import {
   Container,
@@ -28,8 +28,21 @@ const EmailActionPage = () => {
     const actionCode = searchParams.get('oobCode');
 
     if (!actionCode) {
-      setStatus('error');
-      setMessage('Invalid verification link');
+      // No oobCode means Firebase already handled the verification on its side
+      // and redirected here as the continueUrl. Check if the user is now verified.
+      const user = auth.currentUser;
+      if (user) {
+        await reload(user);
+        if (user.emailVerified) {
+          setStatus('success');
+          setMessage('Email verified successfully! You can now sign in.');
+          setTimeout(() => navigate('/login', { state: { message: 'Email verified! Please sign in to continue.' } }), 2000);
+        } else {
+          navigate('/verify-email');
+        }
+      } else {
+        navigate('/verify-email');
+      }
       return;
     }
 

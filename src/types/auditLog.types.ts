@@ -8,7 +8,9 @@ export type AuditAction =
   // Asset actions
   | 'asset.upload'
   | 'asset.approve'
+  | 'asset.approve_by_ministry'
   | 'asset.reject'
+  | 'asset.reject_by_ministry'
   | 'asset.edit'
   | 'asset.view'
   | 'asset.delete'

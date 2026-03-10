@@ -122,9 +122,13 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
     }
 
     // Validate dynamic category-specific fields
+    // Fields that are optional even if listed in category requiredFields
+    const OPTIONAL_FIELDS = ['surveyPlanNumber'];
+
     if (categoryDetails && categoryDetails.requiredFields) {
       let hasErrors = false;
       categoryDetails.requiredFields.forEach((field) => {
+        if (OPTIONAL_FIELDS.includes(field)) return; // skip optional fields
         if (!data[field] || data[field].trim() === '') {
           setFormError(field, {
             type: 'required',
@@ -387,6 +391,23 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
             </Grid>
 
             {categoryDetails.requiredFields.map((field) => {
+              // Survey Plan Number is optional
+              if (field === 'surveyPlanNumber') {
+                return (
+                  <Grid item xs={12} sm={6} key={field}>
+                    <TextField
+                      fullWidth
+                      id={field}
+                      label="Survey Plan Number (Optional)"
+                      placeholder="e.g., SPL/ABC/2020/001"
+                      {...register(field)}
+                      error={!!errors[field]}
+                      helperText={errors[field]?.message as string || 'Enter if available'}
+                    />
+                  </Grid>
+                );
+              }
+
               // Custom rendering for Land Title Type
               if (field === 'landTitleType') {
                 return (
