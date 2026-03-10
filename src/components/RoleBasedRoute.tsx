@@ -47,6 +47,20 @@ const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ children, allowedRoles 
 
   // Check if user has required role
   if (userData && allowedRoles.includes(userData.role)) {
+    // For non-admin roles, also check account is verified
+    if (
+      userData.role !== 'admin' &&
+      userData.accountStatus !== 'verified'
+    ) {
+      toast.error(
+        userData.accountStatus === 'pending_ministry_approval'
+          ? 'Your account is pending ministry admin approval. Please wait for your ministry admin to approve your registration.'
+          : userData.accountStatus === 'pending_verification'
+            ? 'Please verify your email address first.'
+            : 'Your account is not yet active. Please contact your ministry admin.'
+      );
+      return <Navigate to="/dashboard" replace />;
+    }
     return <>{children}</>;
   }
 
