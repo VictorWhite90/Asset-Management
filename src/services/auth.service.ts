@@ -60,7 +60,7 @@ export const registerAgency = async (
     // Send email verification with custom action URL to prevent spam
     // This directs to our custom EmailActionPage for better UX
     const actionCodeSettings = {
-      url: `${window.location.origin}/verify-email`,
+      url: `${window.location.origin}/dashboard`,
       handleCodeInApp: false,
     };
 
@@ -130,7 +130,7 @@ export const registerMinistryAdmin = async (
 
     // Send email verification
     const actionCodeSettings = {
-      url: `${window.location.origin}/verify-email`,
+      url: `${window.location.origin}/dashboard`,
       handleCodeInApp: false,
     };
 
@@ -177,7 +177,7 @@ export const resetPassword = async (email: string): Promise<void> => {
 export const resendVerificationEmail = async (user: FirebaseUser): Promise<void> => {
   try {
     const actionCodeSettings = {
-      url: `${window.location.origin}/verify-email`,
+      url: `${window.location.origin}/dashboard`,
       handleCodeInApp: false,
     };
     await sendEmailVerification(user, actionCodeSettings);
