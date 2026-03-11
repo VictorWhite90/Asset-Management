@@ -74,7 +74,7 @@ const DashboardPage: React.FC = () => {
         fetchedAssets = await getApproverAssets(userData.ministryId || '');
       } else if (userData.role === 'admin') {
         const all = await getAllAssets();
-        // Federal admin only sees approved assets
+        // Federal admin only sees fully approved assets sent by ministries
         fetchedAssets = all.filter(a => a.status === 'approved');
         // Fetch pending ministry admins for notification badge
         const admins = await getPendingMinistryAdmins();
@@ -100,7 +100,7 @@ const DashboardPage: React.FC = () => {
   // Admin-specific derived stats
   const uniqueMinistries = new Set(assets.map((a) => a.agencyName).filter(Boolean)).size;
   const uniqueCategories = new Set(assets.map((a) => a.category).filter(Boolean)).size;
-  const newSubmissions = pendingMinistryReview; // awaiting federal review
+  const newSubmissions = assets.length; // total approved assets visible to federal admin
 
   // Category breakdown for bar chart
   const categoryBreakdown = Object.entries(
@@ -681,9 +681,9 @@ const DashboardPage: React.FC = () => {
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>New Submissions</Typography>
+                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Approved Assets</Typography>
                               <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{newSubmissions}</Typography>
-                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Awaiting federal review</Typography>
+                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Sent by ministries</Typography>
                             </Box>
                             <Schedule sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
                           </Box>

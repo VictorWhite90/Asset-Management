@@ -672,6 +672,11 @@ export const getAssetsByMinistry = async (
   try {
     let assets = await getAllAssets();
 
+    // Exclude rejected assets by default unless explicitly filtering for them
+    if (!status) {
+      assets = assets.filter(a => a.status !== 'rejected');
+    }
+
     // Apply filters
     if (category) {
       assets = assets.filter(a => a.category === category);
@@ -745,16 +750,17 @@ export const getAllMinistries = async (): Promise<string[]> => {
  */
 export const getAdminDashboardStats = async (): Promise<AdminDashboardStats> => {
   try {
-    const assets = await getAllAssets();
+    const allAssets = await getAllAssets();
+    // Federal admin only sees approved assets
+    const assets = allAssets.filter(a => a.status === 'approved');
 
     const totalPurchaseValue = assets.reduce((sum, a) => sum + (a.purchaseCost || 0), 0);
     const totalMarketValue = assets.reduce((sum, a) => sum + (a.marketValue || 0), 0);
 
     const statusCounts = {
-      approved: assets.filter(a => a.status === 'approved').length,
-      // Include pending_ministry_review in the pending count for federal admin
-      pending: assets.filter(a => a.status === 'pending' || a.status === 'pending_ministry_review').length,
-      rejected: assets.filter(a => a.status === 'rejected').length,
+      approved: assets.length,
+      pending: 0,
+      rejected: 0,
     };
 
     const categoryCounts: Record<string, number> = {};
