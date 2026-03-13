@@ -74,8 +74,8 @@ const DashboardPage: React.FC = () => {
         fetchedAssets = await getApproverAssets(userData.ministryId || '');
       } else if (userData.role === 'admin') {
         const all = await getAllAssets();
-        // Federal admin only sees fully approved assets sent by ministries
-        fetchedAssets = all.filter(a => a.status === 'approved');
+        // Federal admin sees assets submitted by ministries (pending federal review + fully approved)
+        fetchedAssets = all.filter(a => a.status === 'submitted_to_federal' || a.status === 'approved');
         // Fetch pending ministry admins for notification badge
         const admins = await getPendingMinistryAdmins();
         setPendingMinistryAdmins(admins);
@@ -93,7 +93,7 @@ const DashboardPage: React.FC = () => {
   // Calculate statistics
   const totalAssets = assets.length;
   const pendingAssets = assets.filter((a) => a.status === 'pending').length;
-  const approvedAssets = assets.filter((a) => a.status === 'approved').length;
+  const approvedAssets = assets.filter((a) => a.status === 'approved' || a.status === 'submitted_to_federal').length;
   const rejectedAssets = assets.filter((a) => a.status === 'rejected').length;
   const pendingMinistryReview = assets.filter((a) => a.status === 'pending_ministry_review').length;
 
@@ -120,14 +120,14 @@ const DashboardPage: React.FC = () => {
     return `₦${amount.toLocaleString()}`;
   };
 
-  // Get recent uploads (last 5)
+  // Get recent uploads (last 2)
   const recentUploads = [...assets]
     .sort((a, b) => {
       const timeA = a.uploadTimestamp?.toMillis?.() || 0;
       const timeB = b.uploadTimestamp?.toMillis?.() || 0;
       return timeB - timeA;
     })
-    .slice(0, 5);
+    .slice(0, 2);
 
   const getRoleDisplayName = (role: string) => {
     switch (role) {
@@ -517,6 +517,81 @@ const DashboardPage: React.FC = () => {
                         </CardContent>
                       </Card>
                     </Grid>
+
+                    {/* Recent Asset History for Approver */}
+                    <Grid item xs={12}>
+                      <Paper sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                            Recent Asset History
+                          </Typography>
+                          <Button
+                            component={Link}
+                            to="/approver/review-uploads"
+                            size="small"
+                            variant="outlined"
+                            sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#00ff88', fontSize: '0.75rem' }}
+                          >
+                            View All
+                          </Button>
+                        </Box>
+                        {recentUploads.length === 0 ? (
+                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', py: 3 }}>
+                            No assets yet
+                          </Typography>
+                        ) : (
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            {recentUploads.map((asset) => {
+                              const statusMap: Record<string, { label: string; color: string }> = {
+                                approved: { label: 'Approved', color: '#4caf50' },
+                                rejected: { label: 'Rejected', color: '#f44336' },
+                                pending_ministry_review: { label: 'Ministry Review', color: '#2196f3' },
+                                pending: { label: 'Pending Approval', color: '#ff9800' },
+                                submitted_to_federal: { label: 'Sent to Federal', color: '#9c27b0' },
+                              };
+                              const s = statusMap[asset.status] || { label: asset.status, color: '#aaa' };
+                              return (
+                                <Box
+                                  key={asset.id}
+                                  sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    p: 2,
+                                    borderRadius: 1,
+                                    backgroundColor: 'rgba(0,135,81,0.07)',
+                                    border: '1px solid rgba(0,135,81,0.15)',
+                                    flexWrap: 'wrap',
+                                    gap: 1,
+                                  }}
+                                >
+                                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                                    <Typography variant="body2" sx={{ color: '#FFFFFF', fontWeight: 600, wordBreak: 'break-word' }}>
+                                      {asset.description}
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+                                      {asset.assetId} • {asset.category} • ₦{asset.purchaseCost?.toLocaleString()}
+                                    </Typography>
+                                  </Box>
+                                  <Chip
+                                    label={s.label}
+                                    size="small"
+                                    sx={{
+                                      backgroundColor: `${s.color}20`,
+                                      color: s.color,
+                                      border: `1px solid ${s.color}40`,
+                                      fontWeight: 600,
+                                      fontSize: '0.7rem',
+                                      flexShrink: 0,
+                                    }}
+                                  />
+                                </Box>
+                              );
+                            })}
+                          </Box>
+                        )}
+                      </Paper>
+                    </Grid>
                   </>
                 )}
 
@@ -580,48 +655,78 @@ const DashboardPage: React.FC = () => {
                       </Card>
                     </Grid>
 
-                    {/* Asset History for Ministry Admin */}
+                    {/* Recent Asset History for Ministry Admin */}
                     <Grid item xs={12}>
-                      <Paper
-                        component={Link}
-                        to="/ministry-admin/dashboard"
-                        sx={{
-                          p: { xs: 2, sm: 3 },
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          textDecoration: 'none',
-                          cursor: 'pointer',
-                          border: '1px solid rgba(0,135,81,0.25)',
-                          background: 'rgba(0,135,81,0.07)',
-                          transition: 'border-color 0.2s, background 0.2s',
-                          '&:hover': {
-                            borderColor: '#00ff88',
-                            background: 'rgba(0,135,81,0.13)',
-                          },
-                        }}
-                      >
-                        <Box>
-                          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 0.5 }}>
-                            Asset History
+                      <Paper sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                            Recent Asset History
                           </Typography>
-                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.55)' }}>
-                            {assets.length === 0
-                              ? 'No assets in your ministry yet'
-                              : `${assets.length} asset${assets.length !== 1 ? 's' : ''} across all statuses — click to view full history`}
+                          <Button
+                            component={Link}
+                            to="/ministry-admin/dashboard"
+                            size="small"
+                            variant="outlined"
+                            sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#00ff88', fontSize: '0.75rem' }}
+                          >
+                            View All
+                          </Button>
+                        </Box>
+                        {recentUploads.length === 0 ? (
+                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', py: 3 }}>
+                            No assets in your ministry yet
                           </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', gap: 1, flexShrink: 0, ml: 2 }}>
-                          {approvedAssets > 0 && (
-                            <Chip label={`${approvedAssets} Sent`} size="small" sx={{ backgroundColor: 'rgba(76,175,80,0.15)', color: '#4caf50', border: '1px solid rgba(76,175,80,0.3)', fontWeight: 600 }} />
-                          )}
-                          {rejectedAssets > 0 && (
-                            <Chip label={`${rejectedAssets} Rejected`} size="small" sx={{ backgroundColor: 'rgba(244,67,54,0.15)', color: '#f44336', border: '1px solid rgba(244,67,54,0.3)', fontWeight: 600 }} />
-                          )}
-                          {pendingMinistryReview > 0 && (
-                            <Chip label={`${pendingMinistryReview} Pending`} size="small" sx={{ backgroundColor: 'rgba(33,150,243,0.15)', color: '#2196f3', border: '1px solid rgba(33,150,243,0.3)', fontWeight: 600 }} />
-                          )}
-                        </Box>
+                        ) : (
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            {recentUploads.map((asset) => {
+                              const statusMap: Record<string, { label: string; color: string }> = {
+                                approved: { label: 'Approved', color: '#4caf50' },
+                                rejected: { label: 'Rejected', color: '#f44336' },
+                                pending_ministry_review: { label: 'Ministry Review', color: '#2196f3' },
+                                pending: { label: 'Pending Approval', color: '#ff9800' },
+                                submitted_to_federal: { label: 'Sent to Federal', color: '#9c27b0' },
+                              };
+                              const s = statusMap[asset.status] || { label: asset.status, color: '#aaa' };
+                              return (
+                                <Box
+                                  key={asset.id}
+                                  sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    p: 2,
+                                    borderRadius: 1,
+                                    backgroundColor: 'rgba(0,135,81,0.07)',
+                                    border: '1px solid rgba(0,135,81,0.15)',
+                                    flexWrap: 'wrap',
+                                    gap: 1,
+                                  }}
+                                >
+                                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                                    <Typography variant="body2" sx={{ color: '#FFFFFF', fontWeight: 600, wordBreak: 'break-word' }}>
+                                      {asset.description}
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+                                      {asset.assetId} • {asset.category} • ₦{asset.purchaseCost?.toLocaleString()}
+                                    </Typography>
+                                  </Box>
+                                  <Chip
+                                    label={s.label}
+                                    size="small"
+                                    sx={{
+                                      backgroundColor: `${s.color}20`,
+                                      color: s.color,
+                                      border: `1px solid ${s.color}40`,
+                                      fontWeight: 600,
+                                      fontSize: '0.7rem',
+                                      flexShrink: 0,
+                                    }}
+                                  />
+                                </Box>
+                              );
+                            })}
+                          </Box>
+                        )}
                       </Paper>
                     </Grid>
                   </>

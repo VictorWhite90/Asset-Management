@@ -436,13 +436,11 @@ export const approveAsset = async (
       throw new Error(`Cannot approve asset with status "${asset.status}". Asset must be in "pending" status.`);
     }
 
-    // NEW WORKFLOW: Approver approves sends to Ministry Admin for final approval
+    // WORKFLOW: Approver approves → goes directly to Federal Admin
     await updateDoc(assetRef, {
-      status: 'pending_ministry_review', // Not directly approved anymore
+      status: 'submitted_to_federal',
       approvedBy: approverId,
       approvedAt: Timestamp.now(),
-      sentToMinistryAdminBy: approverId,
-      sentToMinistryAdminAt: Timestamp.now(),
     });
 
     // Log the action
@@ -455,7 +453,7 @@ export const approveAsset = async (
         action: 'asset.approve',
         resourceType: 'asset',
         resourceId: assetId,
-        details: `Approved asset and sent to Ministry Admin: ${asset.description} (${asset.assetId})`,
+        details: `Approved asset and submitted to Federal Admin: ${asset.description} (${asset.assetId})`,
         metadata: {
           assetId: asset.assetId,
           category: asset.category,
@@ -709,7 +707,7 @@ export const getAssetsByMinistry = async (
       const states = [...new Set(assets.map(a => a.location).filter(Boolean))];
       const statusBreakdown = {
         approved: assets.filter(a => a.status === 'approved').length,
-        pending: assets.filter(a => a.status === 'pending').length,
+        pending: assets.filter(a => a.status === 'pending' || a.status === 'submitted_to_federal').length,
         rejected: assets.filter(a => a.status === 'rejected').length,
       };
 
@@ -751,15 +749,15 @@ export const getAllMinistries = async (): Promise<string[]> => {
 export const getAdminDashboardStats = async (): Promise<AdminDashboardStats> => {
   try {
     const allAssets = await getAllAssets();
-    // Federal admin only sees approved assets
-    const assets = allAssets.filter(a => a.status === 'approved');
+    // Federal admin sees submitted_to_federal (pending review) and approved assets
+    const assets = allAssets.filter(a => a.status === 'approved' || a.status === 'submitted_to_federal');
 
     const totalPurchaseValue = assets.reduce((sum, a) => sum + (a.purchaseCost || 0), 0);
     const totalMarketValue = assets.reduce((sum, a) => sum + (a.marketValue || 0), 0);
 
     const statusCounts = {
-      approved: assets.length,
-      pending: 0,
+      approved: assets.filter(a => a.status === 'approved').length,
+      pending: assets.filter(a => a.status === 'submitted_to_federal').length,
       rejected: 0,
     };
 
@@ -1032,7 +1030,7 @@ export const approveAssetByMinistry = async (
     }
 
     await updateDoc(assetRef, {
-      status: 'approved',
+      status: 'submitted_to_federal',
       approvedByMinistry: ministryAdminId,
       approvedByMinistryAt: Timestamp.now(),
     });
@@ -1047,7 +1045,7 @@ export const approveAssetByMinistry = async (
         action: 'asset.approve_by_ministry',
         resourceType: 'asset',
         resourceId: assetId,
-        details: `Approved asset at Ministry level: ${asset.description} (${asset.assetId})`,
+        details: `Approved asset at Ministry level and submitted to Federal: ${asset.description} (${asset.assetId})`,
         metadata: {
           assetId: asset.assetId,
           category: asset.category,
@@ -1156,5 +1154,115 @@ export const rejectAssetByMinistry = async (
     throw new Error(
       error.message || 'Failed to reject asset at ministry level. Please try again.'
     );
+  }
+};
+
+/**
+ * Federal Admin approves an asset (final approval)
+ * @param assetId - Document ID of the asset
+ * @param federalAdminId - User ID of the federal admin
+ * @param federalAdminEmail - Email for audit logging
+ */
+export const approveAssetByFederal = async (
+  assetId: string,
+  federalAdminId: string,
+  federalAdminEmail?: string
+): Promise<void> => {
+  try {
+    const assetRef = doc(db, COLLECTIONS.ASSETS, assetId);
+    const assetDoc = await getDoc(assetRef);
+
+    if (!assetDoc.exists()) {
+      throw new Error('Asset not found');
+    }
+
+    const asset = assetDoc.data() as Asset;
+
+    if (asset.status !== 'submitted_to_federal') {
+      throw new Error(
+        `Cannot approve asset with status "${asset.status}". Asset must be in "submitted_to_federal" status.`
+      );
+    }
+
+    await updateDoc(assetRef, {
+      status: 'approved',
+      approvedByFederal: federalAdminId,
+      approvedByFederalAt: Timestamp.now(),
+    });
+
+    if (federalAdminEmail) {
+      await logAction({
+        userId: federalAdminId,
+        userEmail: federalAdminEmail,
+        agencyName: 'Federal Asset Management Office',
+        userRole: 'admin',
+        action: 'asset.approve_by_federal',
+        resourceType: 'asset',
+        resourceId: assetId,
+        details: `Federal Admin approved asset: ${asset.description} (${asset.assetId})`,
+        metadata: { assetId: asset.assetId, category: asset.category },
+      });
+    }
+  } catch (error: any) {
+    console.error('Error approving asset at federal level:', error);
+    if (error.message?.includes('Cannot approve asset')) throw error;
+    throw new Error(error.message || 'Failed to approve asset at federal level. Please try again.');
+  }
+};
+
+/**
+ * Federal Admin rejects an asset
+ * @param assetId - Document ID of the asset
+ * @param federalAdminId - User ID of the federal admin
+ * @param rejectionReason - Reason for rejection
+ * @param federalAdminEmail - Email for audit logging
+ */
+export const rejectAssetByFederal = async (
+  assetId: string,
+  federalAdminId: string,
+  rejectionReason: string,
+  federalAdminEmail?: string
+): Promise<void> => {
+  try {
+    const assetRef = doc(db, COLLECTIONS.ASSETS, assetId);
+    const assetDoc = await getDoc(assetRef);
+
+    if (!assetDoc.exists()) {
+      throw new Error('Asset not found');
+    }
+
+    const asset = assetDoc.data() as Asset;
+
+    if (asset.status !== 'submitted_to_federal') {
+      throw new Error(
+        `Cannot reject asset with status "${asset.status}". Asset must be in "submitted_to_federal" status.`
+      );
+    }
+
+    await updateDoc(assetRef, {
+      status: 'rejected',
+      rejectedBy: federalAdminId,
+      rejectedAt: Timestamp.now(),
+      rejectionReason,
+      rejectionLevel: 'federal-admin',
+    });
+
+    if (federalAdminEmail) {
+      await logAction({
+        userId: federalAdminId,
+        userEmail: federalAdminEmail,
+        agencyName: 'Federal Asset Management Office',
+        userRole: 'admin',
+        action: 'asset.reject_by_federal',
+        resourceType: 'asset',
+        resourceId: assetId,
+        details: `Federal Admin rejected asset: ${asset.description} (${asset.assetId}). Reason: ${rejectionReason}`,
+        metadata: { assetId: asset.assetId, category: asset.category, rejectionReason },
+      });
+    }
+  } catch (error: any) {
+    console.error('Error rejecting asset at federal level:', error);
+    if (error.message?.includes('Cannot reject asset')) throw error;
+    throw new Error(error.message || 'Failed to reject asset at federal level. Please try again.');
   }
 };

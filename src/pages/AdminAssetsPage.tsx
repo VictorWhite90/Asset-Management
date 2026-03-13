@@ -57,7 +57,6 @@ import AppLayout from '@/components/AppLayout';
 type ViewMode = 'summary' | 'detailed';
 
 const AdminAssetsPage = () => {
-
   // Dashboard stats
   const [dashboardStats, setDashboardStats] = useState<AdminDashboardStats | null>(null);
   const [ministryStats, setMinistryStats] = useState<MinistryStats[]>([]);
@@ -73,7 +72,7 @@ const AdminAssetsPage = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [ministryFilter, setMinistryFilter] = useState<string>('');
   const [stateFilter, setStateFilter] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<AssetStatus | ''>('approved');
+  const [statusFilter, setStatusFilter] = useState<AssetStatus | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -329,12 +328,24 @@ const AdminAssetsPage = () => {
     return `₦${amount.toLocaleString()}`;
   };
 
-  const getStatusColor = (status: AssetStatus): 'success' | 'warning' | 'error' => {
+  const getStatusColor = (status: AssetStatus): 'success' | 'warning' | 'error' | 'info' => {
     switch (status) {
       case 'approved': return 'success';
+      case 'submitted_to_federal': return 'info';
       case 'pending': return 'warning';
       case 'rejected': return 'error';
       default: return 'warning';
+    }
+  };
+
+  const getStatusLabel = (status: AssetStatus): string => {
+    switch (status) {
+      case 'approved': return 'Approved';
+      case 'submitted_to_federal': return 'Pending Federal Review';
+      case 'pending': return 'Pending';
+      case 'pending_ministry_review': return 'Ministry Review';
+      case 'rejected': return 'Rejected';
+      default: return status;
     }
   };
 
@@ -429,7 +440,7 @@ const AdminAssetsPage = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box>
                       <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
-                        Pending Review
+                        Pending Federal Review
                       </Typography>
                       <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
                         {dashboardStats.statusCounts.pending}
@@ -553,8 +564,10 @@ const AdminAssetsPage = () => {
                 size="small"
               >
                 <MenuItem value="">All Status</MenuItem>
+                <MenuItem value="submitted_to_federal">Pending Federal Review</MenuItem>
                 <MenuItem value="approved">Approved</MenuItem>
                 <MenuItem value="pending">Pending</MenuItem>
+                <MenuItem value="pending_ministry_review">Ministry Review</MenuItem>
                 <MenuItem value="rejected">Rejected</MenuItem>
               </TextField>
             </Grid>
@@ -910,7 +923,7 @@ const AdminAssetsPage = () => {
                           </TableCell>
                           <TableCell align="center">
                             <Chip
-                              label={asset.status}
+                              label={getStatusLabel(asset.status)}
                               size="small"
                               color={getStatusColor(asset.status)}
                             />
@@ -955,6 +968,7 @@ const AdminAssetsPage = () => {
           </Paper>
         )}
       </Container>
+
     </AppLayout>
   );
 };

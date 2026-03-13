@@ -62,7 +62,7 @@ import {
   disableStaff,
   enableStaff,
 } from '@/services/user.service';
-import { getAllMinistryAssets, approveAssetByMinistry, rejectAssetByMinistry } from '@/services/asset.service';
+import { getAllMinistryAssets } from '@/services/asset.service';
 import { getMinistryById } from '@/services/ministry.service';
 import { User } from '@/types/user.types';
 import { Asset } from '@/types/asset.types';
@@ -105,8 +105,7 @@ const MinistryAdminDashboardPage = () => {
 
   // Asset data
   const [allAssets, setAllAssets] = useState<Asset[]>([]);
-  const [approvedAssets, setApprovedAssets] = useState<Asset[]>([]);
-  const [pendingMinistryReviewAssets, setPendingMinistryReviewAssets] = useState<Asset[]>([]);
+  const [submittedToFederalAssets, setSubmittedToFederalAssets] = useState<Asset[]>([]);
   const [assetTabValue, setAssetTabValue] = useState(0);
 
   // Ministry data
@@ -121,15 +120,10 @@ const MinistryAdminDashboardPage = () => {
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [changeRoleDialogOpen, setChangeRoleDialogOpen] = useState(false);
   const [disableDialogOpen, setDisableDialogOpen] = useState(false);
-  const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const [uuidDialogOpen, setUuidDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [reason, setReason] = useState('');
 
-  // Asset action dialog states
-  const [assetRejectDialogOpen, setAssetRejectDialogOpen] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
-  const [assetRejectionReason, setAssetRejectionReason] = useState('');
   const [approvedStaffData, setApprovedStaffData] = useState<{
     uuid: string;
     userEmail: string;
@@ -177,10 +171,9 @@ const MinistryAdminDashboardPage = () => {
       setAllStaff(staff.filter(u => u.accountStatus === 'verified'));
       setDisabledStaff(staff.filter(u => u.accountStatus === 'disabled'));
 
-      // Assets are already filtered by ministry - now categorize by status
+      // Assets are already filtered by ministry - categorize by status for display
       setAllAssets(allMinistryAssets);
-      setPendingMinistryReviewAssets(allMinistryAssets.filter(a => a.status === 'pending_ministry_review'));
-      setApprovedAssets(allMinistryAssets.filter(a => a.status === 'approved'));
+      setSubmittedToFederalAssets(allMinistryAssets.filter(a => a.status === 'submitted_to_federal'));
 
       setMinistry(ministryData);
     } catch (err: any) {
@@ -338,90 +331,6 @@ const MinistryAdminDashboardPage = () => {
       await loadData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to enable staff');
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleSubmitToFederal = () => {
-    if (pendingMinistryReviewAssets.length === 0) {
-      toast.warning('No assets awaiting review to send');
-      return;
-    }
-    setSubmitDialogOpen(true);
-  };
-
-  const handleSubmitToFederalConfirm = async () => {
-    // Bulk-approve all pending_ministry_review assets → sends them to federal admin
-    setActionLoading(true);
-    let successCount = 0;
-    let failCount = 0;
-    for (const asset of pendingMinistryReviewAssets) {
-      try {
-        await approveAssetByMinistry(
-          asset.id!,
-          userData!.userId,
-          currentUser!.email || undefined,
-          userData!.agencyName
-        );
-        successCount++;
-      } catch {
-        failCount++;
-      }
-    }
-    if (successCount > 0) toast.success(`${successCount} asset(s) sent to Federal Admin`);
-    if (failCount > 0) toast.warning(`${failCount} asset(s) failed`);
-    setSubmitDialogOpen(false);
-    setActionLoading(false);
-    await loadData();
-  };
-
-  const handleSendToFederal = async (asset: Asset) => {
-    if (!asset.id || !userData || !currentUser) return;
-    setActionLoading(true);
-    try {
-      await approveAssetByMinistry(
-        asset.id,
-        userData.userId,
-        currentUser.email || undefined,
-        userData.agencyName
-      );
-      toast.success('Asset sent to Federal Admin');
-      await loadData();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to send asset to Federal Admin');
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleRejectAssetClick = (asset: Asset) => {
-    setSelectedAsset(asset);
-    setAssetRejectionReason('');
-    setAssetRejectDialogOpen(true);
-  };
-
-  const handleRejectAssetConfirm = async () => {
-    if (!selectedAsset?.id || !userData || !currentUser || !assetRejectionReason.trim()) {
-      toast.error('Please provide a rejection reason');
-      return;
-    }
-    setActionLoading(true);
-    try {
-      await rejectAssetByMinistry(
-        selectedAsset.id,
-        userData.userId,
-        assetRejectionReason,
-        currentUser.email || undefined,
-        userData.agencyName
-      );
-      toast.success('Asset rejected');
-      setAssetRejectDialogOpen(false);
-      setSelectedAsset(null);
-      setAssetRejectionReason('');
-      await loadData();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to reject asset');
     } finally {
       setActionLoading(false);
     }
@@ -609,10 +518,10 @@ const MinistryAdminDashboardPage = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Box>
                         <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
-                          Ready to Submit
+                          Sent to Federal
                         </Typography>
                         <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
-                          {approvedAssets.length}
+                          {submittedToFederalAssets.length}
                         </Typography>
                       </Box>
                       <PendingActions sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
@@ -728,26 +637,6 @@ const MinistryAdminDashboardPage = () => {
                   }}
                 >
                   View Assets
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={4}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  startIcon={<Send />}
-                  onClick={handleSubmitToFederal}
-                  disabled={pendingMinistryReviewAssets.length === 0}
-                  sx={{
-                    py: 1.5,
-                    backgroundColor: '#008751',
-                    '&:hover': { backgroundColor: '#006038' },
-                    '&:disabled': {
-                      backgroundColor: 'rgba(0, 135, 81, 0.3)',
-                      color: 'rgba(255, 255, 255, 0.5)',
-                    },
-                  }}
-                >
-                  Send All to Federal Admin ({pendingMinistryReviewAssets.length})
                 </Button>
               </Grid>
             </Grid>
@@ -996,179 +885,56 @@ const MinistryAdminDashboardPage = () => {
                   '& .Mui-selected': { color: '#00ff88' },
                 }}
               >
-                <Tab
-                  label={`Pending Ministry Review (${pendingMinistryReviewAssets.length})`}
-                  id="asset-tab-0"
-                />
-                <Tab
-                  label={`Approved (${approvedAssets.length})`}
-                  id="asset-tab-1"
-                />
-                <Tab
-                  label={`All Assets (${allAssets.length})`}
-                  id="asset-tab-2"
-                />
+                <Tab label={`Sent to Federal (${submittedToFederalAssets.length})`} id="asset-tab-0" />
+                <Tab label={`All Assets (${allAssets.length})`} id="asset-tab-1" />
               </Tabs>
             </Paper>
 
-            {/* Pending Ministry Review Tab */}
+            {/* Sent to Federal Tab — read-only */}
             <TabPanel value={assetTabValue} index={0}>
-              {pendingMinistryReviewAssets.length === 0 ? (
-                <Alert severity="info">No assets pending ministry review</Alert>
+              <Alert severity="info" sx={{ mb: 2 }}>
+                These assets have been approved by the agency approver and sent to the Federal Admin for final review.
+              </Alert>
+              {submittedToFederalAssets.length === 0 ? (
+                <Alert severity="warning">No assets have been sent to Federal Admin yet</Alert>
               ) : (
-                <>
-                  <Alert severity="info" sx={{ mb: 2 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {pendingMinistryReviewAssets.length} asset(s) awaiting your review — click <strong>Send to Federal Admin</strong> to forward, or <strong>Reject</strong> to return to uploader.
-                    </Typography>
-                  </Alert>
-                  <TableContainer component={Paper}>
-                    <Table>
-                      <TableHead>
-                        <TableRow sx={{ backgroundColor: '#0d2818' }}>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Asset ID</TableCell>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Description</TableCell>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Category</TableCell>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Value</TableCell>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Approved By</TableCell>
-                          <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>Actions</TableCell>
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: '#0d2818' }}>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Asset ID</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Description</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Category</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Value</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Approved By</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Status</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {submittedToFederalAssets.map((asset) => (
+                        <TableRow key={asset.id} hover>
+                          <TableCell sx={{ fontWeight: 'bold', color: '#00ff88' }}>{asset.assetId}</TableCell>
+                          <TableCell>{asset.description}</TableCell>
+                          <TableCell>{asset.category}</TableCell>
+                          <TableCell>₦{asset.purchaseCost?.toLocaleString() || 0}</TableCell>
+                          <TableCell sx={{ color: '#2196f3' }}>{asset.approvedBy || 'N/A'}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label="Pending Federal Review"
+                              size="small"
+                              sx={{ backgroundColor: 'rgba(33,150,243,0.15)', color: '#2196f3', border: '1px solid rgba(33,150,243,0.3)' }}
+                            />
+                          </TableCell>
                         </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {pendingMinistryReviewAssets.map((asset) => (
-                          <TableRow key={asset.id} hover>
-                            <TableCell sx={{ fontWeight: 'bold', color: '#00ff88' }}>{asset.assetId}</TableCell>
-                            <TableCell>{asset.description}</TableCell>
-                            <TableCell>{asset.category}</TableCell>
-                            <TableCell>₦{asset.purchaseCost?.toLocaleString() || 0}</TableCell>
-                            <TableCell sx={{ color: '#2196f3' }}>{asset.approvedBy || 'N/A'}</TableCell>
-                            <TableCell align="center">
-                              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
-                                <Button
-                                  size="small"
-                                  variant="contained"
-                                  startIcon={<Send />}
-                                  onClick={() => handleSendToFederal(asset)}
-                                  disabled={actionLoading}
-                                  sx={{ backgroundColor: '#008751', '&:hover': { backgroundColor: '#006038' }, fontSize: '0.7rem', whiteSpace: 'nowrap' }}
-                                >
-                                  Send to Federal
-                                </Button>
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  startIcon={<Cancel />}
-                                  onClick={() => handleRejectAssetClick(asset)}
-                                  disabled={actionLoading}
-                                  sx={{ borderColor: '#f44336', color: '#f44336', '&:hover': { backgroundColor: 'rgba(244,67,54,0.1)' }, fontSize: '0.7rem' }}
-                                >
-                                  Reject
-                                </Button>
-                              </Box>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
             </TabPanel>
 
-            {/* Approved Assets Tab */}
+            {/* All Assets Tab — read-only history */}
             <TabPanel value={assetTabValue} index={1}>
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                  Ready for Federal Submission
-                </Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<Send />}
-                  onClick={handleSubmitToFederal}
-                  disabled={pendingMinistryReviewAssets.length === 0 || actionLoading}
-                  sx={{
-                    backgroundColor: '#008751',
-                    '&:hover': { backgroundColor: '#006038' },
-                  }}
-                >
-                  Send All to Federal Admin ({pendingMinistryReviewAssets.length})
-                </Button>
-              </Box>
-
-              {approvedAssets.length === 0 ? (
-                <Alert severity="info">No approved assets ready for submission</Alert>
-              ) : (
-                <>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 2,
-                      mb: 3,
-                      backgroundColor: 'rgba(0, 135, 81, 0.05)',
-                      border: '1px solid rgba(0, 135, 81, 0.2)',
-                    }}
-                  >
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                          Total Approved Assets
-                        </Typography>
-                        <Typography variant="h4" sx={{ color: '#00ff88', fontWeight: 700 }}>
-                          {approvedAssets.length}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                          Total Value
-                        </Typography>
-                        <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
-                          {formatCurrency(calculateTotalValue(approvedAssets))}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  </Paper>
-
-                  <TableContainer component={Paper}>
-                    <Table>
-                      <TableHead>
-                        <TableRow sx={{ backgroundColor: '#0d2818' }}>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Asset ID</TableCell>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Description</TableCell>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Category</TableCell>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Value</TableCell>
-                          <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Status</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {approvedAssets.map((asset) => (
-                          <TableRow key={asset.id} hover>
-                            <TableCell sx={{ fontWeight: 'bold', color: '#00ff88' }}>{asset.assetId}</TableCell>
-                            <TableCell>{asset.description}</TableCell>
-                            <TableCell>{asset.category}</TableCell>
-                            <TableCell>₦{asset.purchaseCost?.toLocaleString() || 0}</TableCell>
-                            <TableCell>
-                              <Chip
-                                label="Approved"
-                                size="small"
-                                icon={<CheckCircle />}
-                                sx={{
-                                  backgroundColor: 'rgba(76, 175, 80, 0.15)',
-                                  color: '#4caf50',
-                                  border: '1px solid rgba(76, 175, 80, 0.3)',
-                                }}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </>
-              )}
-            </TabPanel>
-
-            {/* All Assets Tab */}
-            <TabPanel value={assetTabValue} index={2}>
               <Alert severity="info" sx={{ mb: 2 }}>
                 Showing all {allAssets.length} assets from your ministry across all statuses
               </Alert>
@@ -1194,19 +960,26 @@ const MinistryAdminDashboardPage = () => {
                         let statusIcon: React.ReactNode = null;
                         let statusLabel = asset.status;
 
-                        if (asset.status === 'pending_ministry_review') {
+                        if (asset.status === 'submitted_to_federal') {
                           statusColor = '#2196f3';
-                          statusIcon = <PendingActions />;
-                          statusLabel = 'Pending Review' as any;
+                          statusIcon = <Send />;
+                          statusLabel = 'Sent to Federal' as any;
                         } else if (asset.status === 'approved') {
                           statusColor = '#4caf50';
                           statusIcon = <CheckCircle />;
+                          statusLabel = 'Approved' as any;
                         } else if (asset.status === 'rejected') {
                           statusColor = '#f44336';
                           statusIcon = <Cancel />;
+                          statusLabel = 'Rejected' as any;
                         } else if (asset.status === 'pending') {
                           statusColor = '#ff9800';
                           statusIcon = <Schedule />;
+                          statusLabel = 'Pending' as any;
+                        } else if (asset.status === 'pending_ministry_review') {
+                          statusColor = '#9c27b0';
+                          statusIcon = <PendingActions />;
+                          statusLabel = 'Pending Review' as any;
                         }
 
                         return (
@@ -1266,73 +1039,6 @@ const MinistryAdminDashboardPage = () => {
             <Button onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleRejectConfirm} disabled={!reason.trim()} variant="contained" color="error">
               Reject
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Dialog
-          open={submitDialogOpen}
-          onClose={() => setSubmitDialogOpen(false)}
-          PaperProps={{ sx: { backgroundColor: '#0d2818', border: '1px solid rgba(0, 135, 81, 0.3)' } }}
-        >
-          <DialogTitle sx={{ color: '#00ff88', fontWeight: 600 }}>
-            Submit Assets to Federal Dashboard
-          </DialogTitle>
-          <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
-              Sending <strong>{pendingMinistryReviewAssets.length} asset{pendingMinistryReviewAssets.length > 1 ? 's' : ''}</strong> to Federal Administrator
-            </Typography>
-            <Alert sx={{ mt: 2, backgroundColor: 'rgba(33, 150, 243, 0.1)', border: '1px solid rgba(33, 150, 243, 0.3)' }}>
-              Total Value: <strong>{formatCurrency(calculateTotalValue(pendingMinistryReviewAssets))}</strong>
-            </Alert>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setSubmitDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSubmitToFederalConfirm} variant="contained" sx={{ backgroundColor: '#008751' }}>
-              Submit
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* Asset Rejection Dialog */}
-        <Dialog
-          open={assetRejectDialogOpen}
-          onClose={() => setAssetRejectDialogOpen(false)}
-          maxWidth="sm"
-          fullWidth
-          PaperProps={{ sx: { backgroundColor: '#0d2818', border: '1px solid rgba(0,135,81,0.3)' } }}
-        >
-          <DialogTitle sx={{ color: '#f44336', fontWeight: 600 }}>Reject Asset</DialogTitle>
-          <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2 }}>
-              Provide a reason for rejecting this asset. The uploader will see this message.
-            </Typography>
-            {selectedAsset && (
-              <Box sx={{ p: 2, mb: 2, backgroundColor: 'rgba(0,135,81,0.1)', borderRadius: 1 }}>
-                <Typography variant="body2" sx={{ color: '#00ff88', fontWeight: 600 }}>{selectedAsset.assetId}</Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>{selectedAsset.description}</Typography>
-              </Box>
-            )}
-            <TextField
-              autoFocus
-              multiline
-              rows={3}
-              fullWidth
-              label="Rejection Reason"
-              value={assetRejectionReason}
-              onChange={(e) => setAssetRejectionReason(e.target.value)}
-              placeholder="e.g., Incorrect details, missing documentation..."
-            />
-          </DialogContent>
-          <DialogActions sx={{ px: 3, pb: 2 }}>
-            <Button onClick={() => setAssetRejectDialogOpen(false)} sx={{ color: 'rgba(255,255,255,0.7)' }}>Cancel</Button>
-            <Button
-              onClick={handleRejectAssetConfirm}
-              variant="contained"
-              disabled={!assetRejectionReason.trim() || actionLoading}
-              sx={{ backgroundColor: '#c62828', '&:hover': { backgroundColor: '#8e0000' } }}
-            >
-              Confirm Rejection
             </Button>
           </DialogActions>
         </Dialog>

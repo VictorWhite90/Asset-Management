@@ -42,18 +42,18 @@ const getUserForAudit = async (userId: string): Promise<{ email: string; agencyN
 };
 
 /**
- * Check if a VERIFIED ministry with the given name already exists
- * Allows multiple pending registrations with same name - federal admin decides which is legitimate
+ * Check if a ministry with the given name already exists (any non-rejected status)
+ * Prevents duplicate pending/verified/suspended registrations with the same name
  */
 export const checkMinistryExists = async (name: string): Promise<boolean> => {
   try {
     const q = query(
       collection(db, MINISTRIES_COLLECTION),
-      where('name', '==', name),
-      where('status', '==', 'verified')
+      where('name', '==', name)
     );
     const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
+    // Allow re-registration only if all existing entries are rejected
+    return querySnapshot.docs.some(doc => doc.data().status !== 'rejected');
   } catch (error: any) {
     console.error('Error checking ministry existence:', error);
     throw new Error('Failed to check ministry existence');
@@ -61,18 +61,18 @@ export const checkMinistryExists = async (name: string): Promise<boolean> => {
 };
 
 /**
- * Check if a VERIFIED ministry with the given official email already exists
- * Allows multiple pending registrations with same email - federal admin decides which is legitimate
+ * Check if a ministry with the given official email already exists (any non-rejected status)
+ * Prevents duplicate pending/verified/suspended registrations with the same email
  */
 export const checkMinistryEmailExists = async (email: string): Promise<boolean> => {
   try {
     const q = query(
       collection(db, MINISTRIES_COLLECTION),
-      where('officialEmail', '==', email),
-      where('status', '==', 'verified')
+      where('officialEmail', '==', email)
     );
     const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
+    // Allow re-registration only if all existing entries are rejected
+    return querySnapshot.docs.some(doc => doc.data().status !== 'rejected');
   } catch (error: any) {
     console.error('Error checking ministry email:', error);
     throw new Error('Failed to check ministry email');

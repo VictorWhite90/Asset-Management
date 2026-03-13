@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type AssetStatus = 'pending' | 'pending_ministry_review' | 'approved' | 'rejected';
+export type AssetStatus = 'pending' | 'pending_ministry_review' | 'submitted_to_federal' | 'approved' | 'rejected';
 
 export type AssetCategory =
   | 'Office Equipment'

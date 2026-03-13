@@ -1464,6 +1464,23 @@ const ReportsPage: React.FC = () => {
   return (
     <AppLayout>
       <Container maxWidth="xl">
+        {/* Back Button */}
+        <Box sx={{ mb: 2 }}>
+          <Button
+            startIcon={<ArrowBack />}
+            onClick={() => navigate(-1)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.7)',
+              '&:hover': {
+                color: '#00ff88',
+                backgroundColor: 'transparent',
+              },
+            }}
+          >
+            Back to Dashboard
+          </Button>
+        </Box>
+
         {/* Page Header */}
         <Paper
           elevation={0}
