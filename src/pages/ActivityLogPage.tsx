@@ -220,7 +220,7 @@ const ActivityLogPage = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <History sx={{ fontSize: 40, color: '#00ff88' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 0.5 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   Activity History
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>

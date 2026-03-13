@@ -35,7 +35,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAgencyAssets, getApproverAssets, getAllAssets, getAllMinistryAssets } from '@/services/asset.service';
-import { getPendingMinistryAdmins } from '@/services/auth.service';
+import { getPendingMinistryAdmins, getPendingStaffCount } from '@/services/auth.service';
 import { Asset } from '@/types/asset.types';
 import { User } from '@/types/user.types';
 import AppLayout from '@/components/AppLayout';
@@ -45,6 +45,7 @@ const DashboardPage: React.FC = () => {
   const { currentUser, userData } = useAuth();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [pendingMinistryAdmins, setPendingMinistryAdmins] = useState<User[]>([]);
+  const [pendingStaffCount, setPendingStaffCount] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
 
@@ -70,6 +71,8 @@ const DashboardPage: React.FC = () => {
         fetchedAssets = await getAgencyAssets(userData.userId);
       } else if (userData.role === 'ministry-admin' && userData.ownedMinistryId && isAccountVerified) {
         fetchedAssets = await getAllMinistryAssets(userData.ownedMinistryId);
+        const staffCount = await getPendingStaffCount(userData.ownedMinistryId);
+        setPendingStaffCount(staffCount);
       } else if (userData.role === 'agency-approver' && isAccountVerified) {
         fetchedAssets = await getApproverAssets(userData.ministryId || '');
       } else if (userData.role === 'admin') {
@@ -1285,17 +1288,19 @@ const DashboardPage: React.FC = () => {
             </Typography>
             <Grid container spacing={{ xs: 1.5, sm: 2 }}>
               <Grid item xs={6} sm={6}>
-                <Button
-                  component={Link}
-                  to="/ministry-admin/dashboard"
-                  variant="contained"
-                  fullWidth
-                  startIcon={<VerifiedUser />}
-                  size="medium"
-                  sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}
-                >
-                  Manage Staff
-                </Button>
+                <Badge badgeContent={pendingStaffCount} color="error" sx={{ width: '100%' }}>
+                  <Button
+                    component={Link}
+                    to="/ministry-admin/dashboard"
+                    variant="contained"
+                    fullWidth
+                    startIcon={<VerifiedUser />}
+                    size="medium"
+                    sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}
+                  >
+                    Manage Staff
+                  </Button>
+                </Badge>
               </Grid>
               <Grid item xs={6} sm={6}>
                 <Button

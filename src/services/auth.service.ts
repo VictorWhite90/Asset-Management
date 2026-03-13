@@ -256,6 +256,26 @@ export const getPendingApprovers = async (): Promise<User[]> => {
 };
 
 /**
+ * Get pending staff count for a ministry (Ministry Admin only)
+ * Returns count of agency/agency-approver users with pending_ministry_approval status
+ */
+export const getPendingStaffCount = async (ministryId: string): Promise<number> => {
+  try {
+    const usersRef = collection(db, COLLECTIONS.USERS);
+    const q = query(
+      usersRef,
+      where('ministryId', '==', ministryId),
+      where('accountStatus', '==', 'pending_ministry_approval')
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.size;
+  } catch (error) {
+    console.error('Error fetching pending staff count:', error);
+    return 0;
+  }
+};
+
+/**
  * Get all pending ministry admin verifications (Federal Admin only)
  */
 export const getPendingMinistryAdmins = async (): Promise<User[]> => {

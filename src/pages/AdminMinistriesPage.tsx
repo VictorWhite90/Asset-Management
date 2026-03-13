@@ -235,7 +235,7 @@ const AdminMinistriesPage = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <AccountBalance sx={{ fontSize: 40, color: '#00ff88' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 0.5 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   Verified Ministries
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
@@ -282,7 +282,7 @@ const AdminMinistriesPage = () => {
             <Card sx={{ background: 'linear-gradient(135deg, #008751 0%, #006038 100%)', border: 'none' }}>
               <CardContent sx={{ textAlign: 'center' }}>
                 <AccountBalance sx={{ fontSize: 40, color: 'rgba(255,255,255,0.8)', mb: 1 }} />
-                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                   {ministries.length}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -295,7 +295,7 @@ const AdminMinistriesPage = () => {
             <Card sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', border: 'none' }}>
               <CardContent sx={{ textAlign: 'center' }}>
                 <VerifiedUser sx={{ fontSize: 40, color: 'rgba(255,255,255,0.8)', mb: 1 }} />
-                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                   {verifiedCount}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -308,7 +308,7 @@ const AdminMinistriesPage = () => {
             <Card sx={{ background: 'linear-gradient(135deg, #616161 0%, #424242 100%)', border: 'none' }}>
               <CardContent sx={{ textAlign: 'center' }}>
                 <Block sx={{ fontSize: 40, color: 'rgba(255,255,255,0.8)', mb: 1 }} />
-                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                   {suspendedCount}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>

@@ -87,7 +87,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: { xs: 1, sm: 3 } }}>{children}</Box>}
     </div>
   );
 }
@@ -397,7 +397,7 @@ const MinistryAdminDashboardPage = () => {
 
   return (
     <AppLayout>
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
         <Box sx={{ mb: 3 }}>
           <Button
             component={Link}
@@ -415,7 +415,7 @@ const MinistryAdminDashboardPage = () => {
         <Paper
           elevation={0}
           sx={{
-            p: 3,
+            p: { xs: 2, sm: 3 },
             mb: 3,
             background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.2) 0%, rgba(0, 135, 81, 0.05) 100%)',
             borderLeft: '4px solid #008751',
@@ -423,12 +423,12 @@ const MinistryAdminDashboardPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Business sx={{ fontSize: 40, color: '#00ff88' }} />
+              <Business sx={{ fontSize: { xs: 28, sm: 40 }, color: '#00ff88' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.1rem', sm: '1.5rem', md: '2rem' } }}>
                   {ministry?.name || 'Ministry Command Hub'}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5 }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                   Ministry Administrator Dashboard
                 </Typography>
               </Box>
@@ -463,6 +463,9 @@ const MinistryAdminDashboardPage = () => {
               borderBottom: '1px solid rgba(0, 135, 81, 0.3)',
               '& .MuiTab-root': {
                 color: 'rgba(255, 255, 255, 0.6)',
+                fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                minWidth: { xs: 'auto', sm: 90 },
+                px: { xs: 1, sm: 2 },
                 '&.Mui-selected': { color: '#00ff88' },
               },
               '& .MuiTabs-indicator': { backgroundColor: '#00ff88' },
@@ -484,7 +487,7 @@ const MinistryAdminDashboardPage = () => {
                         <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                           Total Assets
                         </Typography>
-                        <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                        <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                           {allAssets.length}
                         </Typography>
                       </Box>
@@ -502,7 +505,7 @@ const MinistryAdminDashboardPage = () => {
                         <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                           Total Value
                         </Typography>
-                        <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: '1.5rem' }}>
+                        <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>
                           {formatCurrency(calculateTotalValue(allAssets))}
                         </Typography>
                       </Box>
@@ -520,7 +523,7 @@ const MinistryAdminDashboardPage = () => {
                         <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                           Sent to Federal
                         </Typography>
-                        <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                        <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                           {submittedToFederalAssets.length}
                         </Typography>
                       </Box>
@@ -538,7 +541,7 @@ const MinistryAdminDashboardPage = () => {
                         <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                           Active Staff
                         </Typography>
-                        <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                        <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                           {allStaff.length}
                         </Typography>
                       </Box>
@@ -684,14 +687,14 @@ const MinistryAdminDashboardPage = () => {
                   </Typography>
                 </Box>
               ) : (
-                <TableContainer>
-                  <Table>
+                <TableContainer sx={{ overflowX: 'auto' }}>
+                  <Table size="small">
                     <TableHead>
                       <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Email</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Role</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Registered</TableCell>
-                        <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Role</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Registered</TableCell>
+                        <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -699,30 +702,32 @@ const MinistryAdminDashboardPage = () => {
                         const roleStyle = getRoleColor(user.role);
                         return (
                           <TableRow key={user.userId} sx={{ '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.1)' } }}>
-                            <TableCell sx={{ color: '#FFFFFF' }}>{user.email}</TableCell>
                             <TableCell>
                               <Chip label={getRoleLabel(user.role)} size="small" sx={{ ...roleStyle }} />
                             </TableCell>
-                            <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                            <TableCell sx={{ color: '#FFFFFF', fontSize: { xs: '0.75rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
+                            <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
                               {user.createdAt ? format(user.createdAt.toDate(), 'MMM dd, yyyy') : 'N/A'}
                             </TableCell>
-                            <TableCell align="right">
+                            <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                               <Tooltip title="Approve">
                                 <IconButton
                                   onClick={() => handleApprove(user)}
                                   disabled={actionLoading}
+                                  size="small"
                                   sx={{ color: '#4caf50', '&:hover': { backgroundColor: 'rgba(76, 175, 80, 0.1)' } }}
                                 >
-                                  <CheckCircle />
+                                  <CheckCircle fontSize="small" />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Reject">
                                 <IconButton
                                   onClick={() => handleRejectClick(user)}
                                   disabled={actionLoading}
+                                  size="small"
                                   sx={{ color: '#f44336', '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.1)' } }}
                                 >
-                                  <Cancel />
+                                  <Cancel fontSize="small" />
                                 </IconButton>
                               </Tooltip>
                             </TableCell>
@@ -744,15 +749,14 @@ const MinistryAdminDashboardPage = () => {
                   </Typography>
                 </Box>
               ) : (
-                <TableContainer>
-                  <Table>
+                <TableContainer sx={{ overflowX: 'auto' }}>
+                  <Table size="small">
                     <TableHead>
                       <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Email</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Role</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Status</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Joined</TableCell>
-                        <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Role</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', md: 'table-cell' } }}>Joined</TableCell>
+                        <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -760,52 +764,44 @@ const MinistryAdminDashboardPage = () => {
                         const roleStyle = getRoleColor(user.role);
                         return (
                           <TableRow key={user.userId} sx={{ '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.1)' } }}>
-                            <TableCell sx={{ color: '#FFFFFF' }}>{user.email}</TableCell>
                             <TableCell>
                               <Chip label={getRoleLabel(user.role)} size="small" sx={{ ...roleStyle }} />
                             </TableCell>
-                            <TableCell>
-                              <Chip
-                                label="Active"
-                                size="small"
-                                sx={{
-                                  backgroundColor: 'rgba(76, 175, 80, 0.15)',
-                                  color: '#4caf50',
-                                  border: '1px solid rgba(76, 175, 80, 0.3)',
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                            <TableCell sx={{ color: '#FFFFFF', fontSize: { xs: '0.75rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
+                            <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', md: 'table-cell' } }}>
                               {user.verifiedAt ? format(user.verifiedAt.toDate(), 'MMM dd, yyyy') : 'N/A'}
                             </TableCell>
-                            <TableCell align="right">
+                            <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                               {user.userId !== currentUser?.uid && (
                                 <>
                                   <Tooltip title={`Change to ${user.role === 'agency' ? 'Approver' : 'Uploader'}`}>
                                     <IconButton
                                       onClick={() => handleChangeRoleClick(user)}
                                       disabled={actionLoading}
+                                      size="small"
                                       sx={{ color: '#2196f3', '&:hover': { backgroundColor: 'rgba(33, 150, 243, 0.1)' } }}
                                     >
-                                      <SwapHoriz />
+                                      <SwapHoriz fontSize="small" />
                                     </IconButton>
                                   </Tooltip>
                                   <Tooltip title="Disable staff">
                                     <IconButton
                                       onClick={() => handleDisableClick(user)}
                                       disabled={actionLoading}
+                                      size="small"
                                       sx={{ color: '#ff9800', '&:hover': { backgroundColor: 'rgba(255, 152, 0, 0.1)' } }}
                                     >
-                                      <Block />
+                                      <Block fontSize="small" />
                                     </IconButton>
                                   </Tooltip>
                                   <Tooltip title="Remove from ministry">
                                     <IconButton
                                       onClick={() => handleRemoveClick(user)}
                                       disabled={actionLoading}
+                                      size="small"
                                       sx={{ color: '#f44336', '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.1)' } }}
                                     >
-                                      <PersonRemove />
+                                      <PersonRemove fontSize="small" />
                                     </IconButton>
                                   </Tooltip>
                                 </>
@@ -829,14 +825,14 @@ const MinistryAdminDashboardPage = () => {
                   </Typography>
                 </Box>
               ) : (
-                <TableContainer>
-                  <Table>
+                <TableContainer sx={{ overflowX: 'auto' }}>
+                  <Table size="small">
                     <TableHead>
                       <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Email</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Role</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Disabled On</TableCell>
-                        <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Role</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Disabled On</TableCell>
+                        <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -844,11 +840,11 @@ const MinistryAdminDashboardPage = () => {
                         const roleStyle = getRoleColor(user.role);
                         return (
                           <TableRow key={user.userId} sx={{ '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.1)' }, opacity: 0.8 }}>
-                            <TableCell sx={{ color: '#FFFFFF' }}>{user.email}</TableCell>
                             <TableCell>
                               <Chip label={getRoleLabel(user.role)} size="small" sx={{ ...roleStyle, opacity: 0.6 }} />
                             </TableCell>
-                            <TableCell sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                            <TableCell sx={{ color: '#FFFFFF', fontSize: { xs: '0.75rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
+                            <TableCell sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
                               {(user as any).disabledAt ? format((user as any).disabledAt.toDate(), 'MMM dd, yyyy') : 'N/A'}
                             </TableCell>
                             <TableCell align="right">
@@ -856,9 +852,10 @@ const MinistryAdminDashboardPage = () => {
                                 <IconButton
                                   onClick={() => handleEnableStaff(user)}
                                   disabled={actionLoading}
+                                  size="small"
                                   sx={{ color: '#4caf50', '&:hover': { backgroundColor: 'rgba(76, 175, 80, 0.1)' } }}
                                 >
-                                  <CheckCircle />
+                                  <CheckCircle fontSize="small" />
                                 </IconButton>
                               </Tooltip>
                             </TableCell>
@@ -898,31 +895,30 @@ const MinistryAdminDashboardPage = () => {
               {submittedToFederalAssets.length === 0 ? (
                 <Alert severity="warning">No assets have been sent to Federal Admin yet</Alert>
               ) : (
-                <TableContainer component={Paper}>
-                  <Table>
+                <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+                  <Table size="small">
                     <TableHead>
                       <TableRow sx={{ backgroundColor: '#0d2818' }}>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Asset ID</TableCell>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Description</TableCell>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Category</TableCell>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Value</TableCell>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Approved By</TableCell>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Status</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Description</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Category</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Value</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Status</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {submittedToFederalAssets.map((asset) => (
                         <TableRow key={asset.id} hover>
-                          <TableCell sx={{ fontWeight: 'bold', color: '#00ff88' }}>{asset.assetId}</TableCell>
-                          <TableCell>{asset.description}</TableCell>
-                          <TableCell>{asset.category}</TableCell>
-                          <TableCell>₦{asset.purchaseCost?.toLocaleString() || 0}</TableCell>
-                          <TableCell sx={{ color: '#2196f3' }}>{asset.approvedBy || 'N/A'}</TableCell>
+                          <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                            <Typography variant="caption" sx={{ color: '#00ff88', display: 'block', fontWeight: 'bold' }}>{asset.assetId}</Typography>
+                            {asset.description}
+                          </TableCell>
+                          <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{asset.category}</TableCell>
+                          <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>₦{asset.purchaseCost?.toLocaleString() || 0}</TableCell>
                           <TableCell>
                             <Chip
-                              label="Pending Federal Review"
+                              label="Pending Federal"
                               size="small"
-                              sx={{ backgroundColor: 'rgba(33,150,243,0.15)', color: '#2196f3', border: '1px solid rgba(33,150,243,0.3)' }}
+                              sx={{ backgroundColor: 'rgba(33,150,243,0.15)', color: '#2196f3', border: '1px solid rgba(33,150,243,0.3)', fontSize: { xs: '0.6rem', sm: '0.75rem' } }}
                             />
                           </TableCell>
                         </TableRow>
@@ -942,16 +938,14 @@ const MinistryAdminDashboardPage = () => {
               {allAssets.length === 0 ? (
                 <Alert severity="warning">No assets in this ministry yet</Alert>
               ) : (
-                <TableContainer component={Paper}>
-                  <Table>
+                <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+                  <Table size="small">
                     <TableHead>
                       <TableRow sx={{ backgroundColor: '#0d2818' }}>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Asset ID</TableCell>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Description</TableCell>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Category</TableCell>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Value</TableCell>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Status</TableCell>
-                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Uploaded By</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Description</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Category</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Value</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Status</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -984,10 +978,12 @@ const MinistryAdminDashboardPage = () => {
 
                         return (
                           <TableRow key={asset.id} hover>
-                            <TableCell sx={{ fontWeight: 'bold' }}>{asset.assetId}</TableCell>
-                            <TableCell>{asset.description}</TableCell>
-                            <TableCell>{asset.category}</TableCell>
-                            <TableCell>₦{asset.purchaseCost?.toLocaleString() || 0}</TableCell>
+                            <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                              <Typography variant="caption" sx={{ color: '#00ff88', display: 'block', fontWeight: 'bold' }}>{asset.assetId}</Typography>
+                              {asset.description}
+                            </TableCell>
+                            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{asset.category}</TableCell>
+                            <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>₦{asset.purchaseCost?.toLocaleString() || 0}</TableCell>
                             <TableCell>
                               <Chip
                                 icon={statusIcon || undefined}
@@ -997,10 +993,10 @@ const MinistryAdminDashboardPage = () => {
                                   backgroundColor: `${statusColor}15`,
                                   color: statusColor,
                                   border: `1px solid ${statusColor}30`,
+                                  fontSize: { xs: '0.6rem', sm: '0.75rem' },
                                 }}
                               />
                             </TableCell>
-                            <TableCell>{asset.uploadedBy || 'N/A'}</TableCell>
                           </TableRow>
                         );
                       })}

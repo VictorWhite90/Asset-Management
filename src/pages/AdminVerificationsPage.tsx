@@ -190,7 +190,7 @@ const AdminVerificationsPage = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <VerifiedUser sx={{ fontSize: 40, color: '#00ff88' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   Pending Approver Verifications
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5 }}>
@@ -229,7 +229,7 @@ const AdminVerificationsPage = () => {
                 <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                   Pending Verifications
                 </Typography>
-                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                   {pendingApprovers.length}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 1 }}>

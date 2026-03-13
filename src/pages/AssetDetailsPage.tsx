@@ -249,7 +249,7 @@ const AssetDetailsPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
             <Box>
-              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 1 }}>
+              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 1, fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>
                 Asset Details
               </Typography>
               <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>

@@ -384,7 +384,7 @@ const AgencyReportsPage = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Assessment sx={{ fontSize: 40, color: '#00ff88' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 0.5 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   Asset Reports
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
@@ -421,7 +421,7 @@ const AgencyReportsPage = () => {
                       <Typography sx={{ color: 'rgba(255,255,255,0.8)' }} variant="body2">
                         Total Assets
                       </Typography>
-                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {reportStats.totalAssets}
                       </Typography>
                     </Box>
@@ -439,7 +439,7 @@ const AgencyReportsPage = () => {
                       <Typography sx={{ color: 'rgba(255,255,255,0.8)' }} variant="body2">
                         Pending Review
                       </Typography>
-                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {reportStats.statusCounts.pending}
                       </Typography>
                     </Box>
@@ -457,7 +457,7 @@ const AgencyReportsPage = () => {
                       <Typography sx={{ color: 'rgba(255,255,255,0.8)' }} variant="body2">
                         Approved
                       </Typography>
-                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {reportStats.statusCounts.approved}
                       </Typography>
                     </Box>

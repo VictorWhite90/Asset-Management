@@ -391,7 +391,7 @@ const BulkUploadPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <CloudUpload sx={{ fontSize: 40, color: '#00ff88' }} />
             <Box>
-              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                 Bulk Upload Assets
               </Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5 }}>

@@ -31,12 +31,9 @@ import {
   ViewList,
   ViewModule,
   TrendingUp,
-  CheckCircle,
-  Schedule,
   Visibility,
   Print,
   PictureAsPdf,
-  Cancel,
 } from '@mui/icons-material';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -50,7 +47,7 @@ import {
   MinistryStats,
   AdminDashboardStats,
 } from '@/services/asset.service';
-import { Asset, AssetStatus } from '@/types/asset.types';
+import { Asset } from '@/types/asset.types';
 import { ASSET_CATEGORIES, NIGERIAN_STATES } from '@/utils/constants';
 import AppLayout from '@/components/AppLayout';
 
@@ -72,7 +69,6 @@ const AdminAssetsPage = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [ministryFilter, setMinistryFilter] = useState<string>('');
   const [stateFilter, setStateFilter] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<AssetStatus | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -97,7 +93,7 @@ const AdminAssetsPage = () => {
     } else {
       loadDetailedAssets();
     }
-  }, [categoryFilter, ministryFilter, stateFilter, statusFilter, startDate, endDate, viewMode]);
+  }, [categoryFilter, ministryFilter, stateFilter, startDate, endDate, viewMode]);
 
   const loadDashboardData = async () => {
     try {
@@ -124,8 +120,7 @@ const AdminAssetsPage = () => {
       const stats = await getAssetsByMinistry(
         categoryFilter || undefined,
         ministryFilter || undefined,
-        stateFilter || undefined,
-        statusFilter || undefined
+        stateFilter || undefined
       );
       setMinistryStats(stats);
     } catch (err: any) {
@@ -151,9 +146,6 @@ const AdminAssetsPage = () => {
       }
       if (stateFilter) {
         assets = assets.filter(a => a.location?.includes(stateFilter));
-      }
-      if (statusFilter) {
-        assets = assets.filter(a => a.status === statusFilter);
       }
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
@@ -197,7 +189,7 @@ const AdminAssetsPage = () => {
     setCategoryFilter('');
     setMinistryFilter('');
     setStateFilter('');
-    setStatusFilter('');
+
     setSearchQuery('');
     setStartDate('');
     setEndDate('');
@@ -382,7 +374,7 @@ const AdminAssetsPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box>
-              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                 Federal Admin - National Asset Management
               </Typography>
               <Typography variant="subtitle1" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 1 }}>
@@ -417,59 +409,13 @@ const AdminAssetsPage = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box>
                       <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
-                        Total Assets
+                        Ministry Approved Assets
                       </Typography>
-                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {dashboardStats.totalAssets.toLocaleString()}
                       </Typography>
                     </Box>
                     <TrendingUp sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <Card
-                sx={{
-                  background: 'linear-gradient(135deg, #ed6c02 0%, #c55a02 100%)',
-                  border: 'none',
-                }}
-              >
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Box>
-                      <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
-                        Pending Federal Review
-                      </Typography>
-                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
-                        {dashboardStats.statusCounts.pending}
-                      </Typography>
-                    </Box>
-                    <Schedule sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <Card
-                sx={{
-                  background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)',
-                  border: 'none',
-                }}
-              >
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Box>
-                      <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
-                        Approved Assets
-                      </Typography>
-                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
-                        {dashboardStats.statusCounts.approved}
-                      </Typography>
-                    </Box>
-                    <CheckCircle sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
                   </Box>
                 </CardContent>
               </Card>
@@ -551,24 +497,6 @@ const AdminAssetsPage = () => {
                 {NIGERIAN_STATES.map((state) => (
                   <MenuItem key={state} value={state}>{state}</MenuItem>
                 ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={2}>
-              <TextField
-                fullWidth
-                select
-                label="Status"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as AssetStatus | '')}
-                size="small"
-              >
-                <MenuItem value="">All Status</MenuItem>
-                <MenuItem value="submitted_to_federal">Pending Federal Review</MenuItem>
-                <MenuItem value="approved">Approved</MenuItem>
-                <MenuItem value="pending">Pending</MenuItem>
-                <MenuItem value="pending_ministry_review">Ministry Review</MenuItem>
-                <MenuItem value="rejected">Rejected</MenuItem>
               </TextField>
             </Grid>
 
@@ -714,7 +642,6 @@ const AdminAssetsPage = () => {
                     <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Assets</TableCell>
                     <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Purchase Value</TableCell>
                     <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Market Value</TableCell>
-                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Status</TableCell>
                     <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>States</TableCell>
                     <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
                   </TableRow>
@@ -722,7 +649,7 @@ const AdminAssetsPage = () => {
                 <TableBody>
                   {ministryStats.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} align="center">
+                      <TableCell colSpan={6} align="center">
                         <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)', py: 4 }}>
                           No data found. Try adjusting your filters.
                         </Typography>
@@ -760,42 +687,6 @@ const AdminAssetsPage = () => {
                           {formatCurrency(ministry.totalMarketValue)}
                         </TableCell>
                         <TableCell align="center">
-                          <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <Chip
-                              label={ministry.statusBreakdown.approved}
-                              icon={<CheckCircle sx={{ fontSize: 14, color: '#4caf50 !important' }} />}
-                              size="small"
-                              sx={{
-                                backgroundColor: 'rgba(76, 175, 80, 0.15)',
-                                color: '#4caf50',
-                                border: '1px solid rgba(76, 175, 80, 0.3)',
-                              }}
-                            />
-                            <Chip
-                              label={ministry.statusBreakdown.pending}
-                              icon={<Schedule sx={{ fontSize: 14, color: '#ff9800 !important' }} />}
-                              size="small"
-                              sx={{
-                                backgroundColor: 'rgba(255, 152, 0, 0.15)',
-                                color: '#ff9800',
-                                border: '1px solid rgba(255, 152, 0, 0.3)',
-                              }}
-                            />
-                            {ministry.statusBreakdown.rejected > 0 && (
-                              <Chip
-                                label={ministry.statusBreakdown.rejected}
-                                icon={<Cancel sx={{ fontSize: 14, color: '#f44336 !important' }} />}
-                                size="small"
-                                sx={{
-                                  backgroundColor: 'rgba(244, 67, 54, 0.15)',
-                                  color: '#f44336',
-                                  border: '1px solid rgba(244, 67, 54, 0.3)',
-                                }}
-                              />
-                            )}
-                          </Box>
-                        </TableCell>
-                        <TableCell align="center">
                           <Tooltip title={ministry.states.join(', ')}>
                             <Chip
                               label={`${ministry.states.length} state${ministry.states.length !== 1 ? 's' : ''}`}
@@ -810,12 +701,12 @@ const AdminAssetsPage = () => {
                         </TableCell>
                         <TableCell align="center">
                           <Button
-                            size="small"
                             variant="outlined"
-                            startIcon={<Visibility />}
+                            startIcon={<Visibility sx={{ fontSize: 12 }} />}
                             onClick={() => handleViewMinistryDetails(ministry.ministryName)}
+                            sx={{ fontSize: '0.65rem', py: 0.3, px: 0.8, minWidth: 0 }}
                           >
-                            View Details
+                            View
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -875,14 +766,13 @@ const AdminAssetsPage = () => {
                     <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Agency</TableCell>
                     <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Location</TableCell>
                     <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Purchase Cost</TableCell>
-                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Status</TableCell>
                     <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {detailedAssets.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">
+                      <TableCell colSpan={7} align="center">
                         <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)', py: 4 }}>
                           No assets found. Try adjusting your filters.
                         </Typography>
@@ -920,13 +810,6 @@ const AdminAssetsPage = () => {
                           <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{asset.location}</TableCell>
                           <TableCell align="right" sx={{ color: '#FFFFFF' }}>
                             ₦{asset.purchaseCost?.toLocaleString()}
-                          </TableCell>
-                          <TableCell align="center">
-                            <Chip
-                              label={getStatusLabel(asset.status)}
-                              size="small"
-                              color={getStatusColor(asset.status)}
-                            />
                           </TableCell>
                           <TableCell align="center">
                             <Tooltip title="View Full Details">

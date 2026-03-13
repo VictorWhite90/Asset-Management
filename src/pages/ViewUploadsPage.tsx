@@ -261,7 +261,7 @@ const ViewUploadsPage: React.FC = () => {
               Back to Dashboard
             </Button>
           </Box>
-          <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: '#00ff88' }}>
+          <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: '#00ff88', fontSize: { xs: '1.25rem', sm: '2rem' } }}>
             {pageTitle}
           </Typography>
           <Typography variant="body2" sx={{ color: '#aaa' }}>

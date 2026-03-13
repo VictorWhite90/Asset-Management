@@ -651,7 +651,6 @@ export interface AdminDashboardStats {
   totalMarketValue: number;
   statusCounts: {
     approved: number;
-    pending: number;
     rejected: number;
   };
   categoryCounts: Record<string, number>;
@@ -707,7 +706,7 @@ export const getAssetsByMinistry = async (
       const states = [...new Set(assets.map(a => a.location).filter(Boolean))];
       const statusBreakdown = {
         approved: assets.filter(a => a.status === 'approved').length,
-        pending: assets.filter(a => a.status === 'pending' || a.status === 'submitted_to_federal').length,
+        pending: assets.filter(a => a.status === 'pending' || a.status === 'pending_ministry_review' || a.status === 'submitted_to_federal').length,
         rejected: assets.filter(a => a.status === 'rejected').length,
       };
 
@@ -749,16 +748,15 @@ export const getAllMinistries = async (): Promise<string[]> => {
 export const getAdminDashboardStats = async (): Promise<AdminDashboardStats> => {
   try {
     const allAssets = await getAllAssets();
-    // Federal admin sees submitted_to_federal (pending review) and approved assets
-    const assets = allAssets.filter(a => a.status === 'approved' || a.status === 'submitted_to_federal');
+    // Federal dashboard only counts assets that have reached federal level
+    const assets = allAssets.filter(a => a.status === 'submitted_to_federal' || a.status === 'approved');
 
     const totalPurchaseValue = assets.reduce((sum, a) => sum + (a.purchaseCost || 0), 0);
     const totalMarketValue = assets.reduce((sum, a) => sum + (a.marketValue || 0), 0);
 
     const statusCounts = {
-      approved: assets.filter(a => a.status === 'approved').length,
-      pending: assets.filter(a => a.status === 'submitted_to_federal').length,
-      rejected: 0,
+      approved: assets.length, // All assets here are ministry-approved
+      rejected: allAssets.filter(a => a.status === 'rejected').length,
     };
 
     const categoryCounts: Record<string, number> = {};

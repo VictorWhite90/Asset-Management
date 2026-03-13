@@ -47,13 +47,25 @@ const getUserForAudit = async (userId: string): Promise<{ email: string; agencyN
  */
 export const checkMinistryExists = async (name: string): Promise<boolean> => {
   try {
-    const q = query(
+    // Query all non-rejected statuses. Ministry admins (with verified claims) can read all
+    // ministries per Firestore rules. We check verified + pending_verification separately.
+    const verifiedQ = query(
       collection(db, MINISTRIES_COLLECTION),
-      where('name', '==', name)
+      where('name', '==', name),
+      where('status', '==', 'verified')
     );
-    const querySnapshot = await getDocs(q);
-    // Allow re-registration only if all existing entries are rejected
-    return querySnapshot.docs.some(doc => doc.data().status !== 'rejected');
+    const pendingQ = query(
+      collection(db, MINISTRIES_COLLECTION),
+      where('name', '==', name),
+      where('status', '==', 'pending_verification')
+    );
+
+    const [verifiedSnap, pendingSnap] = await Promise.all([
+      getDocs(verifiedQ),
+      getDocs(pendingQ).catch(() => ({ empty: true, docs: [] })), // may fail for unauthed users
+    ]);
+
+    return !verifiedSnap.empty || !pendingSnap.empty;
   } catch (error: any) {
     console.error('Error checking ministry existence:', error);
     throw new Error('Failed to check ministry existence');
@@ -66,13 +78,23 @@ export const checkMinistryExists = async (name: string): Promise<boolean> => {
  */
 export const checkMinistryEmailExists = async (email: string): Promise<boolean> => {
   try {
-    const q = query(
+    const verifiedQ = query(
       collection(db, MINISTRIES_COLLECTION),
-      where('officialEmail', '==', email)
+      where('officialEmail', '==', email),
+      where('status', '==', 'verified')
     );
-    const querySnapshot = await getDocs(q);
-    // Allow re-registration only if all existing entries are rejected
-    return querySnapshot.docs.some(doc => doc.data().status !== 'rejected');
+    const pendingQ = query(
+      collection(db, MINISTRIES_COLLECTION),
+      where('officialEmail', '==', email),
+      where('status', '==', 'pending_verification')
+    );
+
+    const [verifiedSnap, pendingSnap] = await Promise.all([
+      getDocs(verifiedQ),
+      getDocs(pendingQ).catch(() => ({ empty: true, docs: [] })),
+    ]);
+
+    return !verifiedSnap.empty || !pendingSnap.empty;
   } catch (error: any) {
     console.error('Error checking ministry email:', error);
     throw new Error('Failed to check ministry email');

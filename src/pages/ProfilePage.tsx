@@ -320,7 +320,7 @@ const ProfilePage = () => {
                   <Grid item xs={6} sm={3}>
                     <Card sx={{ background: 'linear-gradient(135deg, #008751 0%, #006038 100%)', border: 'none' }}>
                       <CardContent sx={{ textAlign: 'center' }}>
-                        <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                        <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                           {summary.totalActions}
                         </Typography>
                         <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -334,7 +334,7 @@ const ProfilePage = () => {
                     <Grid item xs={6} sm={3}>
                       <Card sx={{ background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)', border: 'none' }}>
                         <CardContent sx={{ textAlign: 'center' }}>
-                          <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                          <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                             {summary.assetUploads}
                           </Typography>
                           <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -350,7 +350,7 @@ const ProfilePage = () => {
                       <Grid item xs={6} sm={3}>
                         <Card sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', border: 'none' }}>
                           <CardContent sx={{ textAlign: 'center' }}>
-                            <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                            <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                               {summary.assetApprovals}
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -363,7 +363,7 @@ const ProfilePage = () => {
                       <Grid item xs={6} sm={3}>
                         <Card sx={{ background: 'linear-gradient(135deg, #c62828 0%, #8e0000 100%)', border: 'none' }}>
                           <CardContent sx={{ textAlign: 'center' }}>
-                            <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                            <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                               {summary.assetRejections}
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>

@@ -921,7 +921,7 @@ const ReportsPage: React.FC = () => {
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   Total Assets
                 </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {data.totalAssets.toLocaleString()}
                 </Typography>
               </CardContent>
@@ -933,7 +933,7 @@ const ReportsPage: React.FC = () => {
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   Total Value
                 </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {formatCurrency(data.totalValue)}
                 </Typography>
               </CardContent>
@@ -945,7 +945,7 @@ const ReportsPage: React.FC = () => {
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   Asset Types
                 </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {data.byType.length}
                 </Typography>
               </CardContent>
@@ -1021,7 +1021,7 @@ const ReportsPage: React.FC = () => {
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   Total Actions
                 </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {data.totalActions.toLocaleString()}
                 </Typography>
               </CardContent>
@@ -1033,7 +1033,7 @@ const ReportsPage: React.FC = () => {
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   Approval Rate
                 </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {data.approvalRate.toFixed(1)}%
                 </Typography>
               </CardContent>
@@ -1045,7 +1045,7 @@ const ReportsPage: React.FC = () => {
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   Rejection Rate
                 </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {data.rejectionRate.toFixed(1)}%
                 </Typography>
               </CardContent>
@@ -1057,7 +1057,7 @@ const ReportsPage: React.FC = () => {
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   Anomalies Found
                 </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {data.flaggedAnomalies.length}
                 </Typography>
               </CardContent>
@@ -1077,7 +1077,7 @@ const ReportsPage: React.FC = () => {
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   Avg Utilization
                 </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {data.averageUtilization}%
                 </Typography>
                 <LinearProgress
@@ -1094,7 +1094,7 @@ const ReportsPage: React.FC = () => {
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   Avg Condition
                 </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {data.averageConditionScore}%
                 </Typography>
                 <LinearProgress
@@ -1111,7 +1111,7 @@ const ReportsPage: React.FC = () => {
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   Avg Risk Score
                 </Typography>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {data.averageRiskScore}
                 </Typography>
                 <LinearProgress
@@ -1495,7 +1495,7 @@ const ReportsPage: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Assessment sx={{ fontSize: 40, color: '#00ff88' }} />
             <Box>
-              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                 Report Generation
               </Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>

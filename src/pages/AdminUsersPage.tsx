@@ -277,7 +277,7 @@ const AdminUsersPage = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <AccountBalance sx={{ fontSize: 40, color: '#00ff88' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   Ministry Admin Management
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5 }}>
@@ -312,7 +312,7 @@ const AdminUsersPage = () => {
                     <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                       Total Verified
                     </Typography>
-                    <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                    <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                       {stats.total}
                     </Typography>
                   </Box>
@@ -334,7 +334,7 @@ const AdminUsersPage = () => {
                     <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                       Active
                     </Typography>
-                    <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                    <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                       {stats.active}
                     </Typography>
                   </Box>
@@ -356,7 +356,7 @@ const AdminUsersPage = () => {
                     <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                       Disabled
                     </Typography>
-                    <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                    <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                       {stats.disabled}
                     </Typography>
                   </Box>

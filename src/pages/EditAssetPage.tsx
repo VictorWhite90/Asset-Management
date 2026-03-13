@@ -395,7 +395,7 @@ const EditAssetPage = () => {
             borderLeft: '4px solid #008751',
           }}
         >
-          <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 1 }}>
+          <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 1, fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>
             Edit Asset
           </Typography>
           <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>

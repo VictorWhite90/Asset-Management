@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
@@ -69,12 +69,21 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
   const [categoryDetails, setCategoryDetails] = useState<Category | null>(null);
   const [loadingCategory, setLoadingCategory] = useState(false);
 
+  const [purchaseCostDisplay, setPurchaseCostDisplay] = useState('');
+  const [marketValueDisplay, setMarketValueDisplay] = useState('');
+
+  const formatNumber = (value: string): string => {
+    const digits = value.replace(/\D/g, '');
+    return digits ? parseInt(digits, 10).toLocaleString() : '';
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
     reset,
+    control,
     setError: setFormError,
     unregister,
   } = useForm<any>({
@@ -202,6 +211,8 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
       reset();
       setSelectedCategory('');
       setCategoryDetails(null);
+      setPurchaseCostDisplay('');
+      setMarketValueDisplay('');
 
       if (onSuccess) {
         onSuccess();
@@ -297,52 +308,62 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
 
         {/* Purchase Cost (Required) */}
         <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            fullWidth
-            id="purchaseCost"
-            label="Purchase Cost"
-            type="number"
-            InputProps={{
-              startAdornment: <InputAdornment position="start">₦</InputAdornment>,
-            }}
-            sx={{
-              '& input[type=number]': {
-                MozAppearance: 'textfield',
-              },
-              '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
-                WebkitAppearance: 'none',
-                margin: 0,
-              },
-            }}
-            {...register('purchaseCost')}
-            error={!!errors.purchaseCost}
-            helperText={errors.purchaseCost?.message as string}
+          <Controller
+            name="purchaseCost"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                required
+                fullWidth
+                id="purchaseCost"
+                label="Purchase Cost"
+                type="text"
+                inputMode="numeric"
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">₦</InputAdornment>,
+                }}
+                value={purchaseCostDisplay}
+                onChange={(e) => {
+                  const formatted = formatNumber(e.target.value);
+                  setPurchaseCostDisplay(formatted);
+                  const raw = formatted.replace(/,/g, '');
+                  field.onChange(raw ? parseFloat(raw) : '');
+                }}
+                onBlur={field.onBlur}
+                error={!!errors.purchaseCost}
+                helperText={errors.purchaseCost?.message as string}
+              />
+            )}
           />
         </Grid>
 
         {/* Predicted/Estimated Price Value */}
         <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            id="marketValue"
-            label="Predicted/Estimated Price Value"
-            type="number"
-            InputProps={{
-              startAdornment: <InputAdornment position="start">₦</InputAdornment>,
-            }}
-            sx={{
-              '& input[type=number]': {
-                MozAppearance: 'textfield',
-              },
-              '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
-                WebkitAppearance: 'none',
-                margin: 0,
-              },
-            }}
-            {...register('marketValue')}
-            error={!!errors.marketValue}
-            helperText={errors.marketValue?.message as string || 'Estimated current market value of the asset'}
+          <Controller
+            name="marketValue"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                fullWidth
+                id="marketValue"
+                label="Predicted/Estimated Price Value"
+                type="text"
+                inputMode="numeric"
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">₦</InputAdornment>,
+                }}
+                value={marketValueDisplay}
+                onChange={(e) => {
+                  const formatted = formatNumber(e.target.value);
+                  setMarketValueDisplay(formatted);
+                  const raw = formatted.replace(/,/g, '');
+                  field.onChange(raw ? parseFloat(raw) : '');
+                }}
+                onBlur={field.onBlur}
+                error={!!errors.marketValue}
+                helperText={errors.marketValue?.message as string || 'Estimated current market value of the asset'}
+              />
+            )}
           />
         </Grid>
 
