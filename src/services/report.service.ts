@@ -231,9 +231,6 @@ export const fetchAuditLogsForReport = async (
   }
 };
 
-/**
- * Generate Asset Inventory Report Data
- */
 export const generateAssetInventoryReport = async (
   filters: ReportFilters,
   isMinistryAdmin: boolean,
@@ -241,7 +238,6 @@ export const generateAssetInventoryReport = async (
 ): Promise<AssetInventoryData> => {
   const assets = await fetchAssetsForReport(filters, isMinistryAdmin, userMinistryId);
 
-  // Calculate totals
   const totalValue = assets.reduce((sum, a) => sum + (a.marketValue || a.purchaseCost || 0), 0);
 
   // Group by type
@@ -253,19 +249,11 @@ export const generateAssetInventoryReport = async (
       value: current.value + (asset.marketValue || asset.purchaseCost || 0),
     });
   });
-
-  const byType = Array.from(typeMap.entries()).map(([name, data]) => ({
-    name,
-    count: data.count,
-    value: data.value,
-  }));
+  const byType = Array.from(typeMap.entries()).map(([name, d]) => ({ name, count: d.count, value: d.value }));
 
   // Group by status
   const statusMap = new Map<string, number>();
-  assets.forEach((asset) => {
-    statusMap.set(asset.status, (statusMap.get(asset.status) || 0) + 1);
-  });
-
+  assets.forEach((a) => statusMap.set(a.status, (statusMap.get(a.status) || 0) + 1));
   const byStatus = Array.from(statusMap.entries()).map(([name, count]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
     count,
@@ -274,40 +262,30 @@ export const generateAssetInventoryReport = async (
   // Group by ministry
   const ministryMap = new Map<string, { count: number; value: number }>();
   assets.forEach((asset) => {
-    const ministry = asset.agencyName || 'Unknown';
+    const ministry = asset.ministryName || asset.agencyName || 'Unknown';
     const current = ministryMap.get(ministry) || { count: 0, value: 0 };
     ministryMap.set(ministry, {
       count: current.count + 1,
       value: current.value + (asset.marketValue || asset.purchaseCost || 0),
     });
   });
-
   const byMinistry = Array.from(ministryMap.entries())
-    .map(([name, data]) => ({
-      name,
-      count: data.count,
-      value: data.value,
-    }))
+    .map(([name, d]) => ({ name, count: d.count, value: d.value }))
     .sort((a, b) => b.count - a.count);
 
   // Group by location
   const locationMap = new Map<string, number>();
-  assets.forEach((asset) => {
-    const location = asset.location || 'Unknown';
-    locationMap.set(location, (locationMap.get(location) || 0) + 1);
+  assets.forEach((a) => {
+    const loc = a.location || 'Unknown';
+    locationMap.set(loc, (locationMap.get(loc) || 0) + 1);
   });
-
   const byLocation = Array.from(locationMap.entries())
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
 
-  // Get high-risk assets
-  const assetsWithRisk = assets.map((asset) => ({
-    ...asset,
-    riskScore: calculateRiskScore(asset),
-  }));
-
+  // High-risk assets
+  const assetsWithRisk = assets.map((a) => ({ ...a, riskScore: calculateRiskScore(a) }));
   const topHighRiskAssets: AssetSummary[] = assetsWithRisk
     .filter((a) => a.riskScore >= 50)
     .sort((a, b) => b.riskScore - a.riskScore)
@@ -321,11 +299,12 @@ export const generateAssetInventoryReport = async (
       acquisitionCost: a.purchaseCost,
       currentValue: a.marketValue || a.purchaseCost - calculateDepreciation(a),
       riskScore: a.riskScore,
-      ministry: a.agencyName,
+      ministry: a.ministryName || a.agencyName,
     }));
 
-  // Asset summaries for table
-  const assetSummaries: AssetSummary[] = assets.map((a) => ({
+  // ✅ Full asset summaries — preserve ALL raw fields the UI needs
+  const assetSummaries = assets.map((a) => ({
+    // AssetSummary base fields
     id: a.id || a.assetId,
     name: a.description,
     type: a.category,
@@ -334,7 +313,34 @@ export const generateAssetInventoryReport = async (
     acquisitionCost: a.purchaseCost,
     currentValue: a.marketValue || a.purchaseCost - calculateDepreciation(a),
     riskScore: calculateRiskScore(a),
-    ministry: a.agencyName,
+    ministry: a.ministryName || a.agencyName,
+
+    // Raw fields the UI reads directly
+    assetId:                 a.assetId || a.id,
+    description:             a.description,
+    category:                a.category,
+    state:                   a.state,
+    agencyName:              a.agencyName,
+    agency:                  a.agencyName,
+    ministryName:            a.ministryName || a.agencyName,
+    purchasedDate:           a.purchasedDate,
+    year:                    a.purchasedDate?.year,
+    purchaseCost:            a.purchaseCost,
+    marketValue:             a.marketValue,
+    condition:               a.condition,
+    remarks:                 a.remarks,
+    createdBy:               a.createdBy,
+    uploadedBy:              a.uploadedBy,
+    createdAt:               a.createdAt,
+
+    // Category-specific fields
+    landTitleType:           a.landTitleType,
+    surveyPlanNumber:        a.surveyPlanNumber,
+    landAcquisitionPurpose:  a.landAcquisitionPurpose,
+    equipmentType:           a.equipmentType,
+    capacity:                a.capacity,
+    itemType:                a.itemType,
+    quantity:                a.quantity,
   }));
 
   return {
@@ -854,46 +860,58 @@ export const generateReportInsights = (
 /**
  * Generate a complete report
  */
+/**
+ * Generate Report - Returns nested data for detailed tables
+ */
 export const generateReport = async (
   filters: ReportFilters,
-  _userId: string,
   userEmail: string,
   isMinistryAdmin: boolean,
   userMinistryId?: string,
   ministryName?: string
 ): Promise<GeneratedReport> => {
-  let data: AssetInventoryData | ValuationData | AuditData | UtilizationData;
+  const { reportType } = filters;
 
-  switch (filters.reportType) {
-    case 'asset_inventory':
-      data = await generateAssetInventoryReport(filters, isMinistryAdmin, userMinistryId);
-      break;
-    case 'valuation_depreciation':
-      data = await generateValuationReport(filters, isMinistryAdmin, userMinistryId);
-      break;
-    case 'audit_compliance':
-      data = await generateAuditReport(filters, isMinistryAdmin, userMinistryId);
-      break;
-    case 'utilization_risk':
-      data = await generateUtilizationReport(filters, isMinistryAdmin, userMinistryId);
-      break;
-    case 'custom':
-    default:
-      data = await generateAssetInventoryReport(filters, isMinistryAdmin, userMinistryId);
-      break;
+  let data: AssetInventoryData | ValuationData | AuditData | UtilizationData;
+  let title = '';
+
+  if (reportType === 'asset_inventory') {
+    title = 'Asset Inventory Report';
+    data = await generateAssetInventoryReport(filters, isMinistryAdmin, userMinistryId);
+  } else if (reportType === 'valuation_depreciation') {
+    title = 'Valuation & Depreciation Report';
+    data = await generateValuationReport(filters, isMinistryAdmin, userMinistryId);
+  } else if (reportType === 'audit_compliance') {
+    title = 'Audit & Compliance Report';
+    data = await generateAuditReport(filters, isMinistryAdmin, userMinistryId);
+  } else if (reportType === 'utilization_risk') {
+    title = 'Utilization & Risk Analysis Report';
+    data = await generateUtilizationReport(filters, isMinistryAdmin, userMinistryId);
+  } else {
+    title = 'Custom Report';
+    data = await generateAssetInventoryReport(filters, isMinistryAdmin, userMinistryId);
   }
 
-  const insights = generateReportInsights(filters.reportType, data);
+  const insights = generateReportInsights(reportType, data);
+
+  const totalAssets = reportType === 'asset_inventory'
+    ? (data as AssetInventoryData).totalAssets
+    : 0;
+  const totalValue = reportType === 'asset_inventory'
+    ? (data as AssetInventoryData).totalValue
+    : reportType === 'valuation_depreciation'
+    ? (data as ValuationData).totalCurrentValue
+    : 0;
 
   return {
     id: `report_${Date.now()}`,
-    title: getReportTitle(filters.reportType),
-    type: filters.reportType,
+    title,
+    type: reportType,
     generatedAt: new Date(),
     generatedBy: userEmail,
-    filters,
+    ministryName: isMinistryAdmin ? ministryName : undefined,
     scope: isMinistryAdmin ? 'ministry' : 'all',
-    ministryName,
+    filters,
     data,
     insights,
   };

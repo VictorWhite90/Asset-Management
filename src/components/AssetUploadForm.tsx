@@ -28,6 +28,47 @@ import {
 } from '@/utils/constants';
 import { camelToTitle } from '@/utils/assetHelpers';
 
+// All 36 states + FCT in Nigeria
+const NIGERIA_STATES = [
+  'Abia',
+  'Adamawa',
+  'Akwa Ibom',
+  'Anambra',
+  'Bauchi',
+  'Bayelsa',
+  'Benue',
+  'Borno',
+  'Cross River',
+  'Delta',
+  'Ebonyi',
+  'Edo',
+  'Ekiti',
+  'Enugu',
+  'FCT - Abuja',
+  'Gombe',
+  'Imo',
+  'Jigawa',
+  'Kaduna',
+  'Kano',
+  'Katsina',
+  'Kebbi',
+  'Kogi',
+  'Kwara',
+  'Lagos',
+  'Nasarawa',
+  'Niger',
+  'Ogun',
+  'Ondo',
+  'Osun',
+  'Oyo',
+  'Plateau',
+  'Rivers',
+  'Sokoto',
+  'Taraba',
+  'Yobe',
+  'Zamfara',
+];
+
 // Base validation schema (applies to all assets)
 const baseSchema = {
   assetId: yup.string().optional(),
@@ -37,6 +78,15 @@ const baseSchema = {
     .min(3, 'Description must be at least 3 characters'),
   category: yup.string().required('Category is required').oneOf(ASSET_CATEGORIES),
   location: yup.string().required('Location is required').min(3, 'Location must be at least 3 characters'),
+  state: yup.string().required('State is required'),
+  ministry: yup
+    .string()
+    .required('Ministry is required')
+    .min(3, 'Ministry name must be at least 3 characters'),
+  agency: yup
+    .string()
+    .required('Agency is required')
+    .min(3, 'Agency name must be at least 3 characters'),
   purchaseYear: yup
     .number()
     .required('Year is required')
@@ -163,6 +213,9 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
         description: data.description,
         category: data.category as AssetCategory,
         location: data.location,
+        state: data.state,           // new field
+        ministry: data.ministry,     // new field
+        agency: data.agency,         // new field
         purchasedDate: {
           day: 1,
           month: 1,
@@ -303,6 +356,58 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
             {...register('location')}
             error={!!errors.location}
             helperText={errors.location?.message as string}
+          />
+        </Grid>
+
+        {/* State (Required) - Dropdown with all Nigerian states */}
+        <Grid item xs={12} sm={6}>
+          <TextField
+            required
+            fullWidth
+            select
+            id="state"
+            label="State"
+            defaultValue=""
+            {...register('state')}
+            error={!!errors.state}
+            helperText={errors.state?.message as string || 'State where the asset is located'}
+          >
+            <MenuItem value="" disabled>
+              Select State
+            </MenuItem>
+            {NIGERIA_STATES.map((state) => (
+              <MenuItem key={state} value={state}>
+                {state}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+
+        {/* Ministry (Required) */}
+        <Grid item xs={12} sm={6}>
+          <TextField
+            required
+            fullWidth
+            id="ministry"
+            label="Ministry"
+            placeholder="e.g., Ministry of Works and Housing"
+            {...register('ministry')}
+            error={!!errors.ministry}
+            helperText={errors.ministry?.message as string || 'Ministry responsible for this asset'}
+          />
+        </Grid>
+
+        {/* Agency (Required) */}
+        <Grid item xs={12} sm={6}>
+          <TextField
+            required
+            fullWidth
+            id="agency"
+            label="Agency"
+            placeholder="e.g., Federal Roads Maintenance Agency"
+            {...register('agency')}
+            error={!!errors.agency}
+            helperText={errors.agency?.message as string || 'Agency or department that owns this asset'}
           />
         </Grid>
 
