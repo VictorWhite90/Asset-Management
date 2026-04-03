@@ -31,7 +31,6 @@ import {
   LinearProgress,
   SelectChangeEvent,
   TextField,
-  Badge,
   Stack,
 } from '@mui/material';
 import {
@@ -51,17 +50,11 @@ import {
   Error as ErrorIcon,
   BarChart,
   PieChart,
-  Timeline,
   Description,
   ArrowBack,
-  LocationOn,
   Category,
   AccountBalance,
-  Business,
-  CalendarToday,
-  AttachMoney,
   FiberManualRecord,
-  OpenInNew,
 } from '@mui/icons-material';
 import AppLayout from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -204,7 +197,6 @@ const ReportsPage: React.FC = () => {
       };
       const report = await generateReport(
         reportFilters,
-        currentUser?.uid || '',
         currentUser?.email || '',
         isMinistryAdmin,
         userData?.ministryId,
@@ -323,7 +315,7 @@ const ReportsPage: React.FC = () => {
     }
 
     // Footer
-    const pages = doc.getNumberOfPages();
+    const pages = (doc as any).getNumberOfPages();
     for (let i = 1; i <= pages; i++) {
       doc.setPage(i);
       doc.setFontSize(7);
@@ -388,7 +380,7 @@ const ReportsPage: React.FC = () => {
         ]);
         const sheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
         // Column widths
-        sheet['!cols'] = headers.map((h, i) => ({ wch: [14,35,18,14,32,32,28,14,18,18,18,16,14,35,20,14,18,10,28,12,28,16][i] ?? 14 }));
+        sheet['!cols'] = headers.map((_, i) => ({ wch: [14,35,18,14,32,32,28,14,18,18,18,16,14,35,20,14,18,10,28,12,28,16][i] ?? 14 }));
         XLSX.utils.book_append_sheet(workbook, sheet, 'Asset Register');
       }
 

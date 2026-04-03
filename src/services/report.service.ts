@@ -262,7 +262,7 @@ export const generateAssetInventoryReport = async (
   // Group by ministry
   const ministryMap = new Map<string, { count: number; value: number }>();
   assets.forEach((asset) => {
-    const ministry = asset.ministryName || asset.agencyName || 'Unknown';
+    const ministry = asset.agencyName || 'Unknown';
     const current = ministryMap.get(ministry) || { count: 0, value: 0 };
     ministryMap.set(ministry, {
       count: current.count + 1,
@@ -299,7 +299,7 @@ export const generateAssetInventoryReport = async (
       acquisitionCost: a.purchaseCost,
       currentValue: a.marketValue || a.purchaseCost - calculateDepreciation(a),
       riskScore: a.riskScore,
-      ministry: a.ministryName || a.agencyName,
+      ministry: a.agencyName,
     }));
 
   // ✅ Full asset summaries — preserve ALL raw fields the UI needs
@@ -313,7 +313,7 @@ export const generateAssetInventoryReport = async (
     acquisitionCost: a.purchaseCost,
     currentValue: a.marketValue || a.purchaseCost - calculateDepreciation(a),
     riskScore: calculateRiskScore(a),
-    ministry: a.ministryName || a.agencyName,
+    ministry: a.agencyName,
 
     // Raw fields the UI reads directly
     assetId:                 a.assetId || a.id,
@@ -322,7 +322,7 @@ export const generateAssetInventoryReport = async (
     state:                   a.state,
     agencyName:              a.agencyName,
     agency:                  a.agencyName,
-    ministryName:            a.ministryName || a.agencyName,
+    ministryName:            a.agencyName,
     purchasedDate:           a.purchasedDate,
     year:                    a.purchasedDate?.year,
     purchaseCost:            a.purchaseCost,
@@ -894,15 +894,6 @@ export const generateReport = async (
 
   const insights = generateReportInsights(reportType, data);
 
-  const totalAssets = reportType === 'asset_inventory'
-    ? (data as AssetInventoryData).totalAssets
-    : 0;
-  const totalValue = reportType === 'asset_inventory'
-    ? (data as AssetInventoryData).totalValue
-    : reportType === 'valuation_depreciation'
-    ? (data as ValuationData).totalCurrentValue
-    : 0;
-
   return {
     id: `report_${Date.now()}`,
     title,
@@ -915,20 +906,6 @@ export const generateReport = async (
     data,
     insights,
   };
-};
-
-/**
- * Get report title based on type
- */
-const getReportTitle = (type: ReportType): string => {
-  const titles: Record<ReportType, string> = {
-    asset_inventory: 'Asset Inventory Report',
-    valuation_depreciation: 'Valuation & Depreciation Report',
-    audit_compliance: 'Audit & Compliance Report',
-    utilization_risk: 'Utilization & Risk Analysis Report',
-    custom: 'Custom Report',
-  };
-  return titles[type];
 };
 
 /**

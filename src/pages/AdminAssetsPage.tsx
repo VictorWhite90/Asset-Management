@@ -320,27 +320,6 @@ const AdminAssetsPage = () => {
     return `₦${amount.toLocaleString()}`;
   };
 
-  const getStatusColor = (status: AssetStatus): 'success' | 'warning' | 'error' | 'info' => {
-    switch (status) {
-      case 'approved': return 'success';
-      case 'submitted_to_federal': return 'info';
-      case 'pending': return 'warning';
-      case 'rejected': return 'error';
-      default: return 'warning';
-    }
-  };
-
-  const getStatusLabel = (status: AssetStatus): string => {
-    switch (status) {
-      case 'approved': return 'Approved';
-      case 'submitted_to_federal': return 'Pending Federal Review';
-      case 'pending': return 'Pending';
-      case 'pending_ministry_review': return 'Ministry Review';
-      case 'rejected': return 'Rejected';
-      default: return status;
-    }
-  };
-
   return (
     <AppLayout>
       <Container maxWidth="xl">
