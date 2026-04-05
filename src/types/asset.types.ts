@@ -31,6 +31,11 @@ export interface Asset {
   description: string;
   category: AssetCategory;
   location: string; // e.g., "Ikorodu Lagos" - where the asset is physically located
+  state?: string; // State where the asset is located
+  ministry?: string; // Ministry captured from upload form
+  agency?: string; // Agency captured from upload form
+  department?: string; // Department captured from upload form
+  condition?: string; // Asset condition captured from upload form
   purchasedDate: AssetDate; // Split into day/month/year
   purchaseCost: number;
   marketValue?: number; // Current market worth of the asset
@@ -70,6 +75,11 @@ export interface AssetFormData {
   description: string;
   category: AssetCategory;
   location: string;
+  state?: string;
+  ministry?: string;
+  agency?: string;
+  department?: string;
+  condition?: string;
   purchasedDate: AssetDate;
   purchaseCost: number;
   marketValue?: number;

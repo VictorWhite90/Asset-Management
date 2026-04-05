@@ -303,44 +303,106 @@ export const generateAssetInventoryReport = async (
     }));
 
   // ✅ Full asset summaries — preserve ALL raw fields the UI needs
-  const assetSummaries = assets.map((a) => ({
-    // AssetSummary base fields
-    id: a.id || a.assetId,
-    name: a.description,
-    type: a.category,
-    location: a.location,
-    status: a.status,
+ const assetSummaries = assets.map((a) => ({
+    // ── AssetSummary base fields (used by valuation/utilization tables) ──────
+    id:              a.id || a.assetId,
+    name:            a.description,
+    type:            a.category,
+    status:          a.status,
     acquisitionCost: a.purchaseCost,
-    currentValue: a.marketValue || a.purchaseCost - calculateDepreciation(a),
-    riskScore: calculateRiskScore(a),
-    ministry: a.agencyName,
-
-    // Raw fields the UI reads directly
-    assetId:                 a.assetId || a.id,
-    description:             a.description,
-    category:                a.category,
-    state:                   a.state,
-    agencyName:              a.agencyName,
-    agency:                  a.agencyName,
-    ministryName:            a.agencyName,
-    purchasedDate:           a.purchasedDate,
-    year:                    a.purchasedDate?.year,
-    purchaseCost:            a.purchaseCost,
-    marketValue:             a.marketValue,
-    condition:               a.condition,
-    remarks:                 a.remarks,
-    createdBy:               a.createdBy,
-    uploadedBy:              a.uploadedBy,
-    createdAt:               a.createdAt,
-
-    // Category-specific fields
-    landTitleType:           a.landTitleType,
-    surveyPlanNumber:        a.surveyPlanNumber,
-    landAcquisitionPurpose:  a.landAcquisitionPurpose,
-    equipmentType:           a.equipmentType,
-    capacity:                a.capacity,
-    itemType:                a.itemType,
-    quantity:                a.quantity,
+    currentValue:    a.marketValue ?? (a.purchaseCost - calculateDepreciation(a)),
+    riskScore:       calculateRiskScore(a),
+ 
+    // ── Identity ─────────────────────────────────────────────────────────────
+    assetId:         a.assetId || a.id,
+    description:     a.description,
+    category:        a.category,
+ 
+    // ── Location fields ───────────────────────────────────────────────────────
+    // The upload form saves a field literally called "state" via register('state').
+    // It lives under Asset's [key: string]: any dynamic fields.
+    state:           a.state ?? null,
+    location:        a.location ?? null,   // full street / address
+ 
+    // ── Organisation fields ───────────────────────────────────────────────────
+    // The upload form saves fields literally called "ministry" and "agency".
+    // Asset interface only has agencyName/ministryId — so we fall back to those.
+    ministry:        a.ministry        // dynamic field saved by the form
+                     ?? a.ministryName // denormalised field on Asset
+                     ?? null,
+    agency:          a.agency          // dynamic field saved by the form
+                     ?? a.agencyName   // denormalised field on Asset
+                     ?? null,
+    department:      a.department
+                     ?? a.dept
+                     ?? null,
+    // Keep raw copies for any code that reads the original field names
+    agencyName:      a.agencyName ?? null,
+    ministryName:    a.ministryName ?? a.agencyName ?? null,
+    ministryId:      a.ministryId ?? null,
+ 
+    // ── Date / financial ──────────────────────────────────────────────────────
+    purchasedDate:   a.purchasedDate,          // { day, month, year }
+    year:            a.purchasedDate?.year ?? null,
+    purchaseCost:    a.purchaseCost ?? null,
+    marketValue:     a.marketValue ?? null,
+ 
+    // ── Condition ─────────────────────────────────────────────────────────────
+    // Saved by the form as "condition" (dynamic field).
+    // Try every plausible variant in case older documents used a different name.
+    condition:       a.condition
+                     ?? a.assetCondition
+                     ?? a.currentCondition
+                     ?? a.conditionStatus
+                     ?? null,
+ 
+    // ── Audit / meta ──────────────────────────────────────────────────────────
+    remarks:         a.remarks ?? null,
+    uploadedBy:      a.uploadedBy ?? null,
+    createdBy:       a.uploadedBy ?? null,
+    createdAt:       a.uploadTimestamp ?? null,
+ 
+    // ── Category-specific dynamic fields ──────────────────────────────────────
+    // Land
+    landTitleType:          a.landTitleType          ?? null,
+    surveyPlanNumber:       a.surveyPlanNumber        ?? null,
+    landAcquisitionPurpose: a.landAcquisitionPurpose  ?? null,
+ 
+    // Plant / Generator
+    equipmentType:          a.equipmentType           ?? null,
+    capacity:               a.capacity                ?? null,
+ 
+    // Office Equipment / Furniture & Fittings
+    itemType:               a.itemType                ?? null,
+    quantity:               a.quantity                ?? null,
+ 
+    // Building
+    buildingType:           a.buildingType            ?? null,
+    numberOfFloors:         a.numberOfFloors          ?? null,
+    buildingUse:            a.buildingUse             ?? null,
+ 
+    // Motor Vehicle
+    make:                   a.make                    ?? null,
+    model:                  a.model                   ?? null,
+    vehicleYear:            a.vehicleYear             ?? null,
+    registrationNumber:     a.registrationNumber      ?? null,
+    engineNumber:           a.engineNumber            ?? null,
+    chassisNumber:          a.chassisNumber           ?? null,
+    colour:                 a.colour                  ?? null,
+ 
+    // Infrastructure
+    infrastructureType:     a.infrastructureType      ?? null,
+    length:                 a.length                  ?? null,
+    width:                  a.width                   ?? null,
+ 
+    // Extractive Assets
+    extractiveType:         a.extractiveType          ?? null,
+    licenceNumber:          a.licenceNumber           ?? null,
+ 
+    // Securities / Financial Assets
+    securityType:           a.securityType            ?? null,
+    faceValue:              a.faceValue               ?? null,
+    issuer:                 a.issuer                  ?? null,
   }));
 
   return {

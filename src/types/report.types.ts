@@ -60,13 +60,19 @@ export interface AssetSummary {
   name: string;
   type: string;
   location: string;
+  state?: string | null;
   status: string;
   acquisitionCost: number;
   currentValue: number;
+  purchaseCost?: number | null;
+  marketValue?: number | null;
   riskScore?: number;
-  ministry?: string;
-  condition?: string;
+  ministry?: string | null;
+  agency?: string | null;
+  department?: string | null;
+  condition?: string | null;
   lastUpdated?: Date;
+  [key: string]: any;
 }
 
 export interface ValuationData {

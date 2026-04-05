@@ -148,6 +148,23 @@ export const createAsset = async (
       uploadedBy: userId,
     };
 
+    // Persist shared form fields for reporting and downstream workflows
+    if (assetData.state !== undefined && assetData.state !== null && String(assetData.state).trim() !== '') {
+      assetDocument.state = String(assetData.state).trim();
+    }
+    if (assetData.ministry !== undefined && assetData.ministry !== null && String(assetData.ministry).trim() !== '') {
+      assetDocument.ministry = String(assetData.ministry).trim();
+    }
+    if (assetData.agency !== undefined && assetData.agency !== null && String(assetData.agency).trim() !== '') {
+      assetDocument.agency = String(assetData.agency).trim();
+    }
+    if (assetData.department !== undefined && assetData.department !== null && String(assetData.department).trim() !== '') {
+      assetDocument.department = String(assetData.department).trim();
+    }
+    if (assetData.condition !== undefined && assetData.condition !== null && String(assetData.condition).trim() !== '') {
+      assetDocument.condition = String(assetData.condition).trim();
+    }
+
     // Add optional fields only if they have values (Firestore doesn't accept undefined)
     if (assetData.marketValue !== undefined && assetData.marketValue !== null) {
       assetDocument.marketValue = assetData.marketValue;

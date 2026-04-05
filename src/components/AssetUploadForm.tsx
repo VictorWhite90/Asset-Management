@@ -21,8 +21,6 @@ import { Category } from '@/types/category.types';
 import {
   ASSET_CATEGORIES,
   LAND_TITLE_TYPES,
-  LAND_CONDITIONS,
-  BUILDING_CONDITIONS,
   SUCCESS_MESSAGES,
   ERROR_MESSAGES
 } from '@/utils/constants';
@@ -87,6 +85,14 @@ const baseSchema = {
     .string()
     .required('Agency is required')
     .min(3, 'Agency name must be at least 3 characters'),
+  department: yup
+    .string()
+    .required('Department is required')
+    .min(2, 'Department name must be at least 2 characters'),
+  condition: yup
+    .string()
+    .required('Condition is required')
+    .min(2, 'Condition must be at least 2 characters'),
   purchaseYear: yup
     .number()
     .required('Year is required')
@@ -216,6 +222,8 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
         state: data.state,           // new field
         ministry: data.ministry,     // new field
         agency: data.agency,         // new field
+        department: data.department,
+        condition: data.condition,
         purchasedDate: {
           day: 1,
           month: 1,
@@ -411,6 +419,20 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
           />
         </Grid>
 
+        {/* Department (Required) */}
+        <Grid item xs={12} sm={6}>
+          <TextField
+            required
+            fullWidth
+            id="department"
+            label="Department"
+            placeholder="e.g., Operations, Procurement, Engineering"
+            {...register('department')}
+            error={!!errors.department}
+            helperText={errors.department?.message as string || 'Department responsible for this asset'}
+          />
+        </Grid>
+
         {/* Purchase Cost (Required) */}
         <Grid item xs={12} sm={6}>
           <Controller
@@ -451,7 +473,7 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
               <TextField
                 fullWidth
                 id="marketValue"
-                label="Predicted/Estimated Price Value"
+                label="Estimated current market value of the asset"
                 type="text"
                 inputMode="numeric"
                 InputProps={{
@@ -466,7 +488,7 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
                 }}
                 onBlur={field.onBlur}
                 error={!!errors.marketValue}
-                helperText={errors.marketValue?.message as string || 'Estimated current market value of the asset'}
+                helperText={errors.marketValue?.message as string || 'whats the current estimated market value of this asset?'}
               />
             )}
           />
@@ -496,6 +518,20 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
           </TextField>
         </Grid>
 
+        {/* Condition (Required for all categories) */}
+        <Grid item xs={12} sm={6}>
+          <TextField
+            required
+            fullWidth
+            id="condition"
+            label="Asset Condition"
+            placeholder="e.g., Good working condition, Requires minor repairs"
+            {...register('condition')}
+            error={!!errors.condition}
+            helperText={errors.condition?.message as string || 'Describe the current condition of this asset'}
+          />
+        </Grid>
+
         {/* Dynamic Category-Specific Fields */}
         {loadingCategory && (
           <Grid item xs={12}>
@@ -517,6 +553,11 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
             </Grid>
 
             {categoryDetails.requiredFields.map((field) => {
+              // Condition is captured globally for all categories above
+              if (field === 'condition') {
+                return null;
+              }
+
               // Survey Plan Number is optional
               if (field === 'surveyPlanNumber') {
                 return (
@@ -557,44 +598,6 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
                       {LAND_TITLE_TYPES.map((type) => (
                         <MenuItem key={type} value={type}>
                           {type}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                );
-              }
-
-              // Custom rendering for Condition (only for Land and Building)
-              if (field === 'condition') {
-                // Get appropriate conditions based on category
-                let conditionOptions = LAND_CONDITIONS;
-                if (category === 'Land') {
-                  conditionOptions = LAND_CONDITIONS;
-                } else if (category === 'Building') {
-                  conditionOptions = BUILDING_CONDITIONS;
-                }
-
-                return (
-                  <Grid item xs={12} sm={6} key={field}>
-                    <TextField
-                      required
-                      fullWidth
-                      select
-                      id={field}
-                      label="Current Condition"
-                      defaultValue=""
-                      {...register(field, {
-                        required: 'Current Condition is required',
-                      })}
-                      error={!!errors[field]}
-                      helperText={errors[field]?.message as string}
-                    >
-                      <MenuItem value="" disabled>
-                        Select Condition
-                      </MenuItem>
-                      {conditionOptions.map((condition) => (
-                        <MenuItem key={condition} value={condition}>
-                          {condition}
                         </MenuItem>
                       ))}
                     </TextField>
