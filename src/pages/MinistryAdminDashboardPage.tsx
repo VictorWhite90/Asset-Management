@@ -125,7 +125,7 @@ const MinistryAdminDashboardPage = () => {
   const [reason, setReason] = useState('');
 
   const [approvedStaffData, setApprovedStaffData] = useState<{
-    uuid: string;
+    displayId: string;
     userEmail: string;
     userName: string;
   } | null>(null);
@@ -192,7 +192,7 @@ const MinistryAdminDashboardPage = () => {
     try {
       const result = await approveUserByMinistryAdmin(user.userId, currentUser.uid);
       setApprovedStaffData({
-        uuid: result.uuid,
+        displayId: result.displayId || result.uuid,
         userEmail: result.userEmail,
         userName: result.userName,
       });
@@ -207,9 +207,9 @@ const MinistryAdminDashboardPage = () => {
   };
 
   const handleCopyUuid = () => {
-    if (approvedStaffData?.uuid) {
-      navigator.clipboard.writeText(approvedStaffData.uuid);
-      toast.success('UUID copied to clipboard!');
+    if (approvedStaffData?.displayId) {
+      navigator.clipboard.writeText(approvedStaffData.displayId);
+      toast.success('Display ID copied to clipboard!');
     }
   };
 
@@ -1058,14 +1058,14 @@ const MinistryAdminDashboardPage = () => {
                   {approvedStaffData?.userName} ({approvedStaffData?.userEmail}) has been approved!
                 </Typography>
                 <Typography variant="caption">
-                  A unique UUID has been generated for this staff member.
+                  A unique Display ID has been generated for this staff member.
                 </Typography>
               </Alert>
             </Box>
 
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}>
-                Staff UUID:
+                Staff Display ID:
               </Typography>
               <Paper
                 sx={{
@@ -1087,7 +1087,7 @@ const MinistryAdminDashboardPage = () => {
                     wordBreak: 'break-all',
                   }}
                 >
-                  {approvedStaffData?.uuid}
+                  {approvedStaffData?.displayId}
                 </Typography>
                 <Tooltip title="Copy to clipboard">
                   <IconButton

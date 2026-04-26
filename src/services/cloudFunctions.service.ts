@@ -15,8 +15,19 @@ interface CloudFunctionResponse {
 
 interface ApproveStaffResponse extends CloudFunctionResponse {
   uuid?: string;
+  displayId?: string; // New short display ID
   userEmail?: string;
   userName?: string;
+}
+
+interface SearchStaffResponse {
+  displayId: string;
+  name?: string;
+  email: string;
+  role: string;
+  ministry: string;
+  status: string;
+  approvedAt?: any;
 }
 
 /**
@@ -140,4 +151,14 @@ export const refreshUserToken = async (): Promise<void> => {
   } else {
     throw new Error('No user logged in');
   }
+};
+
+/**
+ * Ministry Admin: Search Staff by Display ID
+ * Search for staff using their short display ID (e.g., "EDU-STF-001")
+ */
+export const searchStaffByDisplayIdCF = async (
+  displayId: string
+): Promise<SearchStaffResponse> => {
+  return await callFunction<SearchStaffResponse>('searchStaffByDisplayId', { displayId });
 };

@@ -465,12 +465,12 @@ function App() {
               }
             />
 
-            {/* Reports Route (Admin and Ministry Admin) */}
+            {/* Reports Route (Admin, Ministry Admin, and Approver) */}
             <Route
               path="/reports"
               element={
                 <ProtectedRoute requireEmailVerification={true}>
-                  <RoleBasedRoute allowedRoles={['admin', 'ministry-admin']}>
+                  <RoleBasedRoute allowedRoles={['admin', 'ministry-admin', 'agency-approver']}>
                     <ReportsPage />
                   </RoleBasedRoute>
                 </ProtectedRoute>

@@ -43,6 +43,7 @@ export interface Asset {
   // Approval workflow fields
   status: AssetStatus; // pending, approved, rejected
   uploadedBy: string; // userId of uploader
+  uploaderDisplayId?: string; // Short display ID of uploader e.g. "EDU-STF-0001"
   uploadTimestamp: Timestamp;
 
   // Approver action (Agency Approver sends to Ministry Admin)

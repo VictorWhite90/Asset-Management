@@ -521,6 +521,89 @@ const DashboardPage: React.FC = () => {
                       </Card>
                     </Grid>
 
+                    {/* Asset Chart for Approver */}
+                    {categoryBreakdown.length > 0 && (
+                      <Grid item xs={12} md={6}>
+                        <Card>
+                          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                            <Typography variant="h6" sx={{ color: '#00ff88', mb: 2.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
+                              Assets by Category
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                              {categoryBreakdown.map(([cat, count], idx) => {
+                                const pct = totalAssets > 0 ? (count / totalAssets) * 100 : 0;
+                                const barColors = ['#00ff88', '#2196f3', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4'];
+                                const col = barColors[idx % barColors.length];
+                                return (
+                                  <Box key={cat}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
+                                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{cat}</Typography>
+                                      <Typography sx={{ fontSize: '0.78rem', color: col, fontWeight: 700 }}>{count} asset{count !== 1 ? 's' : ''}</Typography>
+                                    </Box>
+                                    <Box sx={{ height: 9, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                                      <Box sx={{ height: '100%', width: `${pct}%`, backgroundColor: col, borderRadius: 2, boxShadow: `0 0 8px ${col}55`, transition: 'width 0.6s ease' }} />
+                                    </Box>
+                                  </Box>
+                                );
+                              })}
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    )}
+
+                    {/* Status Distribution for Approver */}
+                    {totalAssets > 0 && (
+                      <Grid item xs={12} md={6}>
+                        <Card>
+                          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                            <Typography variant="h6" sx={{ color: '#00ff88', mb: 2.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
+                              Asset Status Overview
+                            </Typography>
+                            {(() => {
+                              const slices = [
+                                { label: 'Approved', count: approvedAssets, color: '#4caf50' },
+                                { label: 'Pending Approval', count: pendingAssets, color: '#ff9800' },
+                                { label: 'Rejected', count: rejectedAssets, color: '#f44336' },
+                                { label: 'Ministry Review', count: pendingMinistryReview, color: '#2196f3' },
+                              ].filter(s => s.count > 0);
+                              if (slices.length === 0) return <Typography sx={{ color: 'rgba(255,255,255,0.5)' }}>No data yet</Typography>;
+                              const r = 58; const cx = 78; const cy = 78;
+                              let startAngle = -Math.PI / 2;
+                              const paths = slices.map(s => {
+                                const angle = (s.count / totalAssets) * 2 * Math.PI;
+                                const x1 = cx + r * Math.cos(startAngle);
+                                const y1 = cy + r * Math.sin(startAngle);
+                                const x2 = cx + r * Math.cos(startAngle + angle);
+                                const y2 = cy + r * Math.sin(startAngle + angle);
+                                const large = angle > Math.PI ? 1 : 0;
+                                const d = `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z`;
+                                startAngle += angle;
+                                return { ...s, d };
+                              });
+                              return (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                                  <svg width="156" height="156" viewBox="0 0 156 156">
+                                    {paths.map(p => <path key={p.label} d={p.d} fill={p.color} stroke="#0d2818" strokeWidth="2" />)}
+                                  </svg>
+                                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}>
+                                    {slices.map(s => (
+                                      <Box key={s.label} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Box sx={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: s.color, flexShrink: 0 }} />
+                                        <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)' }}>
+                                          {s.label}: <strong>{s.count}</strong>
+                                        </Typography>
+                                      </Box>
+                                    ))}
+                                  </Box>
+                                </Box>
+                              );
+                            })()}
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    )}
+
                     {/* Recent Asset History for Approver */}
                     <Grid item xs={12}>
                       <Paper sx={{ p: 3 }}>
@@ -530,7 +613,7 @@ const DashboardPage: React.FC = () => {
                           </Typography>
                           <Button
                             component={Link}
-                            to="/approver/review-uploads"
+                            to="/approver/review-uploads?tab=history"
                             size="small"
                             variant="outlined"
                             sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#00ff88', fontSize: '0.75rem' }}
@@ -657,6 +740,114 @@ const DashboardPage: React.FC = () => {
                         </CardContent>
                       </Card>
                     </Grid>
+
+                    {/* Asset Chart for Ministry Admin */}
+                    {categoryBreakdown.length > 0 && (
+                      <Grid item xs={12} md={6}>
+                        <Card>
+                          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                            <Typography variant="h6" sx={{ color: '#00ff88', mb: 2.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
+                              Assets by Category
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                              {categoryBreakdown.map(([cat, count], idx) => {
+                                const pct = totalAssets > 0 ? (count / totalAssets) * 100 : 0;
+                                const barColors = ['#00ff88', '#2196f3', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4'];
+                                const col = barColors[idx % barColors.length];
+                                return (
+                                  <Box key={cat}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
+                                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{cat}</Typography>
+                                      <Typography sx={{ fontSize: '0.78rem', color: col, fontWeight: 700 }}>{count} asset{count !== 1 ? 's' : ''}</Typography>
+                                    </Box>
+                                    <Box sx={{ height: 9, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                                      <Box sx={{ height: '100%', width: `${pct}%`, backgroundColor: col, borderRadius: 2, boxShadow: `0 0 8px ${col}55`, transition: 'width 0.6s ease' }} />
+                                    </Box>
+                                  </Box>
+                                );
+                              })}
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    )}
+
+                    {/* Market Value by State for Ministry Admin */}
+                    {totalAssets > 0 && (
+                      <Grid item xs={12} md={6}>
+                        <Card>
+                          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                            <Typography variant="h6" sx={{ color: '#00ff88', mb: 0.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
+                              Market Value by State
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.45)', display: 'block', mb: 2 }}>
+                              Current market value of assets per state
+                            </Typography>
+                            {(() => {
+                              const stateMap: Record<string, number> = {};
+                              assets.forEach((a) => {
+                                const st = a.state || 'Unspecified';
+                                stateMap[st] = (stateMap[st] || 0) + (Number(a.marketValue) || 0);
+                              });
+                              const stateData = Object.entries(stateMap)
+                                .sort((a, b) => b[1] - a[1])
+                                .slice(0, 7);
+                              if (stateData.length === 0) return (
+                                <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.82rem' }}>No market value data yet</Typography>
+                              );
+                              const maxVal = stateData[0][1];
+                              const barColors = ['#2196f3', '#00bcd4', '#00ff88', '#ff9800', '#e91e63', '#9c27b0', '#4caf50'];
+                              const chartH = 160;
+                              return (
+                                <Box>
+                                  {/* Vertical bar chart */}
+                                  <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: chartH, px: 0.5, mb: 1 }}>
+                                    {stateData.map(([state, value], idx) => {
+                                      const col = barColors[idx % barColors.length];
+                                      const barH = maxVal > 0 ? Math.max((value / maxVal) * chartH, 8) : 8;
+                                      const formatted = value >= 1_000_000_000
+                                        ? `₦${(value / 1_000_000_000).toFixed(1)}B`
+                                        : value >= 1_000_000
+                                        ? `₦${(value / 1_000_000).toFixed(1)}M`
+                                        : `₦${value.toLocaleString()}`;
+                                      return (
+                                        <Box key={state} sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.4 }}>
+                                          {/* Value label on top */}
+                                          <Typography sx={{ fontSize: '0.58rem', color: col, fontWeight: 700, lineHeight: 1, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                                            {formatted}
+                                          </Typography>
+                                          {/* Bar */}
+                                          <Box sx={{
+                                            width: '100%', height: barH,
+                                            background: `linear-gradient(180deg, ${col}, ${col}88)`,
+                                            borderRadius: '4px 4px 0 0',
+                                            boxShadow: `0 0 10px ${col}55`,
+                                            transition: 'height 0.7s ease',
+                                            flexShrink: 0,
+                                          }} />
+                                        </Box>
+                                      );
+                                    })}
+                                  </Box>
+                                  {/* X-axis baseline */}
+                                  <Box sx={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.12)', mx: 0.5, mb: 0.8 }} />
+                                  {/* State labels */}
+                                  <Box sx={{ display: 'flex', gap: '6px', px: 0.5 }}>
+                                    {stateData.map(([state]) => (
+                                      <Box key={state} sx={{ flex: 1, textAlign: 'center' }}>
+                                        <Typography sx={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.2, wordBreak: 'break-word' }}>
+                                          {state.length > 6 ? state.slice(0, 6) + '…' : state}
+                                        </Typography>
+                                      </Box>
+                                    ))}
+                                  </Box>
+                                </Box>
+                              );
+                            })()}
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    )}
 
                     {/* Recent Asset History for Ministry Admin */}
                     <Grid item xs={12}>
@@ -1118,6 +1309,24 @@ const DashboardPage: React.FC = () => {
                   }}
                 >
                   Review Pending Uploads
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Button
+                  component={Link}
+                  to="/reports"
+                  variant="contained"
+                  fullWidth
+                  startIcon={<Assessment />}
+                  size="medium"
+                  sx={{
+                    backgroundColor: '#008751',
+                    '&:hover': { backgroundColor: '#006038' },
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    py: { xs: 1, sm: 1.5 },
+                  }}
+                >
+                  Generate Reports
                 </Button>
               </Grid>
             </Grid>

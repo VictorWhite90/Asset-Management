@@ -13,6 +13,7 @@
     "deploy": "npm run build && firebase deploy",
     "seed": "node scripts/seed.cjs",
     "seed:firestore": "node scripts/seedFirestore.cjs",
+    "seed:categories": "node scripts/seedCategories.cjs",
     "seed:users": "node scripts/seedTestUsers.cjs",
     "delete:non-admins": "node scripts/deleteAllExceptAdmin.cjs",
     "sync:ministries": "node scripts/syncMinistryStatus.cjs"

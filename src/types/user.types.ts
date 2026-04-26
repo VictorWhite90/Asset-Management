@@ -25,7 +25,8 @@ export interface User {
   verifiedBy?: string; // Admin user ID who verified the account (federal admin for ministry-admin, ministry admin for staff)
   verifiedAt?: Timestamp; // When the account was verified
   rejectionReason?: string; // Reason for rejection (if rejected)
-  uuid?: string; // Unique identifier assigned on approval (for staff login and tracking)
+  uuid?: string; // Legacy UUID field (for backward compatibility)
+  displayId?: string; // Short display ID assigned on approval (e.g., "EDU-STF-001")
   // Ministry admin specific
   isMinistryOwner?: boolean; // True if this user created/owns a ministry
   ownedMinistryId?: string; // Ministry ID they own (for ministry-admin role)

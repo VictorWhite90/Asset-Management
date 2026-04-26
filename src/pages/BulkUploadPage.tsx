@@ -310,7 +310,8 @@ const BulkUploadPage = () => {
           currentUser?.email || undefined,
           userData.role,
           userData.ministryId, // Pass ministry ID for access control
-          userData.ministryType // Pass uploader's ministry type
+          userData.ministryType, // Pass uploader's ministry type
+          userData.displayId // Store short display ID on asset for easy lookup
         );
 
         // Update row status to success

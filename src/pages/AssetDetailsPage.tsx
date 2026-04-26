@@ -32,6 +32,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getAssetById, getCategoryDetails } from '@/services/asset.service';
 import { Asset } from '@/types/asset.types';
 import { Category } from '@/types/category.types';
+import { camelToTitle } from '@/utils/assetHelpers';
 import AppLayout from '@/components/AppLayout';
 
 const AssetDetailsPage = () => {
@@ -208,7 +209,7 @@ const AssetDetailsPage = () => {
                   ? '/approver/review-uploads'
                   : userData?.role === 'ministry-admin'
                     ? '/ministry-admin/dashboard'
-                    : '/assets/my-assets'
+                    : '/dashboard'
             }
             startIcon={<ArrowBack />}
             sx={{
@@ -224,12 +225,16 @@ const AssetDetailsPage = () => {
           {canEdit && (
             <Button
               component={Link}
-              to={`/assets/edit/${id}`}
+              to={`/assets/edit/${asset.id}`}
+              variant="outlined"
               startIcon={<Edit />}
-              variant="contained"
               sx={{
-                backgroundColor: '#008751',
-                '&:hover': { backgroundColor: '#006038' },
+                borderColor: '#ffa726',
+                color: '#ffa726',
+                '&:hover': {
+                  borderColor: '#ff9800',
+                  backgroundColor: 'rgba(255, 167, 38, 0.1)',
+                },
               }}
             >
               Edit Asset
@@ -237,57 +242,32 @@ const AssetDetailsPage = () => {
           )}
         </Box>
 
-        {/* Page Header */}
-        <Paper
-          elevation={0}
-          sx={{
-            p: 3,
-            mb: 3,
-            background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.2) 0%, rgba(0, 135, 81, 0.05) 100%)',
-            borderLeft: '4px solid #008751',
-          }}
-        >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+        {/* Asset Header */}
+        <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Box>
-              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 1, fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>
+              <Typography variant="h4" sx={{ color: '#00ff88', fontWeight: 700, mb: 1 }}>
                 Asset Details
               </Typography>
-              <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+              <Typography variant="h6" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
                 {asset.assetId}
+              </Typography>
+              <Typography variant="subtitle1" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                {asset.description}
               </Typography>
             </Box>
             {getStatusChip(asset.status)}
           </Box>
-          <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-            {asset.description}
-          </Typography>
         </Paper>
 
         {/* Basic Information */}
         <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
-          <Typography
-            variant="h6"
-            sx={{
-              color: '#00ff88',
-              fontWeight: 600,
-              mb: 2,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            <Description />
-            Basic Information
+          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
+            📋 Basic Information
           </Typography>
-
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <Card
-                sx={{
-                  backgroundColor: 'rgba(0, 135, 81, 0.1)',
-                  border: '1px solid rgba(0, 135, 81, 0.2)',
-                }}
-              >
+            <Grid item xs={12} md={4}>
+              <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
                 <CardContent>
                   <Stack spacing={2}>
                     <Box>
@@ -297,7 +277,7 @@ const AssetDetailsPage = () => {
                       >
                         <CategoryIcon fontSize="small" /> Category
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 700 }}>
                         {asset.category}
                       </Typography>
                     </Box>
@@ -306,10 +286,10 @@ const AssetDetailsPage = () => {
                         variant="caption"
                         sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                       >
-                        <LocationOn fontSize="small" /> Location
+                        <Description fontSize="small" /> Description
                       </Typography>
                       <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
-                        {asset.location}
+                        {asset.description || 'N/A'}
                       </Typography>
                     </Box>
                     <Box>
@@ -328,13 +308,8 @@ const AssetDetailsPage = () => {
               </Card>
             </Grid>
 
-            <Grid item xs={12} md={6}>
-              <Card
-                sx={{
-                  backgroundColor: 'rgba(0, 135, 81, 0.1)',
-                  border: '1px solid rgba(0, 135, 81, 0.2)',
-                }}
-              >
+            <Grid item xs={12} md={4}>
+              <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
                 <CardContent>
                   <Stack spacing={2}>
                     <Box>
@@ -364,13 +339,100 @@ const AssetDetailsPage = () => {
                         variant="caption"
                         sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                       >
-                        <Person fontSize="small" /> Agency
+                        <Description fontSize="small" /> Condition
                       </Typography>
                       <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
-                        {asset.agencyName || 'N/A'}
+                        {asset.condition || 'Not specified'}
                       </Typography>
                     </Box>
                   </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
+                <CardContent>
+                  <Stack spacing={2}>
+                    <Box>
+                      <Typography
+                        variant="caption"
+                        sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                      >
+                        <LocationOn fontSize="small" /> Location/Address
+                      </Typography>
+                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                        {asset.location || 'N/A'}
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography
+                        variant="caption"
+                        sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                      >
+                        <LocationOn fontSize="small" /> State
+                      </Typography>
+                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                        {asset.state || 'Not specified'}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </Paper>
+
+        {/* Organization Information */}
+        <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
+          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
+            🏛️ Organization Information
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={4}>
+              <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
+                <CardContent>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                  >
+                    <Person fontSize="small" /> Ministry
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                    {asset.ministry || asset.ministryName || 'N/A'}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
+                <CardContent>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                  >
+                    <Person fontSize="small" /> Agency
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                    {asset.agency || asset.agencyName || 'N/A'}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
+                <CardContent>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                  >
+                    <Person fontSize="small" /> Department
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                    {asset.department || 'Not specified'}
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -394,7 +456,7 @@ const AssetDetailsPage = () => {
                   >
                     <CardContent>
                       <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                        {field.charAt(0).toUpperCase() + field.slice(1)}
+                        {camelToTitle(field)}
                       </Typography>
                       <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
                         {asset[field] || 'N/A'}
@@ -407,24 +469,56 @@ const AssetDetailsPage = () => {
           </Paper>
         )}
 
-        {/* Remarks */}
-        {asset.remarks && (
+        {/* Additional Fields that might not be in requiredFields */}
+        {(asset.landAcquisitionPurpose || asset.capacity || asset.remarks) && (
           <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
             <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
-              Remarks
+              Additional Information
             </Typography>
-            <Box
-              sx={{
-                p: 2,
-                backgroundColor: 'rgba(0, 135, 81, 0.1)',
-                borderRadius: 1,
-                border: '1px solid rgba(0, 135, 81, 0.2)',
-              }}
-            >
-              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                {asset.remarks}
-              </Typography>
-            </Box>
+            <Grid container spacing={3}>
+              {asset.landAcquisitionPurpose && (
+                <Grid item xs={12}>
+                  <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
+                    <CardContent>
+                      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                        Land Acquisition Purpose
+                      </Typography>
+                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                        {asset.landAcquisitionPurpose}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )}
+              {asset.capacity && (
+                <Grid item xs={12} sm={6}>
+                  <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
+                    <CardContent>
+                      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                        Capacity
+                      </Typography>
+                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                        {asset.capacity}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )}
+              {asset.remarks && (
+                <Grid item xs={12}>
+                  <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
+                    <CardContent>
+                      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                        Remarks
+                      </Typography>
+                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                        {asset.remarks}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )}
+            </Grid>
           </Paper>
         )}
 
@@ -522,17 +616,16 @@ const AssetDetailsPage = () => {
                     {asset.rejectionReason && (
                       <Box
                         sx={{
-                          mt: 2,
                           p: 2,
-                          backgroundColor: 'rgba(211, 47, 47, 0.05)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
                           borderRadius: 1,
-                          border: '1px solid rgba(211, 47, 47, 0.2)',
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
                         }}
                       >
-                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }} display="block" gutterBottom>
-                          Reason for Rejection:
+                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                          Reason:
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#ef5350' }}>
+                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
                           {asset.rejectionReason}
                         </Typography>
                       </Box>
@@ -542,7 +635,7 @@ const AssetDetailsPage = () => {
               </Card>
             )}
 
-            {/* Pending Info */}
+            {/* Pending Status */}
             {asset.status === 'pending' && (
               <Card
                 sx={{
@@ -566,25 +659,6 @@ const AssetDetailsPage = () => {
               </Card>
             )}
           </Stack>
-
-          {/* Action Button for Rejected Assets */}
-          {canEdit && (
-            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-              <Button
-                component={Link}
-                to={`/assets/edit/${id}`}
-                startIcon={<Edit />}
-                variant="contained"
-                size="large"
-                sx={{
-                  backgroundColor: '#008751',
-                  '&:hover': { backgroundColor: '#006038' },
-                }}
-              >
-                Edit and Resubmit Asset
-              </Button>
-            </Box>
-          )}
         </Paper>
       </Container>
     </AppLayout>

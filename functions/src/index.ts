@@ -5,11 +5,19 @@
  * All approval workflows are server-side to prevent client tampering.
  */
 
-import { setGlobalOptions } from 'firebase-functions/v2';
-import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
-import * as admin from 'firebase-admin';
-import * as logger from 'firebase-functions/logger';
-import { v4 as uuidv4 } from 'uuid';
+import { setGlobalOptions } from "firebase-functions/v2";
+import {
+  onCall,
+  HttpsError,
+  CallableRequest,
+} from "firebase-functions/v2/https";
+import * as admin from "firebase-admin";
+import * as logger from "firebase-functions/logger";
+import {
+  generateStaffDisplayId,
+  findUserByDisplayId,
+  backfillDisplayIds,
+} from "./displayId";
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -18,19 +26,19 @@ admin.initializeApp();
 setGlobalOptions({ maxInstances: 10 });
 
 // Constants
-const USERS_COLLECTION = 'users';
-const MINISTRIES_COLLECTION = 'ministries';
-const AUDIT_LOGS_COLLECTION = 'auditLogs';
+const USERS_COLLECTION = "users";
+const MINISTRIES_COLLECTION = "ministries";
+const AUDIT_LOGS_COLLECTION = "auditLogs";
 
 // Types
-type UserRole = 'agency' | 'agency-approver' | 'ministry-admin' | 'admin';
+type UserRole = "agency" | "agency-approver" | "ministry-admin" | "admin";
 
 type AccountStatus =
-  | 'pending_verification'
-  | 'pending_ministry_approval'
-  | 'verified'
-  | 'rejected'
-  | 'disabled';
+  | "pending_verification"
+  | "pending_ministry_approval"
+  | "verified"
+  | "rejected"
+  | "disabled";
 
 interface PendingMinistry {
   name: string;
@@ -69,9 +77,11 @@ interface User {
 /**
  * Verify user is authenticated
  */
-function requireAuth(context: CallableRequest['auth']): NonNullable<CallableRequest['auth']> {
+function requireAuth(
+  context: CallableRequest["auth"],
+): NonNullable<CallableRequest["auth"]> {
   if (!context) {
-    throw new HttpsError('unauthenticated', 'User must be authenticated');
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
   return context;
 }
@@ -79,14 +89,17 @@ function requireAuth(context: CallableRequest['auth']): NonNullable<CallableRequ
 /**
  * Verify user has a specific role (via custom claims)
  */
-function requireRole(context: CallableRequest['auth'], requiredRole: UserRole): void {
+function requireRole(
+  context: CallableRequest["auth"],
+  requiredRole: UserRole,
+): void {
   const auth = requireAuth(context);
   const userRole = auth.token.role as UserRole | undefined;
 
   if (userRole !== requiredRole) {
     throw new HttpsError(
-      'permission-denied',
-      `This operation requires ${requiredRole} role`
+      "permission-denied",
+      `This operation requires ${requiredRole} role`,
     );
   }
 }
@@ -102,7 +115,7 @@ async function getUserDoc(userId: string): Promise<User> {
     .get();
 
   if (!userDoc.exists) {
-    throw new HttpsError('not-found', 'User not found');
+    throw new HttpsError("not-found", "User not found");
   }
 
   return userDoc.data() as User;
@@ -114,7 +127,7 @@ async function getUserDoc(userId: string): Promise<User> {
 async function setUserClaims(
   userId: string,
   role: UserRole,
-  ministryId?: string
+  ministryId?: string,
 ): Promise<void> {
   const claims: { role: UserRole; ministryId?: string } = { role };
   if (ministryId) {
@@ -158,31 +171,36 @@ async function logAction(data: {
  */
 export const approveMinistryAdmin = onCall(
   { cors: true },
-  async (request): Promise<{ success: boolean; message: string; ministryId?: string }> => {
+  async (
+    request,
+  ): Promise<{ success: boolean; message: string; ministryId?: string }> => {
     const { ministryAdminId } = request.data;
 
     // Validate input
-    if (!ministryAdminId || typeof ministryAdminId !== 'string') {
-      throw new HttpsError('invalid-argument', 'ministryAdminId is required');
+    if (!ministryAdminId || typeof ministryAdminId !== "string") {
+      throw new HttpsError("invalid-argument", "ministryAdminId is required");
     }
 
     // Verify caller is federal admin
-    requireRole(request.auth, 'admin');
+    requireRole(request.auth, "admin");
     const callerAuth = requireAuth(request.auth);
 
     // Get ministry admin user doc
     const ministryAdmin = await getUserDoc(ministryAdminId);
 
     // Verify user is ministry-admin role
-    if (ministryAdmin.role !== 'ministry-admin') {
-      throw new HttpsError('failed-precondition', 'User is not a ministry admin');
+    if (ministryAdmin.role !== "ministry-admin") {
+      throw new HttpsError(
+        "failed-precondition",
+        "User is not a ministry admin",
+      );
     }
 
     // Verify user is pending verification
-    if (ministryAdmin.accountStatus !== 'pending_verification') {
+    if (ministryAdmin.accountStatus !== "pending_verification") {
       throw new HttpsError(
-        'failed-precondition',
-        'User is not pending verification'
+        "failed-precondition",
+        "User is not pending verification",
       );
     }
 
@@ -190,13 +208,16 @@ export const approveMinistryAdmin = onCall(
     const pendingMinistry = ministryAdmin.pendingMinistry;
     if (!pendingMinistry) {
       throw new HttpsError(
-        'failed-precondition',
-        'No pending ministry data found for this user'
+        "failed-precondition",
+        "No pending ministry data found for this user",
       );
     }
 
     // Create the ministry document
-    const ministryRef = admin.firestore().collection(MINISTRIES_COLLECTION).doc();
+    const ministryRef = admin
+      .firestore()
+      .collection(MINISTRIES_COLLECTION)
+      .doc();
     const ministryId = ministryRef.id;
 
     await ministryRef.set({
@@ -205,7 +226,7 @@ export const approveMinistryAdmin = onCall(
       officialEmail: pendingMinistry.officialEmail,
       ministryType: pendingMinistry.ministryType,
       location: pendingMinistry.location,
-      status: 'verified',
+      status: "verified",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
       verifiedBy: callerAuth.uid,
@@ -226,7 +247,7 @@ export const approveMinistryAdmin = onCall(
       .collection(USERS_COLLECTION)
       .doc(ministryAdminId)
       .update({
-        accountStatus: 'verified',
+        accountStatus: "verified",
         verifiedBy: callerAuth.uid,
         verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
         ministryId: ministryId,
@@ -236,15 +257,15 @@ export const approveMinistryAdmin = onCall(
       });
 
     // Set custom claims with ministryId
-    await setUserClaims(ministryAdminId, 'ministry-admin', ministryId);
+    await setUserClaims(ministryAdminId, "ministry-admin", ministryId);
 
     // Log action
     await logAction({
       userId: callerAuth.uid,
-      userEmail: callerAuth.token.email || 'unknown',
-      userRole: 'admin',
-      action: 'ministry_admin.approve',
-      resourceType: 'user',
+      userEmail: callerAuth.token.email || "unknown",
+      userRole: "admin",
+      action: "ministry_admin.approve",
+      resourceType: "user",
       resourceId: ministryAdminId,
       details: `Approved ministry admin: ${ministryAdmin.email} and created ministry: ${pendingMinistry.name}`,
       metadata: {
@@ -254,7 +275,7 @@ export const approveMinistryAdmin = onCall(
       },
     });
 
-    logger.info('Ministry admin approved and ministry created', {
+    logger.info("Ministry admin approved and ministry created", {
       ministryAdminId,
       ministryId,
       ministryName: pendingMinistry.name,
@@ -266,7 +287,7 @@ export const approveMinistryAdmin = onCall(
       message: `Ministry admin approved and ministry "${pendingMinistry.name}" created successfully`,
       ministryId: ministryId,
     };
-  }
+  },
 );
 
 /**
@@ -280,30 +301,33 @@ export const rejectMinistryAdmin = onCall(
     const { ministryAdminId, reason } = request.data;
 
     // Validate input
-    if (!ministryAdminId || typeof ministryAdminId !== 'string') {
-      throw new HttpsError('invalid-argument', 'ministryAdminId is required');
+    if (!ministryAdminId || typeof ministryAdminId !== "string") {
+      throw new HttpsError("invalid-argument", "ministryAdminId is required");
     }
-    if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
-      throw new HttpsError('invalid-argument', 'Rejection reason is required');
+    if (!reason || typeof reason !== "string" || reason.trim().length === 0) {
+      throw new HttpsError("invalid-argument", "Rejection reason is required");
     }
 
     // Verify caller is federal admin
-    requireRole(request.auth, 'admin');
+    requireRole(request.auth, "admin");
     const callerAuth = requireAuth(request.auth);
 
     // Get ministry admin user doc
     const ministryAdmin = await getUserDoc(ministryAdminId);
 
     // Verify user is ministry-admin role
-    if (ministryAdmin.role !== 'ministry-admin') {
-      throw new HttpsError('failed-precondition', 'User is not a ministry admin');
+    if (ministryAdmin.role !== "ministry-admin") {
+      throw new HttpsError(
+        "failed-precondition",
+        "User is not a ministry admin",
+      );
     }
 
     // Verify user is pending verification
-    if (ministryAdmin.accountStatus !== 'pending_verification') {
+    if (ministryAdmin.accountStatus !== "pending_verification") {
       throw new HttpsError(
-        'failed-precondition',
-        'User is not pending verification'
+        "failed-precondition",
+        "User is not pending verification",
       );
     }
 
@@ -313,7 +337,7 @@ export const rejectMinistryAdmin = onCall(
       .collection(USERS_COLLECTION)
       .doc(ministryAdminId)
       .update({
-        accountStatus: 'rejected',
+        accountStatus: "rejected",
         verifiedBy: callerAuth.uid,
         verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
         rejectionReason: reason.trim(),
@@ -322,10 +346,10 @@ export const rejectMinistryAdmin = onCall(
     // Log action
     await logAction({
       userId: callerAuth.uid,
-      userEmail: callerAuth.token.email || 'unknown',
-      userRole: 'admin',
-      action: 'ministry_admin.reject',
-      resourceType: 'user',
+      userEmail: callerAuth.token.email || "unknown",
+      userRole: "admin",
+      action: "ministry_admin.reject",
+      resourceType: "user",
       resourceId: ministryAdminId,
       details: `Rejected ministry admin: ${ministryAdmin.email} - Reason: ${reason}`,
       metadata: {
@@ -334,7 +358,7 @@ export const rejectMinistryAdmin = onCall(
       },
     });
 
-    logger.info('Ministry admin rejected', {
+    logger.info("Ministry admin rejected", {
       ministryAdminId,
       rejectedBy: callerAuth.uid,
       reason,
@@ -342,9 +366,9 @@ export const rejectMinistryAdmin = onCall(
 
     return {
       success: true,
-      message: 'Ministry admin rejected successfully',
+      message: "Ministry admin rejected successfully",
     };
-  }
+  },
 );
 
 /**
@@ -356,16 +380,25 @@ export const rejectMinistryAdmin = onCall(
  */
 export const approveStaffByMinistryAdmin = onCall(
   { cors: true },
-  async (request): Promise<{ success: boolean; message: string; uuid?: string; userEmail?: string; userName?: string }> => {
+  async (
+    request,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    uuid?: string;
+    displayId?: string;
+    userEmail?: string;
+    userName?: string;
+  }> => {
     const { staffUserId } = request.data;
 
     // Validate input
-    if (!staffUserId || typeof staffUserId !== 'string') {
-      throw new HttpsError('invalid-argument', 'staffUserId is required');
+    if (!staffUserId || typeof staffUserId !== "string") {
+      throw new HttpsError("invalid-argument", "staffUserId is required");
     }
 
     // Verify caller is ministry-admin
-    requireRole(request.auth, 'ministry-admin');
+    requireRole(request.auth, "ministry-admin");
     const callerAuth = requireAuth(request.auth);
 
     // Get caller's user doc
@@ -374,8 +407,8 @@ export const approveStaffByMinistryAdmin = onCall(
     // Verify caller owns a ministry
     if (!callerUser.isMinistryOwner || !callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You must own a ministry to approve staff'
+        "permission-denied",
+        "You must own a ministry to approve staff",
       );
     }
 
@@ -383,80 +416,91 @@ export const approveStaffByMinistryAdmin = onCall(
     const staffUser = await getUserDoc(staffUserId);
 
     // Verify staff is pending ministry approval
-    if (staffUser.accountStatus !== 'pending_ministry_approval') {
+    if (staffUser.accountStatus !== "pending_ministry_approval") {
       throw new HttpsError(
-        'failed-precondition',
-        'User is not pending ministry approval'
+        "failed-precondition",
+        "User is not pending ministry approval",
       );
     }
 
     // Verify staff belongs to caller's ministry
     if (staffUser.ministryId !== callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You can only approve users for your own ministry'
+        "permission-denied",
+        "You can only approve users for your own ministry",
       );
     }
 
     // Verify staff role is agency or agency-approver
-    if (staffUser.role !== 'agency' && staffUser.role !== 'agency-approver') {
+    if (staffUser.role !== "agency" && staffUser.role !== "agency-approver") {
       throw new HttpsError(
-        'failed-precondition',
-        'User must be agency or agency-approver role'
+        "failed-precondition",
+        "User must be agency or agency-approver role",
       );
     }
 
-    // Generate UUID for the staff member
-    const generatedUuid = uuidv4();
+    // Fetch ministry name for display ID generation
+    const ministryRef = admin
+      .firestore()
+      .collection(MINISTRIES_COLLECTION)
+      .doc(staffUser.ministryId);
+    const ministryDoc = await ministryRef.get();
 
-    // Update user document with UUID
+    if (!ministryDoc.exists) {
+      throw new HttpsError("not-found", "Ministry not found");
+    }
+
+    const ministryName = ministryDoc.data()!.name as string;
+
+    // Generate short display ID: e.g. "EDU-STF-0001"
+    const displayId = await generateStaffDisplayId(
+      ministryName,
+      staffUser.role,
+    );
+
+    // Update user document
     await admin
       .firestore()
       .collection(USERS_COLLECTION)
       .doc(staffUserId)
       .update({
-        accountStatus: 'verified',
+        accountStatus: "verified",
         verifiedBy: callerAuth.uid,
         verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-        uuid: generatedUuid,
+        displayId, // short human-readable ID
+        uuid: displayId, // keep uuid field in sync for backward compatibility
       });
 
     // Set custom claims
     await setUserClaims(staffUserId, staffUser.role, staffUser.ministryId);
 
     // Update ministry document to add staff to appropriate role array
-    const ministryRef = admin.firestore().collection(MINISTRIES_COLLECTION).doc(staffUser.ministryId);
-    const ministryDoc = await ministryRef.get();
+    const ministryData = ministryDoc.data();
+    const updateData: any = {};
 
-    if (ministryDoc.exists) {
-      const ministryData = ministryDoc.data();
-      const updateData: any = {};
-
-      if (staffUser.role === 'agency') {
-        // Add to uploaders array if not already present
-        const uploaders = ministryData?.uploaders || [];
-        if (!uploaders.includes(staffUserId)) {
-          updateData.uploaders = admin.firestore.FieldValue.arrayUnion(staffUserId);
-          updateData.hasUploader = true;
-        }
-      } else if (staffUser.role === 'agency-approver') {
-        // Add to approvers array if not already present
-        const approvers = ministryData?.approvers || [];
-        if (!approvers.includes(staffUserId)) {
-          updateData.approvers = admin.firestore.FieldValue.arrayUnion(staffUserId);
-          updateData.hasApprover = true;
-        }
+    if (staffUser.role === "agency") {
+      const uploaders = ministryData?.uploaders || [];
+      if (!uploaders.includes(staffUserId)) {
+        updateData.uploaders =
+          admin.firestore.FieldValue.arrayUnion(staffUserId);
+        updateData.hasUploader = true;
       }
-
-      // Only update if there are changes
-      if (Object.keys(updateData).length > 0) {
-        await ministryRef.update(updateData);
-        logger.info('Ministry document updated with new staff', {
-          ministryId: staffUser.ministryId,
-          staffUserId,
-          role: staffUser.role,
-        });
+    } else if (staffUser.role === "agency-approver") {
+      const approvers = ministryData?.approvers || [];
+      if (!approvers.includes(staffUserId)) {
+        updateData.approvers =
+          admin.firestore.FieldValue.arrayUnion(staffUserId);
+        updateData.hasApprover = true;
       }
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      await ministryRef.update(updateData);
+      logger.info("Ministry document updated with new staff", {
+        ministryId: staffUser.ministryId,
+        staffUserId,
+        role: staffUser.role,
+      });
     }
 
     // Log action
@@ -464,33 +508,34 @@ export const approveStaffByMinistryAdmin = onCall(
       userId: callerAuth.uid,
       userEmail: callerUser.email,
       userRole: callerUser.role,
-      action: 'staff.approve',
-      resourceType: 'user',
+      action: "staff.approve",
+      resourceType: "user",
       resourceId: staffUserId,
-      details: `Approved staff: ${staffUser.email} (${staffUser.role}) - UUID: ${generatedUuid}`,
+      details: `Approved staff: ${staffUser.email} (${staffUser.role}) - Display ID: ${displayId}`,
       metadata: {
         targetUser: staffUser.email,
         targetRole: staffUser.role,
         ministryId: staffUser.ministryId,
-        uuid: generatedUuid,
+        displayId,
       },
     });
 
-    logger.info('Staff approved by ministry admin', {
+    logger.info("Staff approved by ministry admin", {
       staffUserId,
       ministryAdminId: callerAuth.uid,
       ministryId: callerUser.ownedMinistryId,
-      uuid: generatedUuid,
+      displayId,
     });
 
     return {
       success: true,
-      message: 'Staff member approved successfully',
-      uuid: generatedUuid,
+      message: "Staff member approved successfully",
+      displayId,
+      uuid: displayId, // keep for backward compat with FE that reads uuid field
       userEmail: staffUser.email,
       userName: staffUser.name || staffUser.agencyName,
     };
-  }
+  },
 );
 
 /**
@@ -504,15 +549,15 @@ export const rejectStaffByMinistryAdmin = onCall(
     const { staffUserId, reason } = request.data;
 
     // Validate input
-    if (!staffUserId || typeof staffUserId !== 'string') {
-      throw new HttpsError('invalid-argument', 'staffUserId is required');
+    if (!staffUserId || typeof staffUserId !== "string") {
+      throw new HttpsError("invalid-argument", "staffUserId is required");
     }
-    if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
-      throw new HttpsError('invalid-argument', 'Rejection reason is required');
+    if (!reason || typeof reason !== "string" || reason.trim().length === 0) {
+      throw new HttpsError("invalid-argument", "Rejection reason is required");
     }
 
     // Verify caller is ministry-admin
-    requireRole(request.auth, 'ministry-admin');
+    requireRole(request.auth, "ministry-admin");
     const callerAuth = requireAuth(request.auth);
 
     // Get caller's user doc
@@ -521,8 +566,8 @@ export const rejectStaffByMinistryAdmin = onCall(
     // Verify caller owns a ministry
     if (!callerUser.isMinistryOwner || !callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You must own a ministry to reject staff'
+        "permission-denied",
+        "You must own a ministry to reject staff",
       );
     }
 
@@ -530,18 +575,18 @@ export const rejectStaffByMinistryAdmin = onCall(
     const staffUser = await getUserDoc(staffUserId);
 
     // Verify staff is pending ministry approval
-    if (staffUser.accountStatus !== 'pending_ministry_approval') {
+    if (staffUser.accountStatus !== "pending_ministry_approval") {
       throw new HttpsError(
-        'failed-precondition',
-        'User is not pending ministry approval'
+        "failed-precondition",
+        "User is not pending ministry approval",
       );
     }
 
     // Verify staff belongs to caller's ministry
     if (staffUser.ministryId !== callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You can only reject users for your own ministry'
+        "permission-denied",
+        "You can only reject users for your own ministry",
       );
     }
 
@@ -551,7 +596,7 @@ export const rejectStaffByMinistryAdmin = onCall(
       .collection(USERS_COLLECTION)
       .doc(staffUserId)
       .update({
-        accountStatus: 'rejected',
+        accountStatus: "rejected",
         verifiedBy: callerAuth.uid,
         verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
         rejectionReason: reason.trim(),
@@ -562,8 +607,8 @@ export const rejectStaffByMinistryAdmin = onCall(
       userId: callerAuth.uid,
       userEmail: callerUser.email,
       userRole: callerUser.role,
-      action: 'staff.reject',
-      resourceType: 'user',
+      action: "staff.reject",
+      resourceType: "user",
       resourceId: staffUserId,
       details: `Rejected staff: ${staffUser.email} - Reason: ${reason}`,
       metadata: {
@@ -574,7 +619,7 @@ export const rejectStaffByMinistryAdmin = onCall(
       },
     });
 
-    logger.info('Staff rejected by ministry admin', {
+    logger.info("Staff rejected by ministry admin", {
       staffUserId,
       ministryAdminId: callerAuth.uid,
       reason,
@@ -582,9 +627,9 @@ export const rejectStaffByMinistryAdmin = onCall(
 
     return {
       success: true,
-      message: 'Staff member rejected successfully',
+      message: "Staff member rejected successfully",
     };
-  }
+  },
 );
 
 /**
@@ -598,17 +643,17 @@ export const removeStaffFromMinistry = onCall(
     const { staffUserId, reason } = request.data;
 
     // Validate input
-    if (!staffUserId || typeof staffUserId !== 'string') {
-      throw new HttpsError('invalid-argument', 'staffUserId is required');
+    if (!staffUserId || typeof staffUserId !== "string") {
+      throw new HttpsError("invalid-argument", "staffUserId is required");
     }
 
     // Verify caller is ministry-admin
-    requireRole(request.auth, 'ministry-admin');
+    requireRole(request.auth, "ministry-admin");
     const callerAuth = requireAuth(request.auth);
 
     // Cannot remove self
     if (staffUserId === callerAuth.uid) {
-      throw new HttpsError('invalid-argument', 'You cannot remove yourself');
+      throw new HttpsError("invalid-argument", "You cannot remove yourself");
     }
 
     // Get caller's user doc
@@ -617,8 +662,8 @@ export const removeStaffFromMinistry = onCall(
     // Verify caller owns a ministry
     if (!callerUser.isMinistryOwner || !callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You must own a ministry to remove staff'
+        "permission-denied",
+        "You must own a ministry to remove staff",
       );
     }
 
@@ -628,8 +673,8 @@ export const removeStaffFromMinistry = onCall(
     // Verify staff belongs to caller's ministry
     if (staffUser.ministryId !== callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You can only remove users from your own ministry'
+        "permission-denied",
+        "You can only remove users from your own ministry",
       );
     }
 
@@ -639,8 +684,8 @@ export const removeStaffFromMinistry = onCall(
       .collection(USERS_COLLECTION)
       .doc(staffUserId)
       .update({
-        accountStatus: 'rejected',
-        rejectionReason: reason?.trim() || 'Removed from ministry by admin',
+        accountStatus: "rejected",
+        rejectionReason: reason?.trim() || "Removed from ministry by admin",
         verifiedBy: callerAuth.uid,
         verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
@@ -653,8 +698,8 @@ export const removeStaffFromMinistry = onCall(
       userId: callerAuth.uid,
       userEmail: callerUser.email,
       userRole: callerUser.role,
-      action: 'staff.remove',
-      resourceType: 'user',
+      action: "staff.remove",
+      resourceType: "user",
       resourceId: staffUserId,
       details: `Removed staff from ministry: ${staffUser.email}`,
       metadata: {
@@ -665,7 +710,7 @@ export const removeStaffFromMinistry = onCall(
       },
     });
 
-    logger.info('Staff removed from ministry', {
+    logger.info("Staff removed from ministry", {
       staffUserId,
       ministryAdminId: callerAuth.uid,
       reason,
@@ -673,9 +718,9 @@ export const removeStaffFromMinistry = onCall(
 
     return {
       success: true,
-      message: 'Staff member removed from ministry successfully',
+      message: "Staff member removed from ministry successfully",
     };
-  }
+  },
 );
 
 /**
@@ -690,23 +735,26 @@ export const changeStaffRoleByMinistryAdmin = onCall(
     const { staffUserId, newRole } = request.data;
 
     // Validate input
-    if (!staffUserId || typeof staffUserId !== 'string') {
-      throw new HttpsError('invalid-argument', 'staffUserId is required');
+    if (!staffUserId || typeof staffUserId !== "string") {
+      throw new HttpsError("invalid-argument", "staffUserId is required");
     }
-    if (!newRole || (newRole !== 'agency' && newRole !== 'agency-approver')) {
+    if (!newRole || (newRole !== "agency" && newRole !== "agency-approver")) {
       throw new HttpsError(
-        'invalid-argument',
-        'newRole must be either "agency" or "agency-approver"'
+        "invalid-argument",
+        'newRole must be either "agency" or "agency-approver"',
       );
     }
 
     // Verify caller is ministry-admin
-    requireRole(request.auth, 'ministry-admin');
+    requireRole(request.auth, "ministry-admin");
     const callerAuth = requireAuth(request.auth);
 
     // Cannot change self
     if (staffUserId === callerAuth.uid) {
-      throw new HttpsError('invalid-argument', 'You cannot change your own role');
+      throw new HttpsError(
+        "invalid-argument",
+        "You cannot change your own role",
+      );
     }
 
     // Get caller's user doc
@@ -715,8 +763,8 @@ export const changeStaffRoleByMinistryAdmin = onCall(
     // Verify caller owns a ministry
     if (!callerUser.isMinistryOwner || !callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You must own a ministry to change staff roles'
+        "permission-denied",
+        "You must own a ministry to change staff roles",
       );
     }
 
@@ -726,32 +774,32 @@ export const changeStaffRoleByMinistryAdmin = onCall(
     // Verify staff belongs to caller's ministry
     if (staffUser.ministryId !== callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You can only change roles for users in your own ministry'
+        "permission-denied",
+        "You can only change roles for users in your own ministry",
       );
     }
 
     // Verify staff is verified (active)
-    if (staffUser.accountStatus !== 'verified') {
+    if (staffUser.accountStatus !== "verified") {
       throw new HttpsError(
-        'failed-precondition',
-        'Can only change role for verified staff members'
+        "failed-precondition",
+        "Can only change role for verified staff members",
       );
     }
 
     // Verify staff current role is agency or agency-approver
-    if (staffUser.role !== 'agency' && staffUser.role !== 'agency-approver') {
+    if (staffUser.role !== "agency" && staffUser.role !== "agency-approver") {
       throw new HttpsError(
-        'failed-precondition',
-        'Can only change role for uploaders or approvers'
+        "failed-precondition",
+        "Can only change role for uploaders or approvers",
       );
     }
 
     // Check if role is actually changing
     if (staffUser.role === newRole) {
       throw new HttpsError(
-        'invalid-argument',
-        `User is already an ${newRole === 'agency' ? 'uploader' : 'approver'}`
+        "invalid-argument",
+        `User is already an ${newRole === "agency" ? "uploader" : "approver"}`,
       );
     }
 
@@ -776,8 +824,8 @@ export const changeStaffRoleByMinistryAdmin = onCall(
       userId: callerAuth.uid,
       userEmail: callerUser.email,
       userRole: callerUser.role,
-      action: 'user.role.change',
-      resourceType: 'user',
+      action: "user.role.change",
+      resourceType: "user",
       resourceId: staffUserId,
       details: `Changed staff role from ${oldRole} to ${newRole}: ${staffUser.email}`,
       metadata: {
@@ -788,7 +836,7 @@ export const changeStaffRoleByMinistryAdmin = onCall(
       },
     });
 
-    logger.info('Staff role changed by ministry admin', {
+    logger.info("Staff role changed by ministry admin", {
       staffUserId,
       ministryAdminId: callerAuth.uid,
       oldRole,
@@ -797,9 +845,9 @@ export const changeStaffRoleByMinistryAdmin = onCall(
 
     return {
       success: true,
-      message: `Staff role changed from ${oldRole === 'agency' ? 'uploader' : 'approver'} to ${newRole === 'agency' ? 'uploader' : 'approver'} successfully`,
+      message: `Staff role changed from ${oldRole === "agency" ? "uploader" : "approver"} to ${newRole === "agency" ? "uploader" : "approver"} successfully`,
     };
-  }
+  },
 );
 
 /**
@@ -815,17 +863,20 @@ export const disableStaffByMinistryAdmin = onCall(
     const { staffUserId, reason } = request.data;
 
     // Validate input
-    if (!staffUserId || typeof staffUserId !== 'string') {
-      throw new HttpsError('invalid-argument', 'staffUserId is required');
+    if (!staffUserId || typeof staffUserId !== "string") {
+      throw new HttpsError("invalid-argument", "staffUserId is required");
     }
 
     // Verify caller is ministry-admin
-    requireRole(request.auth, 'ministry-admin');
+    requireRole(request.auth, "ministry-admin");
     const callerAuth = requireAuth(request.auth);
 
     // Cannot disable self
     if (staffUserId === callerAuth.uid) {
-      throw new HttpsError('invalid-argument', 'You cannot disable your own account');
+      throw new HttpsError(
+        "invalid-argument",
+        "You cannot disable your own account",
+      );
     }
 
     // Get caller's user doc
@@ -834,8 +885,8 @@ export const disableStaffByMinistryAdmin = onCall(
     // Verify caller owns a ministry
     if (!callerUser.isMinistryOwner || !callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You must own a ministry to disable staff'
+        "permission-denied",
+        "You must own a ministry to disable staff",
       );
     }
 
@@ -845,24 +896,24 @@ export const disableStaffByMinistryAdmin = onCall(
     // Verify staff belongs to caller's ministry
     if (staffUser.ministryId !== callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You can only disable users in your own ministry'
+        "permission-denied",
+        "You can only disable users in your own ministry",
       );
     }
 
     // Verify staff is verified (active) - can only disable active staff
-    if (staffUser.accountStatus !== 'verified') {
+    if (staffUser.accountStatus !== "verified") {
       throw new HttpsError(
-        'failed-precondition',
-        'Can only disable verified (active) staff members'
+        "failed-precondition",
+        "Can only disable verified (active) staff members",
       );
     }
 
     // Verify staff role is agency or agency-approver
-    if (staffUser.role !== 'agency' && staffUser.role !== 'agency-approver') {
+    if (staffUser.role !== "agency" && staffUser.role !== "agency-approver") {
       throw new HttpsError(
-        'failed-precondition',
-        'Can only disable uploaders or approvers'
+        "failed-precondition",
+        "Can only disable uploaders or approvers",
       );
     }
 
@@ -872,10 +923,10 @@ export const disableStaffByMinistryAdmin = onCall(
       .collection(USERS_COLLECTION)
       .doc(staffUserId)
       .update({
-        accountStatus: 'disabled',
+        accountStatus: "disabled",
         disabledAt: admin.firestore.FieldValue.serverTimestamp(),
         disabledBy: callerAuth.uid,
-        disableReason: reason?.trim() || 'Disabled by ministry admin',
+        disableReason: reason?.trim() || "Disabled by ministry admin",
       });
 
     // Remove custom claims (revoke access)
@@ -886,8 +937,8 @@ export const disableStaffByMinistryAdmin = onCall(
       userId: callerAuth.uid,
       userEmail: callerUser.email,
       userRole: callerUser.role,
-      action: 'user.account.disable',
-      resourceType: 'user',
+      action: "user.account.disable",
+      resourceType: "user",
       resourceId: staffUserId,
       details: `Disabled staff account: ${staffUser.email}`,
       metadata: {
@@ -898,7 +949,7 @@ export const disableStaffByMinistryAdmin = onCall(
       },
     });
 
-    logger.info('Staff disabled by ministry admin', {
+    logger.info("Staff disabled by ministry admin", {
       staffUserId,
       ministryAdminId: callerAuth.uid,
       reason,
@@ -906,9 +957,10 @@ export const disableStaffByMinistryAdmin = onCall(
 
     return {
       success: true,
-      message: 'Staff account disabled successfully. A slot is now available for new registrations.',
+      message:
+        "Staff account disabled successfully. A slot is now available for new registrations.",
     };
-  }
+  },
 );
 
 /**
@@ -923,12 +975,12 @@ export const enableStaffByMinistryAdmin = onCall(
     const { staffUserId } = request.data;
 
     // Validate input
-    if (!staffUserId || typeof staffUserId !== 'string') {
-      throw new HttpsError('invalid-argument', 'staffUserId is required');
+    if (!staffUserId || typeof staffUserId !== "string") {
+      throw new HttpsError("invalid-argument", "staffUserId is required");
     }
 
     // Verify caller is ministry-admin
-    requireRole(request.auth, 'ministry-admin');
+    requireRole(request.auth, "ministry-admin");
     const callerAuth = requireAuth(request.auth);
 
     // Get caller's user doc
@@ -937,8 +989,8 @@ export const enableStaffByMinistryAdmin = onCall(
     // Verify caller owns a ministry
     if (!callerUser.isMinistryOwner || !callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You must own a ministry to enable staff'
+        "permission-denied",
+        "You must own a ministry to enable staff",
       );
     }
 
@@ -948,24 +1000,24 @@ export const enableStaffByMinistryAdmin = onCall(
     // Verify staff belongs to caller's ministry
     if (staffUser.ministryId !== callerUser.ownedMinistryId) {
       throw new HttpsError(
-        'permission-denied',
-        'You can only enable users in your own ministry'
+        "permission-denied",
+        "You can only enable users in your own ministry",
       );
     }
 
     // Verify staff is disabled
-    if (staffUser.accountStatus !== 'disabled') {
+    if (staffUser.accountStatus !== "disabled") {
       throw new HttpsError(
-        'failed-precondition',
-        'Can only enable disabled staff members'
+        "failed-precondition",
+        "Can only enable disabled staff members",
       );
     }
 
     // Verify staff role is agency or agency-approver
-    if (staffUser.role !== 'agency' && staffUser.role !== 'agency-approver') {
+    if (staffUser.role !== "agency" && staffUser.role !== "agency-approver") {
       throw new HttpsError(
-        'failed-precondition',
-        'Can only enable uploaders or approvers'
+        "failed-precondition",
+        "Can only enable uploaders or approvers",
       );
     }
 
@@ -975,7 +1027,7 @@ export const enableStaffByMinistryAdmin = onCall(
       .collection(USERS_COLLECTION)
       .doc(staffUserId)
       .update({
-        accountStatus: 'verified',
+        accountStatus: "verified",
         enabledAt: admin.firestore.FieldValue.serverTimestamp(),
         enabledBy: callerAuth.uid,
         disabledAt: admin.firestore.FieldValue.delete(),
@@ -991,8 +1043,8 @@ export const enableStaffByMinistryAdmin = onCall(
       userId: callerAuth.uid,
       userEmail: callerUser.email,
       userRole: callerUser.role,
-      action: 'user.account.enable',
-      resourceType: 'user',
+      action: "user.account.enable",
+      resourceType: "user",
       resourceId: staffUserId,
       details: `Enabled staff account: ${staffUser.email}`,
       metadata: {
@@ -1002,14 +1054,108 @@ export const enableStaffByMinistryAdmin = onCall(
       },
     });
 
-    logger.info('Staff enabled by ministry admin', {
+    logger.info("Staff enabled by ministry admin", {
       staffUserId,
       ministryAdminId: callerAuth.uid,
     });
 
     return {
       success: true,
-      message: 'Staff account enabled successfully',
+      message: "Staff account enabled successfully",
     };
-  }
+  },
+);
+
+/**
+ * Search staff by display ID (ministry admin, own ministry only).
+ */
+export const searchStaffByDisplayId = onCall(
+  { cors: true },
+  async (
+    request,
+  ): Promise<{
+    displayId: string;
+    name?: string;
+    email: string;
+    role: string;
+    ministry: string;
+    status: string;
+    approvedAt?: admin.firestore.Timestamp;
+  }> => {
+    const { displayId } = request.data;
+
+    if (!displayId || typeof displayId !== "string") {
+      throw new HttpsError("invalid-argument", "displayId is required");
+    }
+
+    requireRole(request.auth, "ministry-admin");
+    const callerAuth = requireAuth(request.auth);
+    const callerUser = await getUserDoc(callerAuth.uid);
+
+    if (!callerUser.isMinistryOwner || !callerUser.ownedMinistryId) {
+      throw new HttpsError(
+        "permission-denied",
+        "You must own a ministry to search staff",
+      );
+    }
+
+    const user = await findUserByDisplayId(displayId);
+
+    if (!user) {
+      throw new HttpsError(
+        "not-found",
+        `No staff found with ID: ${displayId.trim().toUpperCase()}`,
+      );
+    }
+
+    if (user.ministryId !== callerUser.ownedMinistryId) {
+      throw new HttpsError(
+        "permission-denied",
+        "You can only search staff from your own ministry",
+      );
+    }
+
+    const ministryDoc = await admin
+      .firestore()
+      .collection(MINISTRIES_COLLECTION)
+      .doc(user.ministryId as string)
+      .get();
+
+    const ministryName = ministryDoc.exists
+      ? (ministryDoc.data()!.name as string)
+      : "Unknown Ministry";
+
+    return {
+      displayId: user.displayId as string,
+      name: user.name as string | undefined,
+      email: user.email as string,
+      role: user.role as string,
+      ministry: ministryName,
+      status: (user.accountStatus as string) ?? "unknown",
+      approvedAt: user.verifiedAt as admin.firestore.Timestamp | undefined,
+    };
+  },
+);
+
+/**
+ * Backfill Display IDs (run once)
+ *
+ * Generates display IDs for verified uploaders/approvers who lack one.
+ * Callable only by federal admin (`role: 'admin'` in custom claims).
+ */
+export const runBackfillDisplayIds = onCall(
+  { cors: true },
+  async (
+    request,
+  ): Promise<{ migrated: number; skipped: number; errors: string[] }> => {
+    requireRole(request.auth, "admin");
+
+    logger.info("Starting display ID backfill...");
+
+    const result = await backfillDisplayIds();
+
+    logger.info("Display ID backfill complete", result);
+
+    return result;
+  },
 );

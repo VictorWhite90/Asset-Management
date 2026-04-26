@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, Container, Typography, Paper, Grid, Button, FormControl, InputLabel,
   Select, MenuItem, Chip, OutlinedInput, CircularProgress, Alert, Card,
   CardContent, Divider, Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, IconButton, Tooltip, Tabs, Tab, LinearProgress, SelectChangeEvent,
-  TextField,
+  TextField, Collapse, Menu,
 } from '@mui/material';
 import {
   Assessment, Inventory, TrendingDown, Security, ShowChart, PictureAsPdf,
   TableChart, Download, Refresh, FilterList, Info, Warning, CheckCircle,
   Error as ErrorIcon, BarChart, PieChart, Description, ArrowBack,
   Category, AccountBalance, FiberManualRecord, LocationOn, KeyboardArrowDown,
-  KeyboardArrowUp,
+  KeyboardArrowUp, Print, ArrowDropDown,
 } from '@mui/icons-material';
 import AppLayout from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -111,13 +111,27 @@ const SectionHeading: React.FC<{ icon: React.ReactNode; title: string; count?: n
 );
 
 // ─── State group panel ────────────────────────────────────────────────────────
-const StateGroup: React.FC<{ state: string; assets: any[]; serial: number }> = ({ state, assets, serial }) => {
+const StateGroup: React.FC<{
+  state: string; assets: any[]; serial: number;
+  highlighted?: boolean; onClearHighlight?: () => void;
+}> = ({ state, assets, serial, highlighted = false, onClearHighlight }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
   const stateTotal = assets.reduce((s, a) => s + (Number(a.purchaseCost) || 0), 0);
   const stateMktTotal = assets.reduce((s, a) => s + (Number(a.marketValue) || 0), 0);
 
+  useEffect(() => {
+    if (highlighted && boxRef.current) {
+      setTimeout(() => {
+        boxRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        onClearHighlight?.();
+      }, 150);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [highlighted]);
+
   return (
-    <Box sx={{ mb: 3 }}>
+    <Box ref={boxRef} sx={{ mb: 3, ...(highlighted && { outline: '2px solid rgba(33,150,243,0.55)', outlineOffset: 3, borderRadius: 1 }) }}>
       {/* State header bar */}
       <Box sx={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -191,7 +205,7 @@ const StateGroup: React.FC<{ state: string; assets: any[]; serial: number }> = (
                 {assets.some((a) => a.equipmentType)           && <TH minWidth={160}>Equipment Type</TH>}
                 {assets.some((a) => a.capacity)                && <TH minWidth={120}>Capacity</TH>}
                 {assets.some((a) => a.itemType)                && <TH minWidth={160}>Item Type</TH>}
-                {assets.some((a) => a.quantity != null)        && <TH minWidth={80} align="center">Qty</TH>}
+                
                 {assets.some((a) => a.remarks)                 && <TH minWidth={220}>Remarks</TH>}
               </TableRow>
             </TableHead>
@@ -318,7 +332,7 @@ const StateGroup: React.FC<{ state: string; assets: any[]; serial: number }> = (
                     {assets.some((a) => a.equipmentType)          && <TD>{asset.equipmentType || null}</TD>}
                     {assets.some((a) => a.capacity)               && <TD>{asset.capacity || null}</TD>}
                     {assets.some((a) => a.itemType)               && <TD>{asset.itemType || null}</TD>}
-                    {assets.some((a) => a.quantity != null)       && <TD align="center">{asset.quantity ?? null}</TD>}
+                    
                     {assets.some((a) => a.remarks)                && <TD>{asset.remarks || null}</TD>}
                   </TableRow>
                 );
@@ -359,6 +373,9 @@ const ReportsPage: React.FC = () => {
   const { userData, currentUser } = useAuth();
   const isAdmin = userData?.role === 'admin';
   const isMinistryAdmin = userData?.role === 'ministry-admin';
+  const isApprover = userData?.role === 'agency-approver';
+  // Approvers are scoped to their ministry just like ministry-admins
+  const isScopedToMinistry = isMinistryAdmin || isApprover;
 
   const [selectedReportType, setSelectedReportType] = useState<ReportType>('asset_inventory');
   const [filters, setFilters] = useState<ReportFilters>({
@@ -373,6 +390,9 @@ const ReportsPage: React.FC = () => {
   const [loading, setLoading]                 = useState(false);
   const [error, setError]                     = useState<string | null>(null);
   const [activeTab, setActiveTab]             = useState(0);
+  const [highlightedState, setHighlightedState] = useState<string | null>(null);
+  const [exportAnchorEl, setExportAnchorEl]   = useState<null | HTMLElement>(null);
+  const [mvExpandedCats, setMvExpandedCats]   = useState<Set<string>>(new Set());
   const [ministries, setMinistries]           = useState<{ id: string; name: string }[]>([]);
   const [locations, setLocations]             = useState<string[]>([]);
   const [loadingFilters, setLoadingFilters]   = useState(true);
@@ -383,7 +403,7 @@ const ReportsPage: React.FC = () => {
         setLoadingFilters(true);
         const [m, l] = await Promise.all([
           getMinistriesForFilter(),
-          getUniqueLocations(isMinistryAdmin ? userData?.ministryId : undefined),
+          getUniqueLocations(isScopedToMinistry ? userData?.ministryId : undefined),
         ]);
         setMinistries(m); setLocations(l);
       } catch (e) { console.error(e); }
@@ -409,7 +429,7 @@ const ReportsPage: React.FC = () => {
       const report = await generateReport(
         { ...filters, assetTypes: singleAssetType ? [singleAssetType] : [], statuses: singleStatus ? [singleStatus] : [], dateFrom: dateFrom || undefined, dateTo: dateTo || undefined },
         currentUser?.email || '',
-        isMinistryAdmin,
+        isScopedToMinistry,
         userData?.ministryId,
         userData?.agencyName
       );
@@ -811,6 +831,17 @@ const ReportsPage: React.FC = () => {
   );
 
   // ─── Summary tab ───────────────────────────────────────────────────────────────
+  const [expandedStateRows, setExpandedStateRows] = useState<Set<string>>(new Set());
+
+  const toggleStateRow = (state: string) => {
+    setExpandedStateRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(state)) next.delete(state);
+      else next.add(state);
+      return next;
+    });
+  };
+
   const renderSummaryTab = () => {
     if (!generatedReport) return null;
     if (generatedReport.type === 'asset_inventory') {
@@ -842,39 +873,230 @@ const ReportsPage: React.FC = () => {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  {['State', 'Asset Count', 'Categories', 'Total Purchase Cost', 'Total Market Value', '% of Portfolio'].map((h) => (
-                    <TH key={h}>{h}</TH>
-                  ))}
+                  <TH minWidth={220}>State</TH>
+                  <TH minWidth={200} align="center">Total Market Value</TH>
+                  <TH minWidth={260} align="center">{''}</TH>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {groups.map((group, idx) => {
                   const gTotal  = group.assets.reduce((s, a) => s + (Number(a.purchaseCost) || 0), 0);
                   const gMkt    = group.assets.reduce((s, a) => s + (Number(a.marketValue)  || 0), 0);
-                  const pct     = data.totalValue > 0 ? ((gTotal / data.totalValue) * 100).toFixed(1) : '0.0';
-                  const cats    = [...new Set(group.assets.map((a) => a.category || a.type).filter(Boolean))].join(', ');
+                  const isExpanded = expandedStateRows.has(group.state);
+
+                  // Build per-category breakdown for this state
+                  const catMap = new Map<string, { count: number; purchaseCost: number; marketValue: number }>();
+                  group.assets.forEach((a) => {
+                    const key = a.category || a.type || 'Uncategorized';
+                    const existing = catMap.get(key) || { count: 0, purchaseCost: 0, marketValue: 0 };
+                    catMap.set(key, {
+                      count: existing.count + 1,
+                      purchaseCost: existing.purchaseCost + (Number(a.purchaseCost) || 0),
+                      marketValue: existing.marketValue + (Number(a.marketValue) || 0),
+                    });
+                  });
+                  const catBreakdown = Array.from(catMap.entries())
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([name, stats]) => ({ name, ...stats }));
+
                   return (
-                    <TableRow key={group.state} sx={{ backgroundColor: idx % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
-                      <TD>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                          <LocationOn sx={{ fontSize: 13, color: '#00ff88' }} />
-                          <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#fff' }}>{group.state}</Typography>
-                        </Box>
-                      </TD>
-                      <TD align="center"><Chip label={group.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.25)', color: '#00ff88', fontSize: '0.72rem' }} /></TD>
-                      <TD><Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.65)' }}>{cats || '—'}</Typography></TD>
-                      <TD align="right"><Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#4caf50' }}>{formatCurrency(gTotal)}</Typography></TD>
-                      <TD align="right"><Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#2196f3' }}>{gMkt > 0 ? formatCurrency(gMkt) : '—'}</Typography></TD>
-                      <TD align="center">
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-                          <LinearProgress variant="determinate" value={parseFloat(pct)}
-                            sx={{ width: 60, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.1)', '& .MuiLinearProgress-bar': { backgroundColor: '#008751' } }} />
-                          <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', minWidth: 32 }}>{pct}%</Typography>
-                        </Box>
-                      </TD>
-                    </TableRow>
+                    <React.Fragment key={group.state}>
+                      <TableRow sx={{ backgroundColor: idx % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
+                        <TD>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                            <LocationOn sx={{ fontSize: 13, color: '#00ff88' }} />
+                            <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#fff' }}>{group.state}</Typography>
+                            <Chip label={group.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.2)', color: '#00ff88', fontSize: '0.65rem', height: 18, ml: 0.5 }} />
+                          </Box>
+                        </TD>
+                        <TD align="center">
+                          <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#2196f3' }}>
+                            {gMkt > 0 ? formatCurrency(gMkt) : '—'}
+                          </Typography>
+                        </TD>
+                        <TableCell sx={{ py: 0.5, px: 1.5, borderBottom: '1px solid rgba(255,255,255,0.05)', whiteSpace: 'nowrap' }}>
+                          <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                            <Tooltip title={isExpanded ? 'Hide category breakdown' : 'View asset category summary'}>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                endIcon={isExpanded ? <KeyboardArrowUp sx={{ fontSize: 14 }} /> : <KeyboardArrowDown sx={{ fontSize: 14 }} />}
+                                onClick={() => toggleStateRow(group.state)}
+                                sx={{
+                                  fontSize: '0.65rem', py: 0.3, px: 1, whiteSpace: 'nowrap',
+                                  borderColor: isExpanded ? 'rgba(0,255,136,0.6)' : 'rgba(0,255,136,0.25)',
+                                  color: isExpanded ? '#00ff88' : 'rgba(0,255,136,0.7)',
+                                  backgroundColor: isExpanded ? 'rgba(0,255,136,0.08)' : 'transparent',
+                                  '&:hover': { borderColor: '#00ff88', backgroundColor: 'rgba(0,255,136,0.1)', color: '#00ff88' },
+                                  minWidth: 'unset',
+                                }}
+                              >
+                                {isExpanded ? 'Hide' : 'View Categories'}
+                              </Button>
+                            </Tooltip>
+                            
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+
+                      {/* Expandable category breakdown row */}
+                      <TableRow>
+                        <TableCell colSpan={3} sx={{ p: 0, borderBottom: isExpanded ? '2px solid rgba(0,255,136,0.2)' : 'none' }}>
+                          <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                            <Box sx={{
+                              mx: 2, my: 1.5, borderRadius: 1,
+                              border: '1px solid rgba(0,255,136,0.2)',
+                              background: 'linear-gradient(135deg,rgba(0,80,40,0.35),rgba(0,40,20,0.5))',
+                              overflow: 'hidden',
+                            }}>
+                              {/* Sub-header */}
+                              <Box sx={{
+                                px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap',
+                                background: 'rgba(0,135,81,0.25)', borderBottom: '1px solid rgba(0,255,136,0.15)',
+                              }}>
+                                <Category sx={{ fontSize: 14, color: '#00ff88' }} />
+                                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#00ff88', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                                  {group.state} — Asset Category Summary
+                                </Typography>
+                                <Chip
+                                  label={`${catBreakdown.length} ${catBreakdown.length === 1 ? 'category' : 'categories'}`}
+                                  size="small"
+                                  sx={{ backgroundColor: 'rgba(0,255,136,0.12)', color: '#00ff88', fontSize: '0.65rem', height: 18 }}
+                                />
+                                <Button
+                                  size="small"
+                                  variant="contained"
+                                  onClick={() => { setHighlightedState(group.state); setActiveTab(1); }}
+                                  sx={{
+                                    ml: 'auto', fontSize: '0.62rem', py: 0.3, px: 1.2,
+                                    backgroundColor: 'rgba(33,150,243,0.25)',
+                                    border: '1px solid rgba(33,150,243,0.5)',
+                                    color: '#2196f3',
+                                    boxShadow: 'none',
+                                    '&:hover': { backgroundColor: 'rgba(33,150,243,0.4)', boxShadow: 'none' },
+                                    whiteSpace: 'nowrap',
+                                  }}
+                                >
+                                  View All Assets in {group.state} →
+                                </Button>
+                              </Box>
+
+                              {/* Category table */}
+                              <Table size="small">
+                                <TableHead>
+                                  <TableRow sx={{ backgroundColor: 'rgba(0,60,30,0.6)' }}>
+                                    {['Asset Category', 'Total Assets', 'Total Purchase Cost', 'Total Market Value', '% of State'].map((h) => (
+                                      <TableCell key={h} sx={{
+                                        fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase',
+                                        letterSpacing: 0.6, color: 'rgba(255,255,255,0.75)',
+                                        py: 0.8, px: 1.5, borderBottom: '1px solid rgba(0,255,136,0.1)',
+                                        whiteSpace: 'nowrap',
+                                      }}>
+                                        {h}
+                                      </TableCell>
+                                    ))}
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                  {catBreakdown.map((cat, ci) => {
+                                    const catPct = gTotal > 0 ? ((cat.purchaseCost / gTotal) * 100).toFixed(1) : '0.0';
+                                    return (
+                                      <TableRow key={cat.name} sx={{
+                                        backgroundColor: ci % 2 === 0 ? 'rgba(0,30,15,0.5)' : 'rgba(0,50,25,0.3)',
+                                        '&:hover': { backgroundColor: 'rgba(0,135,81,0.15)' },
+                                        '&:last-child td': { borderBottom: 'none' },
+                                      }}>
+                                        <TableCell sx={{ py: 0.8, px: 1.5, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Category sx={{ fontSize: 12, color: 'rgba(0,255,136,0.5)' }} />
+                                            <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>
+                                              {cat.name}
+                                            </Typography>
+                                          </Box>
+                                        </TableCell>
+                                        <TableCell align="center" sx={{ py: 0.8, px: 1.5, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                                          <Chip
+                                            label={cat.count}
+                                            size="small"
+                                            sx={{ backgroundColor: 'rgba(0,135,81,0.3)', color: '#00ff88', fontSize: '0.72rem', fontWeight: 700, minWidth: 32 }}
+                                          />
+                                        </TableCell>
+                                        <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                                          <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50', whiteSpace: 'nowrap' }}>
+                                            {formatCurrency(cat.purchaseCost)}
+                                          </Typography>
+                                        </TableCell>
+                                        <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                                          <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#2196f3', whiteSpace: 'nowrap' }}>
+                                            {cat.marketValue > 0 ? formatCurrency(cat.marketValue) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                                          </Typography>
+                                        </TableCell>
+                                        <TableCell align="center" sx={{ py: 0.8, px: 1.5, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+                                            <LinearProgress
+                                              variant="determinate"
+                                              value={parseFloat(catPct)}
+                                              sx={{
+                                                width: 50, height: 4, borderRadius: 2,
+                                                backgroundColor: 'rgba(255,255,255,0.08)',
+                                                '& .MuiLinearProgress-bar': { backgroundColor: '#00aa66' },
+                                              }}
+                                            />
+                                            <Typography sx={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', minWidth: 30 }}>
+                                              {catPct}%
+                                            </Typography>
+                                          </Box>
+                                        </TableCell>
+                                      </TableRow>
+                                    );
+                                  })}
+
+                                  {/* Category subtotal */}
+                                  <TableRow sx={{ backgroundColor: 'rgba(0,100,50,0.25)', borderTop: '1px solid rgba(0,255,136,0.12)' }}>
+                                    <TableCell sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                                      <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(0,255,136,0.8)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                        State Total
+                                      </Typography>
+                                    </TableCell>
+                                    <TableCell align="center" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                                      <Chip label={group.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.2)', color: '#00ff88', fontWeight: 700, fontSize: '0.72rem' }} />
+                                    </TableCell>
+                                    <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#4caf50', whiteSpace: 'nowrap' }}>
+                                        {formatCurrency(gTotal)}
+                                      </Typography>
+                                    </TableCell>
+                                    <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#2196f3', whiteSpace: 'nowrap' }}>
+                                        {gMkt > 0 ? formatCurrency(gMkt) : '—'}
+                                      </Typography>
+                                    </TableCell>
+                                    <TableCell sx={{ borderBottom: 'none' }} />
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </Box>
+                          </Collapse>
+                        </TableCell>
+                      </TableRow>
+                    </React.Fragment>
                   );
                 })}
+                {/* Grand total market value row */}
+                {(() => {
+                  const grandMV = groups.reduce((s, g) => s + g.assets.reduce((as, a) => as + (Number(a.marketValue) || 0), 0), 0);
+                  return (
+                    <TableRow sx={{ backgroundColor: 'rgba(0,100,50,0.2)', borderTop: '2px solid rgba(0,255,136,0.2)' }}>
+                      <TableCell sx={{ py: 1, px: 1.5, fontWeight: 700, color: 'rgba(0,255,136,0.9)', textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: 0.5, borderBottom: 'none' }}>
+                        Grand Total — {groups.reduce((s, g) => s + g.assets.length, 0)} Assets
+                      </TableCell>
+                      <TableCell align="center" sx={{ py: 1, px: 1.5, fontWeight: 700, color: '#2196f3', fontSize: '0.92rem', whiteSpace: 'nowrap', borderBottom: 'none' }}>
+                        {formatCurrency(grandMV)}
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: 'none' }} />
+                    </TableRow>
+                  );
+                })()}
               </TableBody>
             </Table>
           </TableContainer>
@@ -1021,7 +1243,16 @@ const ReportsPage: React.FC = () => {
           {groups.map((group) => {
             const serial = globalSerial;
             globalSerial += group.assets.length;
-            return <StateGroup key={group.state} state={group.state} assets={group.assets} serial={serial} />;
+            return (
+              <StateGroup
+                key={group.state}
+                state={group.state}
+                assets={group.assets}
+                serial={serial}
+                highlighted={group.state === highlightedState}
+                onClearHighlight={() => setHighlightedState(null)}
+              />
+            );
           })}
 
           {/* Grand total footer */}
@@ -1152,6 +1383,359 @@ const ReportsPage: React.FC = () => {
     return null;
   };
 
+  // ─── Market Value tab ──────────────────────────────────────────────────────────
+  const renderMarketValueTab = () => {
+    if (!generatedReport || generatedReport.type !== 'asset_inventory') {
+      return (
+        <Box sx={{ textAlign: 'center', py: 6 }}>
+          <ShowChart sx={{ fontSize: 64, color: 'rgba(255,255,255,0.2)', mb: 2 }} />
+          <Typography sx={{ color: 'rgba(255,255,255,0.5)' }}>
+            Market Value view is available for Asset Inventory reports.
+          </Typography>
+        </Box>
+      );
+    }
+    const data = generatedReport.data as AssetInventoryData;
+    const allAssets = data.assets || [];
+
+    // Group by category, sort by total market value desc
+    const catMap = new Map<string, any[]>();
+    allAssets.forEach((a) => {
+      const cat = a.category || a.type || 'Uncategorized';
+      if (!catMap.has(cat)) catMap.set(cat, []);
+      catMap.get(cat)!.push(a);
+    });
+    const categories = Array.from(catMap.entries())
+      .map(([name, assets]) => ({
+        name,
+        assets,
+        totalMV: assets.reduce((s, a) => s + (Number(a.marketValue) || 0), 0),
+        totalPC: assets.reduce((s, a) => s + (Number(a.purchaseCost) || 0), 0),
+        count: assets.length,
+      }))
+      .sort((a, b) => b.totalMV - a.totalMV);
+    const grandTotalMV = categories.reduce((s, c) => s + c.totalMV, 0);
+
+    const miniHeadSx = {
+      fontSize: '0.63rem', fontWeight: 700, textTransform: 'uppercase' as const,
+      letterSpacing: 0.5, py: 0.6, px: 1.2,
+      color: 'rgba(255,255,255,0.7)',
+      background: 'rgba(0,55,28,0.85)',
+      borderBottom: '1px solid rgba(0,255,136,0.1)',
+      whiteSpace: 'nowrap' as const,
+    };
+    const miniCellSx = {
+      fontSize: '0.72rem', py: 0.55, px: 1.2,
+      color: 'rgba(255,255,255,0.82)',
+      borderBottom: '1px solid rgba(255,255,255,0.04)',
+    };
+
+    return (
+      <Box>
+        {/* ── Summary by Market Value ── */}
+        <SectionHeading icon={<ShowChart />} title="Summary by Market Value" count={categories.length} />
+        <TableContainer component={Paper} sx={{ mb: 4, border: '1px solid rgba(0,135,81,0.2)' }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TH minWidth={180}>Asset Category</TH>
+                <TH minWidth={160} align="right">Total Market Value</TH>
+                <TH minWidth={70} align="center">Assets</TH>
+                <TH minWidth={120} align="center">% of Total</TH>
+                <TH minWidth={50} align="center">{''}</TH>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {categories.map((cat, idx) => {
+                const pct = grandTotalMV > 0 ? ((cat.totalMV / grandTotalMV) * 100).toFixed(1) : '0.0';
+                const isExp = mvExpandedCats.has(cat.name);
+
+                // Group assets by state within this category
+                const stateMap = new Map<string, any[]>();
+                cat.assets.forEach((a) => {
+                  const st = a.state || 'Unspecified State';
+                  if (!stateMap.has(st)) stateMap.set(st, []);
+                  stateMap.get(st)!.push(a);
+                });
+                const stateGroups = Array.from(stateMap.entries())
+                  .sort(([a], [b]) => a.localeCompare(b))
+                  .map(([st, sa]) => ({
+                    state: st,
+                    assets: sa,
+                    totalMV: sa.reduce((s, a) => s + (Number(a.marketValue) || 0), 0),
+                  }));
+
+                return (
+                  <React.Fragment key={cat.name}>
+                    <TableRow
+                      sx={{ backgroundColor: idx % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' }, cursor: 'pointer' }}
+                      onClick={() => setMvExpandedCats((prev) => { const n = new Set(prev); if (n.has(cat.name)) n.delete(cat.name); else n.add(cat.name); return n; })}
+                    >
+                      <TD>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Category sx={{ fontSize: 13, color: '#00ff88' }} />
+                          <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#fff' }}>{cat.name}</Typography>
+                        </Box>
+                      </TD>
+                      <TD align="right">
+                        <Typography sx={{ fontSize: '0.88rem', fontWeight: 700, color: '#2196f3' }}>
+                          {cat.totalMV > 0 ? formatCurrency(cat.totalMV) : '—'}
+                        </Typography>
+                      </TD>
+                      <TD align="center">
+                        <Chip label={cat.count} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.25)', color: '#00ff88', fontSize: '0.68rem' }} />
+                      </TD>
+                      <TD align="center">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+                          <LinearProgress variant="determinate" value={parseFloat(pct)}
+                            sx={{ width: 55, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.1)', '& .MuiLinearProgress-bar': { backgroundColor: '#2196f3' } }} />
+                          <Typography sx={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', minWidth: 32 }}>{pct}%</Typography>
+                        </Box>
+                      </TD>
+                      <TD align="center">
+                        <IconButton size="small" sx={{ color: 'rgba(255,255,255,0.5)', p: 0.2 }}>
+                          {isExp ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" />}
+                        </IconButton>
+                      </TD>
+                    </TableRow>
+
+                    {/* Expandable: states + assets within this category */}
+                    <TableRow>
+                      <TableCell colSpan={5} sx={{ p: 0, borderBottom: isExp ? '2px solid rgba(33,150,243,0.2)' : 'none' }}>
+                        <Collapse in={isExp} timeout="auto" unmountOnExit>
+                          <Box sx={{ mx: 2, my: 1.5 }}>
+                            {stateGroups.map((sg) => (
+                              <Box key={sg.state} sx={{ mb: 2 }}>
+                                {/* State sub-header */}
+                                <Box sx={{
+                                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                  px: 1.5, py: 0.7, borderRadius: '4px 4px 0 0',
+                                  background: 'rgba(0,75,40,0.5)', border: '1px solid rgba(0,255,136,0.12)', borderBottom: 'none',
+                                }}>
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                                    <LocationOn sx={{ fontSize: 12, color: '#00ff88' }} />
+                                    <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.78rem' }}>{sg.state}</Typography>
+                                    <Chip label={sg.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.12)', color: '#00ff88', fontSize: '0.62rem', height: 16 }} />
+                                  </Box>
+                                  <Typography sx={{ fontWeight: 700, color: '#2196f3', fontSize: '0.75rem' }}>
+                                    {sg.totalMV > 0 ? formatCurrency(sg.totalMV) : '—'}
+                                  </Typography>
+                                </Box>
+
+                                {/* Assets in this state for this category */}
+                                <TableContainer sx={{ border: '1px solid rgba(0,255,136,0.1)', borderTop: 'none', borderRadius: '0 0 4px 4px' }}>
+                                  <Table size="small">
+                                    <TableHead>
+                                      <TableRow>
+                                        <TableCell sx={miniHeadSx}>Asset ID</TableCell>
+                                        <TableCell sx={miniHeadSx}>Description</TableCell>
+                                        <TableCell sx={{ ...miniHeadSx, textAlign: 'right' }}>Market Value (₦)</TableCell>
+                                        <TableCell sx={{ ...miniHeadSx, textAlign: 'right' }}>Purchase Cost (₦)</TableCell>
+                                        <TableCell sx={miniHeadSx}>Condition</TableCell>
+                                      </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                      {[...sg.assets]
+                                        .sort((a, b) => (Number(b.marketValue) || 0) - (Number(a.marketValue) || 0))
+                                        .map((asset, ai) => (
+                                          <TableRow key={asset.id || ai} sx={{ backgroundColor: ai % 2 === 0 ? 'rgba(0,22,10,0.5)' : 'rgba(0,38,18,0.3)', '&:last-child td': { borderBottom: 'none' } }}>
+                                            <TableCell sx={{ ...miniCellSx, fontFamily: 'monospace', color: '#00ff88' }}>
+                                              {asset.assetId || asset.id || '—'}
+                                            </TableCell>
+                                            <TableCell sx={miniCellSx}>{asset.description || asset.name || '—'}</TableCell>
+                                            <TableCell sx={{ ...miniCellSx, textAlign: 'right', fontWeight: 700, color: '#2196f3' }}>
+                                              {asset.marketValue ? formatCurrency(Number(asset.marketValue)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                                            </TableCell>
+                                            <TableCell sx={{ ...miniCellSx, textAlign: 'right', color: '#4caf50' }}>
+                                              {asset.purchaseCost ? formatCurrency(Number(asset.purchaseCost)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                                            </TableCell>
+                                            <TableCell sx={miniCellSx}>
+                                              {asset.condition || asset.assetCondition || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
+                                    </TableBody>
+                                  </Table>
+                                </TableContainer>
+                              </Box>
+                            ))}
+                          </Box>
+                        </Collapse>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                );
+              })}
+
+              {/* Grand total row */}
+              <TableRow sx={{ backgroundColor: 'rgba(0,100,50,0.2)', borderTop: '2px solid rgba(0,255,136,0.2)' }}>
+                <TableCell sx={{ py: 1, px: 1.5, fontWeight: 700, color: 'rgba(0,255,136,0.9)', textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: 0.5, borderBottom: 'none' }}>
+                  Grand Total
+                </TableCell>
+                <TableCell align="right" sx={{ py: 1, px: 1.5, fontWeight: 700, color: '#2196f3', fontSize: '0.9rem', whiteSpace: 'nowrap', borderBottom: 'none' }}>
+                  {formatCurrency(grandTotalMV)}
+                </TableCell>
+                <TableCell align="center" sx={{ py: 1, px: 1.5, borderBottom: 'none' }}>
+                  <Chip label={allAssets.length} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.2)', color: '#00ff88', fontWeight: 700 }} />
+                </TableCell>
+                <TableCell colSpan={2} sx={{ borderBottom: 'none' }} />
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* ── Detailed by Market Value ── */}
+        <SectionHeading icon={<BarChart />} title="Detailed Assets by Market Value" count={data.totalAssets} />
+        <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)', mb: 2 }}>
+          Assets grouped by category and sorted by highest market value within each category.
+        </Typography>
+
+        {categories.map((cat) => (
+          <Box key={cat.name} sx={{ mb: 3 }}>
+            {/* Category header */}
+            <Box sx={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              px: 2, py: 1.2, borderRadius: '6px 6px 0 0',
+              background: 'linear-gradient(90deg, rgba(0,100,65,0.6) 0%, rgba(0,100,65,0.25) 100%)',
+              border: '1px solid rgba(0,255,136,0.2)', borderBottom: 'none',
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Category sx={{ fontSize: 16, color: '#00ff88' }} />
+                <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.92rem', letterSpacing: 0.5 }}>
+                  {cat.name.toUpperCase()}
+                </Typography>
+                <Chip label={`${cat.count} asset${cat.count !== 1 ? 's' : ''}`} size="small"
+                  sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#00ff88', fontSize: '0.68rem', height: 20 }} />
+              </Box>
+              <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                <Box sx={{ textAlign: 'right' }}>
+                  <Typography sx={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.4 }}>Purchase Cost</Typography>
+                  <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#4caf50' }}>{formatCurrency(cat.totalPC)}</Typography>
+                </Box>
+                <Box sx={{ textAlign: 'right' }}>
+                  <Typography sx={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.4 }}>Market Value</Typography>
+                  <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#2196f3' }}>
+                    {cat.totalMV > 0 ? formatCurrency(cat.totalMV) : '—'}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            <TableContainer sx={{
+              border: '1px solid rgba(0,255,136,0.15)', borderTop: 'none',
+              borderRadius: '0 0 6px 6px', maxHeight: 420, overflowY: 'auto',
+              '&::-webkit-scrollbar': { width: 6 },
+              '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0,255,136,0.3)', borderRadius: 3 },
+            }}>
+              <Table size="small" stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TH minWidth={40} align="center">#</TH>
+                    <TH minWidth={140}>Asset ID</TH>
+                    <TH minWidth={220}>Description</TH>
+                    <TH minWidth={110}>State</TH>
+                    <TH minWidth={180}>Location</TH>
+                    <TH minWidth={200}>Ministry</TH>
+                    <TH minWidth={160}>Agency</TH>
+                    <TH minWidth={120} align="center">Condition</TH>
+                    <TH minWidth={140} align="right">Purchase Cost (₦)</TH>
+                    <TH minWidth={160} align="right">Market Value (₦) ↓</TH>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {[...cat.assets]
+                    .sort((a, b) => (Number(b.marketValue) || 0) - (Number(a.marketValue) || 0))
+                    .map((asset, ai) => {
+                      const cond = asset.condition || asset.assetCondition || asset.currentCondition || asset.conditionStatus || null;
+                      const cs = conditionStyle(cond);
+                      return (
+                        <TableRow key={asset.id || ai} sx={{
+                          backgroundColor: ai % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)',
+                          '&:hover': { backgroundColor: 'rgba(0,135,81,0.12)' },
+                          '&:last-child td': { borderBottom: 'none' },
+                        }}>
+                          <TD align="center" muted>{ai + 1}</TD>
+                          <TD mono>
+                            <Typography sx={{ fontFamily: 'monospace', fontSize: '0.72rem', color: '#00ff88', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2, borderRadius: 0.5, border: '1px solid rgba(0,255,136,0.15)', display: 'inline-block', letterSpacing: 0.5 }}>
+                              {asset.assetId || asset.id || '—'}
+                            </Typography>
+                          </TD>
+                          <TD>
+                            <Typography sx={{ fontSize: '0.78rem', lineHeight: 1.3 }}>
+                              {asset.description || asset.name || '—'}
+                            </Typography>
+                          </TD>
+                          <TD>{asset.state || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
+                          <TD>{asset.location || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
+                          <TD>{asset.ministry || asset.ministryName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
+                          <TD>{asset.agency || asset.agencyName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
+                          <TD align="center">
+                            {cond ? (
+                              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4, px: 0.8, py: 0.2, borderRadius: 0.8, backgroundColor: cs.bg, border: `1px solid ${cs.border}` }}>
+                                <FiberManualRecord sx={{ fontSize: 7, color: cs.color }} />
+                                <Typography sx={{ fontSize: '0.68rem', color: cs.color, fontWeight: 600, whiteSpace: 'nowrap' }}>{cond}</Typography>
+                              </Box>
+                            ) : <Typography sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>—</Typography>}
+                          </TD>
+                          <TD align="right">
+                            <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50', whiteSpace: 'nowrap' }}>
+                              {asset.purchaseCost ? formatCurrency(Number(asset.purchaseCost)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                            </Typography>
+                          </TD>
+                          <TD align="right">
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: '#2196f3', whiteSpace: 'nowrap' }}>
+                              {asset.marketValue ? formatCurrency(Number(asset.marketValue)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                            </Typography>
+                          </TD>
+                        </TableRow>
+                      );
+                    })}
+                  {/* Category subtotal */}
+                  <TableRow sx={{ backgroundColor: 'rgba(0,135,81,0.1)', borderTop: '1px solid rgba(0,255,136,0.15)' }}>
+                    <TableCell colSpan={8} sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                      <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(0,255,136,0.7)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        {cat.name} — Sub-total ({cat.count} assets)
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#4caf50', whiteSpace: 'nowrap' }}>{formatCurrency(cat.totalPC)}</Typography>
+                    </TableCell>
+                    <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#2196f3', whiteSpace: 'nowrap' }}>
+                        {cat.totalMV > 0 ? formatCurrency(cat.totalMV) : '—'}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        ))}
+
+        {/* Grand total footer */}
+        <Box sx={{ mt: 2, p: 2, borderRadius: 1, background: 'linear-gradient(90deg,rgba(33,150,243,0.2),rgba(33,150,243,0.08))', border: '1px solid rgba(33,150,243,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+          <Typography sx={{ fontWeight: 700, color: '#2196f3', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            Grand Total — {allAssets.length} Assets across {categories.length} Categor{categories.length !== 1 ? 'ies' : 'y'}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 4 }}>
+            <Box sx={{ textAlign: 'right' }}>
+              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>Total Purchase Cost</Typography>
+              <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#4caf50' }}>
+                {formatCurrency(categories.reduce((s, c) => s + c.totalPC, 0))}
+              </Typography>
+            </Box>
+            <Box sx={{ textAlign: 'right' }}>
+              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>Total Market Value</Typography>
+              <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#2196f3' }}>
+                {formatCurrency(grandTotalMV)}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    );
+  };
+
   // ─── Breakdown tab ─────────────────────────────────────────────────────────────
   const renderBreakdownTab = () => {
     if (!generatedReport || generatedReport.type !== 'asset_inventory') {
@@ -1190,7 +1774,7 @@ const ReportsPage: React.FC = () => {
           </Table>
         </TableContainer>
 
-        {!isMinistryAdmin && data.byMinistry?.length > 0 && (
+        {!isScopedToMinistry && data.byMinistry?.length > 0 && (
           <>
             <SectionHeading icon={<AccountBalance />} title="Assets by Ministry" count={data.byMinistry.length} />
             <TableContainer component={Paper} sx={{ border: '1px solid rgba(0,135,81,0.2)' }}>
@@ -1264,16 +1848,47 @@ const ReportsPage: React.FC = () => {
                     {generatedReport.ministryName && ` | ${generatedReport.ministryName}`}
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Tooltip title="Export as PDF (A3 Landscape)">
-                    <IconButton onClick={handleExportPDF} sx={{ color: '#ef5350', border: '1px solid rgba(239,83,80,0.3)', '&:hover': { backgroundColor: 'rgba(239,83,80,0.1)' } }}><PictureAsPdf /></IconButton>
-                  </Tooltip>
-                  <Tooltip title="Export as Excel (one sheet per state)">
-                    <IconButton onClick={handleExportExcel} sx={{ color: '#4caf50', border: '1px solid rgba(76,175,80,0.3)', '&:hover': { backgroundColor: 'rgba(76,175,80,0.1)' } }}><TableChart /></IconButton>
-                  </Tooltip>
-                  <Tooltip title="Export as CSV">
-                    <IconButton onClick={handleExportCSV} sx={{ color: '#2196f3', border: '1px solid rgba(33,150,243,0.3)', '&:hover': { backgroundColor: 'rgba(33,150,243,0.1)' } }}><Download /></IconButton>
-                  </Tooltip>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <Button
+                    variant="outlined"
+                    endIcon={<ArrowDropDown />}
+                    onClick={(e) => setExportAnchorEl(e.currentTarget)}
+                    sx={{ color: '#fff', borderColor: 'rgba(255,255,255,0.3)', fontSize: '0.82rem', '&:hover': { borderColor: '#00ff88', color: '#00ff88', backgroundColor: 'rgba(0,255,136,0.07)' } }}
+                  >
+                    Export
+                  </Button>
+                  <Menu
+                    anchorEl={exportAnchorEl}
+                    open={Boolean(exportAnchorEl)}
+                    onClose={() => setExportAnchorEl(null)}
+                    PaperProps={{ sx: { background: '#0d1f13', border: '1px solid rgba(0,255,136,0.2)', minWidth: 220 } }}
+                  >
+                    <MenuItem
+                      onClick={() => { handleExportPDF(); setExportAnchorEl(null); }}
+                      sx={{ color: '#ef5350', fontSize: '0.85rem', gap: 1.5, '&:hover': { backgroundColor: 'rgba(239,83,80,0.1)' } }}
+                    >
+                      <PictureAsPdf fontSize="small" /> Export as PDF (A3 Landscape)
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => { handleExportExcel(); setExportAnchorEl(null); }}
+                      sx={{ color: '#4caf50', fontSize: '0.85rem', gap: 1.5, '&:hover': { backgroundColor: 'rgba(76,175,80,0.1)' } }}
+                    >
+                      <TableChart fontSize="small" /> Export to Excel (.xlsx)
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => { handleExportCSV(); setExportAnchorEl(null); }}
+                      sx={{ color: '#2196f3', fontSize: '0.85rem', gap: 1.5, '&:hover': { backgroundColor: 'rgba(33,150,243,0.1)' } }}
+                    >
+                      <Download fontSize="small" /> Download CSV (Google Sheets)
+                    </MenuItem>
+                    <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', my: 0.5 }} />
+                    <MenuItem
+                      onClick={() => { window.print(); setExportAnchorEl(null); }}
+                      sx={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.85rem', gap: 1.5, '&:hover': { backgroundColor: 'rgba(255,255,255,0.07)' } }}
+                    >
+                      <Print fontSize="small" /> Print
+                    </MenuItem>
+                  </Menu>
                 </Box>
               </Box>
             </Box>
@@ -1304,15 +1919,17 @@ const ReportsPage: React.FC = () => {
               </Box>
             )}
 
-            <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} sx={{ mb: 2 }}>
+            <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} sx={{ mb: 2 }} variant="scrollable" scrollButtons="auto">
               <Tab icon={<BarChart />} label="Summary" iconPosition="start" />
               <Tab icon={<TableChart />} label="Asset Register by State" iconPosition="start" />
+              <Tab icon={<ShowChart />} label="Asset Register by Market Value" iconPosition="start" />
               <Tab icon={<PieChart />} label="Breakdown" iconPosition="start" />
             </Tabs>
             <Divider sx={{ mb: 2 }} />
             {activeTab === 0 && renderSummaryTab()}
             {activeTab === 1 && renderDetailedRegisterTab()}
-            {activeTab === 2 && renderBreakdownTab()}
+            {activeTab === 2 && renderMarketValueTab()}
+            {activeTab === 3 && renderBreakdownTab()}
           </Paper>
         )}
 

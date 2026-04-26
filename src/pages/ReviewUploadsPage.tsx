@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -12,7 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
   CircularProgress,
   Alert,
   Chip,
@@ -23,35 +22,680 @@ import {
   TextField,
   IconButton,
   Tooltip,
+  Collapse,
 } from '@mui/material';
 import {
   ArrowBack,
   CheckCircle,
   Cancel,
   DoneAll,
-  Visibility,
   Schedule,
   History,
+  LocationOn,
+  KeyboardArrowDown,
+  KeyboardArrowUp,
+  FiberManualRecord,
 } from '@mui/icons-material';
 import { Tabs, Tab } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { getPendingAssets, approveAsset, rejectAsset, getApproverAssets } from '@/services/asset.service';
+import { getUserById } from '@/services/user.service';
 import { Asset } from '@/types/asset.types';
+import { formatCurrency } from '@/services/report.service';
+import { camelToTitle } from '@/utils/assetHelpers';
 import AppLayout from '@/components/AppLayout';
+
+/** Category-specific and extended fields persisted from the upload form (see seedCategories / AssetUploadForm). */
+const EXTRA_FIELD_KEYS: string[] = [
+  'landTitleType', 'surveyPlanNumber', 'landAcquisitionPurpose',
+  'equipmentType', 'capacity', 'itemType',
+  'make', 'model', 'vehicleYear', 'registrationNumber', 'engineNumber', 'chassisNumber', 'colour',
+  'buildingType', 'numberOfFloors', 'buildingUse',
+  'infrastructureType', 'length', 'width',
+  'extractiveType', 'licenceNumber',
+  'securityType', 'faceValue', 'issuer',
+  'verifiedBy',
+];
+
+function extraFieldColumnsForGroup(assets: Asset[]): string[] {
+  return EXTRA_FIELD_KEYS.filter((key) =>
+    assets.some((a) => {
+      const v = (a as Record<string, unknown>)[key];
+      if (v == null) return false;
+      if (typeof v === 'number') return !Number.isNaN(v);
+      if (typeof v === 'string') return v.trim() !== '';
+      return true;
+    })
+  );
+}
+
+function headerLabelForExtraField(key: string): string {
+  const map: Record<string, string> = {
+    itemType: 'Equipment / Furniture Type',
+    vehicleYear: 'Vehicle Year',
+    licenceNumber: 'Licence Number',
+    surveyPlanNumber: 'Survey Plan No.',
+    landAcquisitionPurpose: 'Land Acquisition Purpose',
+    landTitleType: 'Land Title Type',
+    equipmentType: 'Generator / Plant Type',
+    buildingType: 'Building Type',
+    numberOfFloors: 'Number of Floors',
+    buildingUse: 'Building Use',
+    infrastructureType: 'Infrastructure Type',
+    extractiveType: 'Extractive Type',
+    securityType: 'Security Type',
+    faceValue: 'Face Value',
+    verifiedBy: 'Verified by',
+    registrationNumber: 'Registration No.',
+    engineNumber: 'Engine No.',
+    chassisNumber: 'Chassis No.',
+  };
+  return map[key] ?? camelToTitle(key);
+}
+
+function formatPurchasedDate(asset: Asset): string {
+  const d = asset.purchasedDate;
+  if (!d || d.year == null) return '—';
+  const day = d.day ?? 1;
+  const month = d.month ?? 1;
+  return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${d.year}`;
+}
+
+const stickyThSx = {
+  fontWeight: 700,
+  fontSize: '0.7rem',
+  textTransform: 'uppercase' as const,
+  letterSpacing: 0.8,
+  color: 'rgba(255,255,255,0.95)',
+  background: 'rgba(0,80,45,0.95)',
+  borderBottom: '2px solid rgba(0,255,136,0.25)',
+  py: 1.2,
+  px: 1.5,
+  position: 'sticky' as const,
+  top: 0,
+  zIndex: 2,
+  whiteSpace: 'nowrap' as const,
+};
+
+const dataCellSx = {
+  fontSize: '0.78rem',
+  py: 1,
+  px: 1.5,
+  color: 'rgba(255,255,255,0.88)',
+  borderBottom: '1px solid rgba(255,255,255,0.05)',
+  verticalAlign: 'top' as const,
+};
+
+function renderExtraFieldCell(asset: Asset, key: string): React.ReactNode {
+  const v = (asset as Record<string, unknown>)[key];
+  if (v == null || v === '') {
+    return <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>;
+  }
+  if (typeof v === 'number') return String(v);
+  return String(v);
+}
+
+// State Group Component
+const StateGroup: React.FC<{
+  state: string;
+  assets: Asset[];
+  serial: number;
+  onApprove: (assetId: string) => void;
+  onReject: (asset: Asset) => void;
+  processingId: string | null;
+  calculateCurrentValue: (asset: Asset) => number;
+  getConditionStyle: (condition?: string | null) => any;
+  uploaderUuids: Map<string, string>;
+}> = ({ state, assets, serial, onApprove, onReject, processingId, calculateCurrentValue, getConditionStyle, uploaderUuids }) => {
+  const [collapsed, setCollapsed] = useState(false);
+  const extraKeys = extraFieldColumnsForGroup(assets);
+  const stateTotal = assets.reduce((s, a) => s + (a.purchaseCost || 0), 0);
+  const stateMarketEnteredTotal = assets.reduce((s, a) => s + (a.marketValue && a.marketValue > 0 ? a.marketValue : 0), 0);
+  const stateMktTotal = assets.reduce((s, a) => s + calculateCurrentValue(a), 0);
+  /** Columns from # through purchase date (before purchase cost). */
+  const subtotalLabelColSpan = 13;
+
+  return (
+    <Box sx={{ mb: 3 }}>
+      {/* State header bar */}
+      <Box sx={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        px: 2, py: 1.2, borderRadius: '6px 6px 0 0',
+        background: 'linear-gradient(90deg, rgba(0,135,81,0.55) 0%, rgba(0,135,81,0.25) 100%)',
+        border: '1px solid rgba(0,255,136,0.2)', borderBottom: 'none',
+        cursor: 'pointer', userSelect: 'none',
+      }} onClick={() => setCollapsed(!collapsed)}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <LocationOn sx={{ fontSize: 18, color: '#00ff88' }} />
+          <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.95rem', letterSpacing: 0.5 }}>
+            {state.toUpperCase()}
+          </Typography>
+          <Chip label={`${assets.length} asset${assets.length !== 1 ? 's' : ''}`} size="small"
+            sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#00ff88', fontSize: '0.68rem', height: 20 }} />
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              Total Purchase Cost
+            </Typography>
+            <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#4caf50' }}>
+              {formatCurrency(stateTotal)}
+            </Typography>
+          </Box>
+          {stateMktTotal > 0 && (
+            <Box sx={{ textAlign: 'right' }}>
+              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Current Value
+              </Typography>
+              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#2196f3' }}>
+                {formatCurrency(stateMktTotal)}
+              </Typography>
+            </Box>
+          )}
+          <IconButton size="small" sx={{ color: 'rgba(255,255,255,0.6)', p: 0.3 }}>
+            {collapsed ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowUp fontSize="small" />}
+          </IconButton>
+        </Box>
+      </Box>
+
+      {/* Table */}
+      <Collapse in={!collapsed}>
+        <TableContainer sx={{
+          border: '1px solid rgba(0,255,136,0.15)', borderTop: 'none',
+          borderRadius: '0 0 6px 6px', maxHeight: 560, overflowX: 'auto', overflowY: 'auto',
+          '&::-webkit-scrollbar': { width: 6, height: 6 },
+          '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0,255,136,0.3)', borderRadius: 3 },
+          '&::-webkit-scrollbar-track': { backgroundColor: 'rgba(0,0,0,0.2)' },
+        }}>
+          <Table size="small" stickyHeader sx={{ minWidth: 1400 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ ...stickyThSx, minWidth: 40 }} align="center">#</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 140 }}>Asset ID</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 100 }}>Uploader</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 200 }}>Description</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 130 }}>Category</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 110 }}>State</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 180 }}>Location / Address</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 200 }}>Ministry</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 180 }}>Agency (form)</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 160 }}>Department</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 180 }}>Agency name (account)</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 120 }}>Ministry type</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 110 }} align="center">Purchase date</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 130 }} align="right">Purchase cost (₦)</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 130 }} align="right">Market value entered (₦)</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 130 }} align="right">Current value (₦)</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 120 }} align="center">Condition</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 200 }}>Remarks</TableCell>
+                {extraKeys.map((key) => (
+                  <TableCell key={key} sx={{ ...stickyThSx, minWidth: 140 }}>{headerLabelForExtraField(key)}</TableCell>
+                ))}
+                <TableCell sx={{ ...stickyThSx, minWidth: 100 }} align="center">Review</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {assets.map((asset: Asset, i: number) => {
+                const condition = asset.condition || asset.assetCondition || asset.currentCondition || asset.conditionStatus || null;
+                const cs = getConditionStyle(condition);
+                const rowBg = i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)';
+                const currentValue = calculateCurrentValue(asset);
+
+                return (
+                  <TableRow key={asset.id || i} sx={{
+                    backgroundColor: rowBg,
+                    '&:hover': { backgroundColor: 'rgba(0,135,81,0.12)' },
+                    '&:last-child td': { borderBottom: 'none' },
+                  }}>
+                    <TableCell align="center" sx={{ ...dataCellSx, color: 'rgba(255,255,255,0.35)' }}>{serial + i + 1}</TableCell>
+                    <TableCell sx={{ ...dataCellSx, fontFamily: 'monospace' }}>
+                      <Typography sx={{ fontFamily: 'monospace', fontSize: '0.72rem',
+                        color: '#00ff88', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2,
+                        borderRadius: 0.5, border: '1px solid rgba(0,255,136,0.15)',
+                        display: 'inline-block', letterSpacing: 0.5, whiteSpace: 'nowrap' }}>
+                        {asset.assetId || asset.id || '—'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{
+                        fontSize: '0.74rem', color: '#00ff88', fontFamily: 'monospace', letterSpacing: 0.5, fontWeight: 600,
+                        background: 'rgba(0,255,136,0.1)', px: 0.8, py: 0.3, borderRadius: 0.5,
+                        border: '1px solid rgba(0,255,136,0.2)', display: 'inline-block',
+                      }}>
+                        {uploaderUuids.get(asset.uploadedBy) || 'UNKNOWN'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.9)', lineHeight: 1.35, maxWidth: 280 }}>
+                        {asset.description || '—'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Chip label={asset.category || '—'} size="small" sx={{
+                        backgroundColor: 'rgba(0,135,81,0.2)', color: 'rgba(255,255,255,0.85)',
+                        border: '1px solid rgba(0,135,81,0.35)', fontSize: '0.68rem', height: 20,
+                      }} />
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>
+                        {asset.state || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
+                        {asset.location || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
+                        {asset.ministry || asset.ministryName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
+                        {asset.agency || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
+                        {asset.department || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>
+                        {asset.agencyName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>
+                        {asset.ministryType || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="center" sx={dataCellSx}>{formatPurchasedDate(asset)}</TableCell>
+                    <TableCell align="right" sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50', whiteSpace: 'nowrap' }}>
+                        {asset.purchaseCost ? formatCurrency(asset.purchaseCost) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right" sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#81c784', whiteSpace: 'nowrap' }}>
+                        {asset.marketValue && asset.marketValue > 0 ? formatCurrency(asset.marketValue) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right" sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#2196f3', whiteSpace: 'nowrap' }}>
+                        {formatCurrency(currentValue)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="center" sx={dataCellSx}>
+                      {condition ? (
+                        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4,
+                          px: 0.8, py: 0.2, borderRadius: 0.8,
+                          backgroundColor: cs.bg, border: `1px solid ${cs.border}` }}>
+                          <FiberManualRecord sx={{ fontSize: 7, color: cs.color }} />
+                          <Typography sx={{ fontSize: '0.68rem', color: cs.color, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            {condition}
+                          </Typography>
+                        </Box>
+                      ) : (
+                        <Typography sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>—</Typography>
+                      )}
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.35, maxWidth: 260 }}>
+                        {asset.remarks || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    {extraKeys.map((key) => (
+                      <TableCell key={key} sx={dataCellSx}>
+                        <Typography sx={{ fontSize: '0.74rem', lineHeight: 1.3 }}>{renderExtraFieldCell(asset, key)}</Typography>
+                      </TableCell>
+                    ))}
+                    <TableCell align="center" sx={dataCellSx}>
+                      <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                        <Tooltip title="Approve asset">
+                          <IconButton
+                            size="small"
+                            onClick={() => asset.id && onApprove(asset.id)}
+                            disabled={processingId === asset.id || processingId === 'all'}
+                            sx={{
+                              color: '#4caf50',
+                              '&:hover': { backgroundColor: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-disabled': { color: 'rgba(76, 175, 80, 0.3)' },
+                            }}
+                          >
+                            <CheckCircle fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Reject asset">
+                          <IconButton
+                            size="small"
+                            onClick={() => onReject(asset)}
+                            disabled={processingId === asset.id || processingId === 'all'}
+                            sx={{
+                              color: '#f44336',
+                              '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.1)' },
+                              '&.Mui-disabled': { color: 'rgba(244, 67, 54, 0.3)' },
+                            }}
+                          >
+                            <Cancel fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+
+              <TableRow sx={{ backgroundColor: 'rgba(0,135,81,0.1)', borderTop: '1px solid rgba(0,255,136,0.15)' }}>
+                <TableCell colSpan={subtotalLabelColSpan} sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                  <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(0,255,136,0.7)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                    {state} — Sub-total ({assets.length} assets)
+                  </Typography>
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                  <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#4caf50', whiteSpace: 'nowrap' }}>
+                    {formatCurrency(stateTotal)}
+                  </Typography>
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                  <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#81c784', whiteSpace: 'nowrap' }}>
+                    {stateMarketEnteredTotal > 0 ? formatCurrency(stateMarketEnteredTotal) : '—'}
+                  </Typography>
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                  <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#2196f3', whiteSpace: 'nowrap' }}>
+                    {formatCurrency(stateMktTotal)}
+                  </Typography>
+                </TableCell>
+                <TableCell colSpan={3 + extraKeys.length} sx={{ borderBottom: 'none' }} />
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Collapse>
+    </Box>
+  );
+};
+
+// History State Group Component (read-only)
+const HistoryStateGroup: React.FC<{
+  state: string;
+  assets: Asset[];
+  serial: number;
+  calculateCurrentValue: (asset: Asset) => number;
+  getConditionStyle: (condition?: string | null) => any;
+  getStatusStyle: (status: string) => any;
+  uploaderUuids: Map<string, string>;
+}> = ({ state, assets, serial, calculateCurrentValue, getConditionStyle, getStatusStyle, uploaderUuids }) => {
+  const [collapsed, setCollapsed] = useState(false);
+  const extraKeys = extraFieldColumnsForGroup(assets);
+  const stateTotal = assets.reduce((s, a) => s + (a.purchaseCost || 0), 0);
+  const stateMarketEnteredTotal = assets.reduce((s, a) => s + (a.marketValue && a.marketValue > 0 ? a.marketValue : 0), 0);
+  const stateMktTotal = assets.reduce((s, a) => s + calculateCurrentValue(a), 0);
+  const historySubtotalLabelColSpan = 13;
+
+  return (
+    <Box sx={{ mb: 3 }}>
+      {/* State header bar */}
+      <Box sx={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        px: 2, py: 1.2, borderRadius: '6px 6px 0 0',
+        background: 'linear-gradient(90deg, rgba(0,80,45,0.55) 0%, rgba(0,80,45,0.25) 100%)',
+        border: '1px solid rgba(0,255,136,0.2)', borderBottom: 'none',
+        cursor: 'pointer', userSelect: 'none',
+      }} onClick={() => setCollapsed(!collapsed)}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <LocationOn sx={{ fontSize: 18, color: '#00ff88' }} />
+          <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.95rem', letterSpacing: 0.5 }}>
+            {state.toUpperCase()}
+          </Typography>
+          <Chip label={`${assets.length} asset${assets.length !== 1 ? 's' : ''}`} size="small"
+            sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#00ff88', fontSize: '0.68rem', height: 20 }} />
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              Total Purchase Cost
+            </Typography>
+            <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#4caf50' }}>
+              {formatCurrency(stateTotal)}
+            </Typography>
+          </Box>
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              Current Value
+            </Typography>
+            <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#2196f3' }}>
+              {formatCurrency(stateMktTotal)}
+            </Typography>
+          </Box>
+          <IconButton size="small" sx={{ color: 'rgba(255,255,255,0.6)', p: 0.3 }}>
+            {collapsed ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowUp fontSize="small" />}
+          </IconButton>
+        </Box>
+      </Box>
+
+      {/* Table */}
+      <Collapse in={!collapsed}>
+        <TableContainer sx={{
+          border: '1px solid rgba(0,255,136,0.15)', borderTop: 'none',
+          borderRadius: '0 0 6px 6px', maxHeight: 560, overflowX: 'auto', overflowY: 'auto',
+          '&::-webkit-scrollbar': { width: 6, height: 6 },
+          '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0,255,136,0.3)', borderRadius: 3 },
+          '&::-webkit-scrollbar-track': { backgroundColor: 'rgba(0,0,0,0.2)' },
+        }}>
+          <Table size="small" stickyHeader sx={{ minWidth: 1600 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ ...stickyThSx, minWidth: 40 }} align="center">#</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 140 }}>Asset ID</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 100 }}>Uploader</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 200 }}>Description</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 130 }}>Category</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 110 }}>State</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 180 }}>Location / Address</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 200 }}>Ministry</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 180 }}>Agency (form)</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 160 }}>Department</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 180 }}>Agency name (account)</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 120 }}>Ministry type</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 110 }} align="center">Purchase date</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 130 }} align="right">Purchase cost (₦)</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 130 }} align="right">Market value entered (₦)</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 130 }} align="right">Current value (₦)</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 120 }} align="center">Condition</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 200 }}>Remarks</TableCell>
+                {extraKeys.map((key) => (
+                  <TableCell key={key} sx={{ ...stickyThSx, minWidth: 140 }}>{headerLabelForExtraField(key)}</TableCell>
+                ))}
+                <TableCell sx={{ ...stickyThSx, minWidth: 120 }} align="center">Status</TableCell>
+                <TableCell sx={{ ...stickyThSx, minWidth: 220 }}>Rejection reason</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {assets.map((asset: Asset, i: number) => {
+                const condition = asset.condition || asset.assetCondition || asset.currentCondition || asset.conditionStatus || null;
+                const cs = getConditionStyle(condition);
+                const st = getStatusStyle(asset.status);
+                const rowBg = i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)';
+                const currentValue = calculateCurrentValue(asset);
+
+                return (
+                  <TableRow key={asset.id || i} sx={{
+                    backgroundColor: rowBg,
+                    '&:hover': { backgroundColor: 'rgba(0,135,81,0.12)' },
+                    '&:last-child td': { borderBottom: 'none' },
+                  }}>
+                    <TableCell align="center" sx={{ ...dataCellSx, color: 'rgba(255,255,255,0.35)' }}>{serial + i + 1}</TableCell>
+                    <TableCell sx={{ ...dataCellSx, fontFamily: 'monospace' }}>
+                      <Typography sx={{ fontFamily: 'monospace', fontSize: '0.72rem',
+                        color: '#00ff88', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2,
+                        borderRadius: 0.5, border: '1px solid rgba(0,255,136,0.15)',
+                        display: 'inline-block', letterSpacing: 0.5, whiteSpace: 'nowrap' }}>
+                        {asset.assetId || asset.id || '—'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{
+                        fontSize: '0.74rem', color: '#00ff88', fontFamily: 'monospace', letterSpacing: 0.5, fontWeight: 600,
+                        background: 'rgba(0,255,136,0.1)', px: 0.8, py: 0.3, borderRadius: 0.5,
+                        border: '1px solid rgba(0,255,136,0.2)', display: 'inline-block',
+                      }}>
+                        {uploaderUuids.get(asset.uploadedBy) || 'UNKNOWN'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.9)', lineHeight: 1.35, maxWidth: 280 }}>
+                        {asset.description || '—'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Chip label={asset.category || '—'} size="small" sx={{
+                        backgroundColor: 'rgba(0,135,81,0.2)', color: 'rgba(255,255,255,0.85)',
+                        border: '1px solid rgba(0,135,81,0.35)', fontSize: '0.68rem', height: 20,
+                      }} />
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>
+                        {asset.state || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
+                        {asset.location || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
+                        {asset.ministry || asset.ministryName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
+                        {asset.agency || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
+                        {asset.department || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>
+                        {asset.agencyName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>
+                        {asset.ministryType || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="center" sx={dataCellSx}>{formatPurchasedDate(asset)}</TableCell>
+                    <TableCell align="right" sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50', whiteSpace: 'nowrap' }}>
+                        {asset.purchaseCost ? formatCurrency(asset.purchaseCost) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right" sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#81c784', whiteSpace: 'nowrap' }}>
+                        {asset.marketValue && asset.marketValue > 0 ? formatCurrency(asset.marketValue) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right" sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#2196f3', whiteSpace: 'nowrap' }}>
+                        {formatCurrency(currentValue)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="center" sx={dataCellSx}>
+                      {condition ? (
+                        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4,
+                          px: 0.8, py: 0.2, borderRadius: 0.8,
+                          backgroundColor: cs.bg, border: `1px solid ${cs.border}` }}>
+                          <FiberManualRecord sx={{ fontSize: 7, color: cs.color }} />
+                          <Typography sx={{ fontSize: '0.68rem', color: cs.color, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            {condition}
+                          </Typography>
+                        </Box>
+                      ) : (
+                        <Typography sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>—</Typography>
+                      )}
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.35, maxWidth: 260 }}>
+                        {asset.remarks || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    {extraKeys.map((key) => (
+                      <TableCell key={key} sx={dataCellSx}>
+                        <Typography sx={{ fontSize: '0.74rem', lineHeight: 1.3 }}>{renderExtraFieldCell(asset, key)}</Typography>
+                      </TableCell>
+                    ))}
+                    <TableCell align="center" sx={dataCellSx}>
+                      <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4,
+                        px: 0.8, py: 0.2, borderRadius: 0.8,
+                        backgroundColor: st.bg, border: `1px solid ${st.color}40` }}>
+                        <FiberManualRecord sx={{ fontSize: 7, color: st.color }} />
+                        <Typography sx={{ fontSize: '0.68rem', color: st.color, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          {st.label}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ color: 'rgba(255,180,180,0.95)', fontSize: '0.74rem', lineHeight: 1.35, maxWidth: 280 }}>
+                        {asset.rejectionReason || '—'}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+
+              <TableRow sx={{ backgroundColor: 'rgba(0,135,81,0.1)', borderTop: '1px solid rgba(0,255,136,0.15)' }}>
+                <TableCell colSpan={historySubtotalLabelColSpan} sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                  <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(0,255,136,0.7)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                    {state} — Sub-total ({assets.length} assets)
+                  </Typography>
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                  <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#4caf50', whiteSpace: 'nowrap' }}>
+                    {formatCurrency(stateTotal)}
+                  </Typography>
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                  <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#81c784', whiteSpace: 'nowrap' }}>
+                    {stateMarketEnteredTotal > 0 ? formatCurrency(stateMarketEnteredTotal) : '—'}
+                  </Typography>
+                </TableCell>
+                <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                  <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#2196f3', whiteSpace: 'nowrap' }}>
+                    {formatCurrency(stateMktTotal)}
+                  </Typography>
+                </TableCell>
+                <TableCell colSpan={4 + extraKeys.length} sx={{ borderBottom: 'none' }} />
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Collapse>
+    </Box>
+  );
+};
 
 const ReviewUploadsPage = () => {
   const { userData, currentUser } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [allAssets, setAllAssets] = useState<Asset[]>([]);
+  const [uploaderUuids, setUploaderUuids] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(() =>
+    searchParams.get('tab') === 'history' ? 1 : 0
+  );
 
-  // Pagination
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  // Removed pagination since we're using state grouping
 
   // Rejection dialog
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
@@ -79,6 +723,42 @@ const ReviewUploadsPage = () => {
       ]);
       setAssets(pendingAssets);
       setAllAssets(ministryAssets);
+
+      // Build uploader display ID map
+      // Priority: 1) uploaderDisplayId stored on asset, 2) user doc displayId, 3) user doc uuid, 4) fallback
+      const allAssetsList = [...pendingAssets, ...ministryAssets];
+
+      // First pass: pull displayIds that are already embedded on the asset documents
+      const uuidMap = new Map<string, string>();
+      for (const asset of allAssetsList) {
+        if (asset.uploaderDisplayId && !uuidMap.has(asset.uploadedBy)) {
+          uuidMap.set(asset.uploadedBy, asset.uploaderDisplayId);
+        }
+      }
+
+      // Second pass: fetch user docs for uploaders whose displayId wasn't on any asset
+      const missingUploaderIds = [
+        ...new Set(allAssetsList.map(a => a.uploadedBy).filter(id => !uuidMap.has(id))),
+      ];
+
+      await Promise.all(
+        missingUploaderIds.map(async (uploaderId, index) => {
+          try {
+            const user = await getUserById(uploaderId);
+            if (user?.displayId) {
+              uuidMap.set(uploaderId, user.displayId);
+            } else if (user?.uuid && user.uuid.length <= 12) {
+              uuidMap.set(uploaderId, user.uuid);
+            } else {
+              const prefix = user?.role === 'agency-approver' ? 'APV' : 'STF';
+              uuidMap.set(uploaderId, `${prefix}${String(index + 1).padStart(3, '0')}`);
+            }
+          } catch {
+            uuidMap.set(uploaderId, `STF${String(index + 1).padStart(3, '0')}`);
+          }
+        })
+      );
+      setUploaderUuids(uuidMap);
     } catch (err: any) {
       setError(err.message || 'Failed to load pending assets');
       toast.error(err.message || 'Failed to load pending assets');
@@ -194,30 +874,85 @@ const ReviewUploadsPage = () => {
     }
   };
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage);
+  // Pagination handlers removed since we're using state grouping
+
+  // Calculate current/market value with depreciation
+  const calculateCurrentValue = (asset: Asset): number => {
+    if (asset.marketValue && asset.marketValue > 0) {
+      return asset.marketValue;
+    }
+    
+    // Simple depreciation calculation
+    const purchaseDate = new Date(
+      asset.purchasedDate.year,
+      asset.purchasedDate.month - 1,
+      asset.purchasedDate.day
+    );
+    const ageInYears = (Date.now() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+    
+    // Depreciation rates by category (annual percentage)
+    const depreciationRates: Record<string, number> = {
+      'Motor Vehicle': 0.2,
+      'Office Equipment': 0.15,
+      'Furniture & Fittings': 0.1,
+      'Plant/Generator': 0.15,
+      'Building': 0.025,
+      'Land': 0,
+      'Infrastructure': 0.05,
+      'Extractive Assets': 0.1,
+      'Securities/Financial Assets': 0,
+      'Others': 0.1,
+    };
+    
+    const rate = depreciationRates[asset.category] || 0.1;
+    const depreciation = asset.purchaseCost * rate * Math.min(ageInYears, 10);
+    
+    return Math.max(asset.purchaseCost - depreciation, asset.purchaseCost * 0.1);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  // Group assets by state
+  const groupAssetsByState = (assets: Asset[]) => {
+    const grouped = new Map<string, Asset[]>();
+    assets.forEach((asset) => {
+      const state = asset.state || 'Unspecified State';
+      if (!grouped.has(state)) grouped.set(state, []);
+      grouped.get(state)!.push(asset);
+    });
+    
+    return Array.from(grouped.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([state, items]) => ({
+        state,
+        assets: items.sort((a, b) => (a.category || '').localeCompare(b.category || '')),
+      }));
   };
 
-  // Format date
-  const formatDate = (date: { day: number; month: number; year: number }) => {
-    return `${String(date.day).padStart(2, '0')}/${String(date.month).padStart(2, '0')}/${date.year}`;
+  // Status styling
+  const getStatusStyle = (status: string) => {
+    const map: Record<string, { label: string; color: string; bg: string }> = {
+      approved: { label: 'Approved', color: '#4caf50', bg: 'rgba(76,175,80,0.15)' },
+      pending: { label: 'Pending', color: '#ff9800', bg: 'rgba(255,152,0,0.15)' },
+      pending_ministry_review: { label: 'Ministry Review', color: '#2196f3', bg: 'rgba(33,150,243,0.15)' },
+      submitted_to_federal: { label: 'Submitted Federal', color: '#9c27b0', bg: 'rgba(156,39,176,0.15)' },
+      rejected: { label: 'Rejected', color: '#f44336', bg: 'rgba(244,67,54,0.15)' },
+    };
+    return map[status] ?? { label: status, color: '#aaa', bg: 'rgba(255,255,255,0.08)' };
   };
 
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return `₦${amount.toLocaleString()}`;
+  // Condition styling
+  const getConditionStyle = (condition?: string | null) => {
+    if (!condition) return { color: 'rgba(255,255,255,0.3)', bg: 'transparent', border: 'transparent' };
+    const l = condition.toLowerCase();
+    if (l.includes('excellent') || l.includes('good'))
+      return { color: '#4caf50', bg: 'rgba(76,175,80,0.15)', border: 'rgba(76,175,80,0.3)' };
+    if (l.includes('fair') || l.includes('average'))
+      return { color: '#ff9800', bg: 'rgba(255,152,0,0.15)', border: 'rgba(255,152,0,0.3)' };
+    if (l.includes('poor') || l.includes('bad') || l.includes('dilapidated'))
+      return { color: '#f44336', bg: 'rgba(244,67,54,0.15)', border: 'rgba(244,67,54,0.3)' };
+    return { color: '#90caf9', bg: 'rgba(144,202,249,0.12)', border: 'rgba(144,202,249,0.3)' };
   };
 
-  // Paginate
-  const paginatedAssets = assets.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  // Pagination removed in favor of state grouping
 
   if (loading) {
     return (
@@ -362,7 +1097,11 @@ const ReviewUploadsPage = () => {
             {/* Tabs: Pending vs History */}
             <Tabs
               value={activeTab}
-              onChange={(_e, v) => { setActiveTab(v); setPage(0); }}
+              onChange={(_e, v) => {
+                setActiveTab(v);
+                if (v === 1) setSearchParams({ tab: 'history' }, { replace: true });
+                else setSearchParams({}, { replace: true });
+              }}
               sx={{
                 mb: 2,
                 '& .MuiTab-root': { color: 'rgba(255,255,255,0.6)' },
@@ -401,7 +1140,7 @@ const ReviewUploadsPage = () => {
               </Box>
             </Paper>
 
-            {/* Assets Table */}
+            {/* Assets Table - Grouped by State */}
             {assets.length === 0 ? (
               <Paper elevation={0} sx={{ p: 5, textAlign: 'center' }}>
                 <CheckCircle sx={{ fontSize: 60, color: '#00ff88', mb: 2 }} />
@@ -415,114 +1154,28 @@ const ReviewUploadsPage = () => {
                 </Typography>
               </Paper>
             ) : (
-              <Paper elevation={0} sx={{ p: { xs: 1, sm: 2 } }}>
-                <TableContainer sx={{ overflowX: 'auto', maxWidth: '100%' }}>
-                  <Table size="small" sx={{ minWidth: 800 }}>
-                    <TableHead>
-                      <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Asset ID</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Description</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Category</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Location</TableCell>
-                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Purchase Date</TableCell>
-                        <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Cost</TableCell>
-                        <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {paginatedAssets.map((asset) => (
-                        <TableRow
-                          key={asset.id}
-                          sx={{
-                            '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.1)' },
-                            borderBottom: '1px solid rgba(0, 135, 81, 0.1)',
-                          }}
-                        >
-                          <TableCell>
-                            <Typography variant="body2" sx={{ color: '#00ff88', fontWeight: 600 }}>
-                              {asset.assetId}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ color: '#FFFFFF' }}>{asset.description}</TableCell>
-                          <TableCell>
-                            <Chip
-                              label={asset.category}
-                              size="small"
-                              sx={{
-                                backgroundColor: 'rgba(0, 135, 81, 0.1)',
-                                color: 'rgba(255, 255, 255, 0.8)',
-                                border: '1px solid rgba(0, 135, 81, 0.3)',
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{asset.location}</TableCell>
-                          <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{formatDate(asset.purchasedDate)}</TableCell>
-                          <TableCell align="right" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
-                            {formatCurrency(asset.purchaseCost)}
-                          </TableCell>
-                          <TableCell align="center">
-                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                              <Tooltip title="View Details">
-                                <IconButton
-                                  size="small"
-                                  component={Link}
-                                  to={`/assets/view/${asset.id}`}
-                                  sx={{ color: '#00ff88' }}
-                                >
-                                  <Visibility />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Approve">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => asset.id && handleApprove(asset.id)}
-                                  disabled={processingId === asset.id || processingId === 'all'}
-                                  sx={{
-                                    color: '#4caf50',
-                                    '&:hover': { backgroundColor: 'rgba(76, 175, 80, 0.1)' },
-                                    '&.Mui-disabled': { color: 'rgba(76, 175, 80, 0.3)' },
-                                  }}
-                                >
-                                  <CheckCircle />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Reject">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleRejectClick(asset)}
-                                  disabled={processingId === asset.id || processingId === 'all'}
-                                  sx={{
-                                    color: '#f44336',
-                                    '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.1)' },
-                                    '&.Mui-disabled': { color: 'rgba(244, 67, 54, 0.3)' },
-                                  }}
-                                >
-                                  <Cancel />
-                                </IconButton>
-                              </Tooltip>
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-
-                {/* Pagination */}
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 25, 50]}
-                  component="div"
-                  count={assets.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                  sx={{
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    '.MuiTablePagination-selectIcon': { color: 'rgba(255, 255, 255, 0.7)' },
-                  }}
-                />
-              </Paper>
+              <Box sx={{ p: { xs: 1, sm: 2 } }}>
+                {groupAssetsByState(assets).map((group, groupIndex) => {
+                  const serial = groupAssetsByState(assets)
+                    .slice(0, groupIndex)
+                    .reduce((total, g) => total + g.assets.length, 0);
+                  
+                  return (
+                    <StateGroup
+                      key={group.state}
+                      state={group.state}
+                      assets={group.assets}
+                      serial={serial}
+                      onApprove={handleApprove}
+                      onReject={handleRejectClick}
+                      processingId={processingId}
+                      calculateCurrentValue={calculateCurrentValue}
+                      getConditionStyle={getConditionStyle}
+                      uploaderUuids={uploaderUuids}
+                    />
+                  );
+                })}
+              </Box>
             )}
             </>
             )}
@@ -539,67 +1192,26 @@ const ReviewUploadsPage = () => {
                     </Typography>
                   </Paper>
                 ) : (
-                  <Paper elevation={0} sx={{ p: { xs: 1, sm: 2 } }}>
-                    <TableContainer sx={{ overflowX: 'auto', maxWidth: '100%' }}>
-                      <Table size="small" sx={{ minWidth: 800 }}>
-                        <TableHead>
-                          <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Asset ID</TableCell>
-                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Description</TableCell>
-                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Category</TableCell>
-                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Location</TableCell>
-                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Cost</TableCell>
-                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Status</TableCell>
-                            <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Rejection Reason</TableCell>
-                            <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>View</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {allAssets
-                            .filter(a => a.status !== 'pending')
-                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((asset) => (
-                              <TableRow key={asset.id} sx={{ '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
-                                <TableCell>
-                                  <Typography variant="body2" sx={{ color: '#00ff88', fontWeight: 600 }}>{asset.assetId}</Typography>
-                                </TableCell>
-                                <TableCell sx={{ color: '#FFFFFF' }}>{asset.description}</TableCell>
-                                <TableCell>
-                                  <Chip label={asset.category} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.1)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(0,135,81,0.3)' }} />
-                                </TableCell>
-                                <TableCell sx={{ color: 'rgba(255,255,255,0.8)' }}>{asset.location}</TableCell>
-                                <TableCell sx={{ color: '#FFFFFF', fontWeight: 600 }}>{formatCurrency(asset.purchaseCost)}</TableCell>
-                                <TableCell>
-                                  {asset.status === 'approved' && <Chip label="Approved" size="small" sx={{ backgroundColor: 'rgba(76,175,80,0.15)', color: '#4caf50', border: '1px solid rgba(76,175,80,0.3)' }} />}
-                                  {asset.status === 'pending_ministry_review' && <Chip label="Ministry Review" size="small" sx={{ backgroundColor: 'rgba(33,150,243,0.15)', color: '#2196f3', border: '1px solid rgba(33,150,243,0.3)' }} />}
-                                  {asset.status === 'rejected' && <Chip label="Rejected" size="small" sx={{ backgroundColor: 'rgba(244,67,54,0.15)', color: '#f44336', border: '1px solid rgba(244,67,54,0.3)' }} />}
-                                </TableCell>
-                                <TableCell sx={{ color: 'rgba(255,100,100,0.9)', fontSize: '0.8rem', maxWidth: 200 }}>
-                                  {asset.rejectionReason || '—'}
-                                </TableCell>
-                                <TableCell align="center">
-                                  <Tooltip title="View Details">
-                                    <IconButton size="small" component={Link} to={`/assets/view/${asset.id}`} sx={{ color: '#00ff88' }}>
-                                      <Visibility />
-                                    </IconButton>
-                                  </Tooltip>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                    <TablePagination
-                      rowsPerPageOptions={[5, 10, 25, 50]}
-                      component="div"
-                      count={allAssets.filter(a => a.status !== 'pending').length}
-                      rowsPerPage={rowsPerPage}
-                      page={page}
-                      onPageChange={handleChangePage}
-                      onRowsPerPageChange={handleChangeRowsPerPage}
-                      sx={{ color: 'rgba(255,255,255,0.7)', '.MuiTablePagination-selectIcon': { color: 'rgba(255,255,255,0.7)' } }}
-                    />
-                  </Paper>
+                  <Box sx={{ p: { xs: 1, sm: 2 } }}>
+                    {groupAssetsByState(allAssets.filter(a => a.status !== 'pending')).map((group, groupIndex) => {
+                      const serial = groupAssetsByState(allAssets.filter(a => a.status !== 'pending'))
+                        .slice(0, groupIndex)
+                        .reduce((total, g) => total + g.assets.length, 0);
+                      
+                      return (
+                        <HistoryStateGroup
+                          key={group.state}
+                          state={group.state}
+                          assets={group.assets}
+                          serial={serial}
+                          calculateCurrentValue={calculateCurrentValue}
+                          getConditionStyle={getConditionStyle}
+                          getStatusStyle={getStatusStyle}
+                          uploaderUuids={uploaderUuids}
+                        />
+                      );
+                    })}
+                  </Box>
                 )}
               </>
             )}

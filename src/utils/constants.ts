@@ -14,6 +14,31 @@ export const ASSET_CATEGORIES: AssetCategory[] = [
   'Others',
 ];
 
+/**
+ * Fallback when Firestore `categories` docs are missing or have no `requiredFields`
+ * (e.g. after manual deletes in console). Keeps upload/edit flows working offline-of-seed.
+ */
+export const DEFAULT_CATEGORY_REQUIRED_FIELDS: Record<AssetCategory, string[]> = {
+  'Office Equipment': ['itemType', 'quantity'],
+  'Furniture & Fittings': ['itemType', 'quantity'],
+  'Motor Vehicle': [
+    'make',
+    'model',
+    'vehicleYear',
+    'registrationNumber',
+    'engineNumber',
+    'chassisNumber',
+    'colour',
+  ],
+  'Plant/Generator': ['equipmentType'],
+  'Building': ['buildingType', 'numberOfFloors', 'buildingUse'],
+  'Land': ['landTitleType', 'surveyPlanNumber'],
+  'Infrastructure': ['infrastructureType', 'length', 'width'],
+  'Extractive Assets': ['extractiveType', 'licenceNumber'],
+  'Securities/Financial Assets': ['securityType', 'faceValue', 'issuer'],
+  Others: [],
+};
+
 // Land Title Types
 export const LAND_TITLE_TYPES = [
   'R of O (Right of Occupancy)',

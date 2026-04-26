@@ -115,7 +115,8 @@ export const createAsset = async (
   userEmail?: string,
   userRole?: 'agency' | 'agency-approver' | 'ministry-admin' | 'admin',
   ministryId?: string,
-  ministryType?: string
+  ministryType?: string,
+  uploaderDisplayId?: string
 ): Promise<string> => {
   try {
     // Fetch category details to get required fields
@@ -146,6 +147,7 @@ export const createAsset = async (
       // Approval workflow fields
       status: 'pending', // New uploads start as pending
       uploadedBy: userId,
+      ...(uploaderDisplayId ? { uploaderDisplayId } : {}),
     };
 
     // Persist shared form fields for reporting and downstream workflows

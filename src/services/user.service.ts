@@ -333,7 +333,7 @@ export const getPendingUsersForMinistry = async (ministryId: string): Promise<Us
 export const approveUserByMinistryAdmin = async (
   userId: string,
   _ministryAdminId: string // Not needed - Cloud Function gets from auth context
-): Promise<{ uuid: string; userEmail: string; userName: string }> => {
+): Promise<{ uuid: string; displayId: string; userEmail: string; userName: string }> => {
   const { approveStaffByMinistryAdminCF, refreshUserToken } = await import('./cloudFunctions.service');
 
   try {
@@ -348,7 +348,8 @@ export const approveUserByMinistryAdmin = async (
     }
 
     return {
-      uuid: result.uuid || '',
+      uuid: result.displayId || result.uuid || '', // Prefer displayId over old uuid
+      displayId: result.displayId || '',
       userEmail: result.userEmail || '',
       userName: result.userName || '',
     };
@@ -408,12 +409,28 @@ export const changeStaffRole = async (
   newRole: 'agency' | 'agency-approver'
 ): Promise<void> => {
   const { changeStaffRoleCF } = await import('./cloudFunctions.service');
-
+  
   try {
     await changeStaffRoleCF(userId, newRole);
   } catch (error: any) {
     console.error('Error changing staff role:', error);
     throw new Error(error.message || 'Failed to change staff role');
+  }
+};
+
+/**
+ * Search staff by display ID (Ministry Admin)
+ * Search for staff using their short display ID (e.g., "EDU-STF-001")
+ */
+export const searchStaffByDisplayId = async (displayId: string) => {
+  const { searchStaffByDisplayIdCF } = await import('./cloudFunctions.service');
+  
+  try {
+    const result = await searchStaffByDisplayIdCF(displayId);
+    return result;
+  } catch (error: any) {
+    console.error('Error searching staff by display ID:', error);
+    throw new Error(error.message || 'Failed to search staff');
   }
 };
 

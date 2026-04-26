@@ -71,6 +71,9 @@ service cloud.firestore {
       // Ministry admin can read users in their ministry
       allow read: if isMinistryAdmin() && resource.data.ministryId == getUserMinistryId();
 
+      // Approver can read users in their ministry (needed to resolve uploader display IDs)
+      allow read: if isApprover() && resource.data.ministryId == getUserMinistryId();
+
       // Users can create their own account (during registration)
       allow create: if isAuthenticated() && request.auth.uid == userId;
 
