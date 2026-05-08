@@ -42,6 +42,9 @@ thumbs.db
 
 # Environment variables (NEVER commit these!)
 .env
+.env.*
+!.env.example
+!.env.*.example
 .env.local
 .env.production
 .env.development
@@ -55,6 +58,7 @@ firestore-debug.log
 ui-debug.log
 functions/lib/
 serviceAccountKey.json
+serviceAccount*.json
 
 # Testing
 coverage/

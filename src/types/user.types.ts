@@ -15,8 +15,11 @@ export interface User {
   name?: string; // Full name of the user
   ministryId: string; // Reference to ministry document (empty for ministry-admin until ministry created)
   ministryType: string; // Ministry/Body type they fall under
-  agencyName: string; // Specific agency/department/parastatal (ministry name for ministry-admin)
+  agencyName: string; // Staff agency/department/parastatal (ministry name for ministry-admin and older records)
+  ministryName?: string; // Parent ministry name for staff accounts
+  staffAgencyName?: string; // Explicit staff agency under the parent ministry
   location: string; // HQ physical address
+  state?: string; // State workflow lane this staff member uploads/reviews for
   role: UserRole;
   createdAt: Timestamp;
   emailVerified: boolean;
@@ -48,8 +51,11 @@ export interface UserRegistrationData {
   password: string;
   ministryId: string; // Selected ministry ID
   ministryType: string; // Ministry/Body type (copied from ministry)
-  agencyName: string; // Specific agency/department/parastatal (copied from ministry)
+  agencyName: string; // Staff agency/department/parastatal selected by the user
+  ministryName?: string; // Parent ministry name copied from the selected ministry
+  staffAgencyName?: string; // Explicit staff agency under the parent ministry
   location: string; // HQ physical address (copied from ministry)
+  state: string; // State workflow lane this staff member uploads/reviews for
   role: UserRole; // User selects their role during registration
 }
 

@@ -110,7 +110,8 @@ const calculateRiskScore = (asset: Asset): number => {
 export const fetchAssetsForReport = async (
   filters: ReportFilters,
   isMinistryAdmin: boolean,
-  userMinistryId?: string
+  userMinistryId?: string,
+  userState?: string
 ): Promise<Asset[]> => {
   try {
     const assetsRef = collection(db, ASSETS_COLLECTION);
@@ -118,7 +119,10 @@ export const fetchAssetsForReport = async (
 
     // Use filtered query for ministry admin (Firestore rules only allow reading own ministry assets)
     if (isMinistryAdmin && userMinistryId) {
-      const q = query(assetsRef, where('ministryId', '==', userMinistryId));
+      // Approvers (state deployments) are additionally constrained by state in Firestore rules.
+      const q = userState
+        ? query(assetsRef, where('ministryId', '==', userMinistryId), where('state', '==', userState))
+        : query(assetsRef, where('ministryId', '==', userMinistryId));
       const querySnapshot = await getDocs(q);
       assets = querySnapshot.docs.map((doc) => ({
         ...doc.data(),
@@ -234,9 +238,10 @@ export const fetchAuditLogsForReport = async (
 export const generateAssetInventoryReport = async (
   filters: ReportFilters,
   isMinistryAdmin: boolean,
-  userMinistryId?: string
+  userMinistryId?: string,
+  userState?: string
 ): Promise<AssetInventoryData> => {
-  const assets = await fetchAssetsForReport(filters, isMinistryAdmin, userMinistryId);
+  const assets = await fetchAssetsForReport(filters, isMinistryAdmin, userMinistryId, userState);
 
   const totalValue = assets.reduce((sum, a) => sum + (a.marketValue || a.purchaseCost || 0), 0);
 
@@ -331,6 +336,7 @@ export const generateAssetInventoryReport = async (
                      ?? a.ministryName // denormalised field on Asset
                      ?? null,
     agency:          a.agency          // dynamic field saved by the form
+                     ?? a.staffAgencyName
                      ?? a.agencyName   // denormalised field on Asset
                      ?? null,
     department:      a.department
@@ -338,6 +344,7 @@ export const generateAssetInventoryReport = async (
                      ?? null,
     // Keep raw copies for any code that reads the original field names
     agencyName:      a.agencyName ?? null,
+    staffAgencyName: a.staffAgencyName ?? null,
     ministryName:    a.ministryName ?? a.agencyName ?? null,
     ministryId:      a.ministryId ?? null,
  
@@ -423,9 +430,10 @@ export const generateAssetInventoryReport = async (
 export const generateValuationReport = async (
   filters: ReportFilters,
   isMinistryAdmin: boolean,
-  userMinistryId?: string
+  userMinistryId?: string,
+  userState?: string
 ): Promise<ValuationData> => {
-  const assets = await fetchAssetsForReport(filters, isMinistryAdmin, userMinistryId);
+  const assets = await fetchAssetsForReport(filters, isMinistryAdmin, userMinistryId, userState);
 
   // Calculate totals
   const totalAcquisitionCost = assets.reduce((sum, a) => sum + (a.purchaseCost || 0), 0);
@@ -546,7 +554,8 @@ export const generateValuationReport = async (
 export const generateAuditReport = async (
   filters: ReportFilters,
   isMinistryAdmin: boolean,
-  userMinistryId?: string
+  userMinistryId?: string,
+  _userState?: string
 ): Promise<AuditData> => {
   const logs = await fetchAuditLogsForReport(filters, isMinistryAdmin, userMinistryId);
 
@@ -661,9 +670,10 @@ export const generateAuditReport = async (
 export const generateUtilizationReport = async (
   filters: ReportFilters,
   isMinistryAdmin: boolean,
-  userMinistryId?: string
+  userMinistryId?: string,
+  userState?: string
 ): Promise<UtilizationData> => {
-  const assets = await fetchAssetsForReport(filters, isMinistryAdmin, userMinistryId);
+  const assets = await fetchAssetsForReport(filters, isMinistryAdmin, userMinistryId, userState);
 
   // Calculate risk scores for all assets
   const assetsWithMetrics = assets.map((asset) => ({
@@ -930,7 +940,8 @@ export const generateReport = async (
   userEmail: string,
   isMinistryAdmin: boolean,
   userMinistryId?: string,
-  ministryName?: string
+  ministryName?: string,
+  userState?: string
 ): Promise<GeneratedReport> => {
   const { reportType } = filters;
 
@@ -939,19 +950,19 @@ export const generateReport = async (
 
   if (reportType === 'asset_inventory') {
     title = 'Asset Inventory Report';
-    data = await generateAssetInventoryReport(filters, isMinistryAdmin, userMinistryId);
+    data = await generateAssetInventoryReport(filters, isMinistryAdmin, userMinistryId, userState);
   } else if (reportType === 'valuation_depreciation') {
     title = 'Valuation & Depreciation Report';
-    data = await generateValuationReport(filters, isMinistryAdmin, userMinistryId);
+    data = await generateValuationReport(filters, isMinistryAdmin, userMinistryId, userState);
   } else if (reportType === 'audit_compliance') {
     title = 'Audit & Compliance Report';
     data = await generateAuditReport(filters, isMinistryAdmin, userMinistryId);
   } else if (reportType === 'utilization_risk') {
     title = 'Utilization & Risk Analysis Report';
-    data = await generateUtilizationReport(filters, isMinistryAdmin, userMinistryId);
+    data = await generateUtilizationReport(filters, isMinistryAdmin, userMinistryId, userState);
   } else {
     title = 'Custom Report';
-    data = await generateAssetInventoryReport(filters, isMinistryAdmin, userMinistryId);
+    data = await generateAssetInventoryReport(filters, isMinistryAdmin, userMinistryId, userState);
   }
 
   const insights = generateReportInsights(reportType, data);
@@ -973,11 +984,13 @@ export const generateReport = async (
 /**
  * Get all unique locations from assets
  */
-export const getUniqueLocations = async (ministryId?: string): Promise<string[]> => {
+export const getUniqueLocations = async (ministryId?: string, state?: string): Promise<string[]> => {
   try {
     const assetsRef = collection(db, ASSETS_COLLECTION);
     const q = ministryId
-      ? query(assetsRef, where('ministryId', '==', ministryId))
+      ? (state
+          ? query(assetsRef, where('ministryId', '==', ministryId), where('state', '==', state))
+          : query(assetsRef, where('ministryId', '==', ministryId)))
       : assetsRef;
     const querySnapshot = await getDocs(q);
 

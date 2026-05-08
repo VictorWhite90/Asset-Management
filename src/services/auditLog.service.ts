@@ -10,8 +10,9 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { AuditLog, AuditAction, ResourceType, AuditLogFilters } from '@/types/auditLog.types';
+import { deploymentLabels, isStateDeployment } from '@/utils/deployment';
 
-const AUDIT_LOGS_COLLECTION = 'audit_logs';
+const AUDIT_LOGS_COLLECTION = 'auditLogs';
 
 /**
  * Log an action to the audit trail
@@ -186,11 +187,11 @@ export const formatAction = (action: AuditAction): string => {
     // Asset actions
     'asset.upload': 'Uploaded Asset',
     'asset.approve': 'Approved Asset',
-    'asset.approve_by_ministry': 'Sent Asset to Federal Admin',
-    'asset.approve_by_federal': 'Approved Asset (Federal)',
+    'asset.approve_by_ministry': `Sent Asset to ${deploymentLabels.topAdminShort}`,
+    'asset.approve_by_federal': `Approved Asset (${isStateDeployment ? 'State' : 'Federal'})`,
     'asset.reject': 'Rejected Asset',
     'asset.reject_by_ministry': 'Rejected Asset (Ministry)',
-    'asset.reject_by_federal': 'Rejected Asset (Federal)',
+    'asset.reject_by_federal': `Rejected Asset (${isStateDeployment ? 'State' : 'Federal'})`,
     'asset.edit': 'Edited Asset',
     'asset.view': 'Viewed Asset',
     'asset.delete': 'Deleted Asset',

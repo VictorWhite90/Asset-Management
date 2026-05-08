@@ -25,6 +25,7 @@ import {
   ERROR_MESSAGES
 } from '@/utils/constants';
 import { camelToTitle } from '@/utils/assetHelpers';
+import { deploymentState, isStateDeployment } from '@/utils/deployment';
 
 // All 36 states + FCT in Nigeria
 const NIGERIA_STATES = [
@@ -76,7 +77,9 @@ const baseSchema = {
     .min(3, 'Description must be at least 3 characters'),
   category: yup.string().required('Category is required').oneOf(ASSET_CATEGORIES),
   location: yup.string().required('Location is required').min(3, 'Location must be at least 3 characters'),
-  state: yup.string().required('State is required'),
+  state: isStateDeployment
+    ? yup.string().optional()
+    : yup.string().required('State is required'),
   ministry: yup
     .string()
     .required('Ministry is required')
@@ -141,6 +144,7 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
     reset,
     control,
     setError: setFormError,
+    setValue,
     unregister,
   } = useForm<any>({
     resolver: yupResolver(yup.object().shape(baseSchema)),
@@ -148,6 +152,15 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
   });
 
   const category = watch('category');
+
+  useEffect(() => {
+    if (!userData) return;
+    setValue('ministry', userData.ministryName || userData.agencyName || '');
+    setValue('agency', userData.staffAgencyName || userData.agencyName || '');
+    if (!isStateDeployment && userData.state) {
+      setValue('state', userData.state);
+    }
+  }, [userData, setValue]);
 
   // Load category details when category changes
   useEffect(() => {
@@ -213,13 +226,17 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
     setError(null);
 
     try {
+      const resolvedState = isStateDeployment
+        ? (userData.state || deploymentState || '').trim()
+        : String(data.state || '').trim();
+
       // Create asset form data with year only (day and month default to 1)
       const assetFormData: AssetFormData = {
         assetId: data.assetId?.trim() || undefined,
         description: data.description,
         category: data.category as AssetCategory,
         location: data.location,
-        state: data.state,           // new field
+        state: resolvedState,
         ministry: data.ministry,     // new field
         agency: data.agency,         // new field
         department: data.department,
@@ -255,13 +272,14 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
       await createAsset(
         assetFormData,
         userData.userId,
-        userData.agencyName,
+        userData.ministryName || userData.agencyName,
         false,
         currentUser?.email || undefined,
         userData.role,
         userData.ministryId, // Pass ministry ID for access control
         userData.ministryType, // Pass uploader's ministry type
-        userData.displayId // Store short display ID on asset for easy lookup
+        userData.displayId, // Store short display ID on asset for easy lookup
+        isStateDeployment ? resolvedState || userData.state : userData.state
       );
 
       // Success
@@ -368,29 +386,31 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
           />
         </Grid>
 
-        {/* State (Required) - Dropdown with all Nigerian states */}
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            fullWidth
-            select
-            id="state"
-            label="State"
-            defaultValue=""
-            {...register('state')}
-            error={!!errors.state}
-            helperText={errors.state?.message as string || 'State where the asset is located'}
-          >
-            <MenuItem value="" disabled>
-              Select State
-            </MenuItem>
-            {NIGERIA_STATES.map((state) => (
-              <MenuItem key={state} value={state}>
-                {state}
+        {/* State: federal only — state deployments already scoped to one state */}
+        {!isStateDeployment && (
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              select
+              id="state"
+              label="State"
+              defaultValue=""
+              {...register('state')}
+              error={!!errors.state}
+              helperText={(errors.state?.message as string) || 'State where the asset is located'}
+            >
+              <MenuItem value="" disabled>
+                Select State
               </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
+              {NIGERIA_STATES.map((state) => (
+                <MenuItem key={state} value={state}>
+                  {state}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        )}
 
         {/* Ministry (Required) */}
         <Grid item xs={12} sm={6}>
@@ -401,8 +421,9 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
             label="Ministry"
             placeholder="e.g., Ministry of Works and Housing"
             {...register('ministry')}
+            InputProps={isStateDeployment ? { readOnly: true } : undefined}
             error={!!errors.ministry}
-            helperText={errors.ministry?.message as string || 'Ministry responsible for this asset'}
+            helperText={errors.ministry?.message as string || (isStateDeployment ? 'Saved from your staff account' : 'Ministry responsible for this asset')}
           />
         </Grid>
 
@@ -413,10 +434,11 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
             fullWidth
             id="agency"
             label="Agency"
-            placeholder="e.g., Federal Roads Maintenance Agency"
+            placeholder={isStateDeployment ? 'e.g., Rivers State Roads Maintenance Agency' : 'e.g., Federal Roads Maintenance Agency'}
             {...register('agency')}
+            InputProps={isStateDeployment ? { readOnly: true } : undefined}
             error={!!errors.agency}
-            helperText={errors.agency?.message as string || 'Agency or department that owns this asset'}
+            helperText={errors.agency?.message as string || (isStateDeployment ? 'Saved from your staff account agency assignment' : 'Agency or department that owns this asset')}
           />
         </Grid>
 

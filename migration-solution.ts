@@ -168,3 +168,25 @@ function getMinistryCode(ministryName: string): string {
  * 
  * 3. Check the results to see all migrated users
  */
+
+
+
+
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyC7BdgTN-Mdr6_y2TIln5vpyUK6YoKltCY",
+  authDomain: "connectsphere-6e46a.firebaseapp.com",
+  projectId: "connectsphere-6e46a",
+  storageBucket: "connectsphere-6e46a.firebasestorage.app",
+  messagingSenderId: "625772276399",
+  appId: "1:625772276399:web:e29f040f9d711aa319025a"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);

@@ -1,4 +1,5 @@
 import { AssetCategory } from '@/types/asset.types';
+import { isStateDeployment } from '@/utils/deployment';
 
 // Asset Categories
 export const ASSET_CATEGORIES: AssetCategory[] = [
@@ -144,10 +145,10 @@ export const NIGERIAN_STATES = [
   'Zamfara',
 ];
 
-// Ministry/Agency Types (Federal Level Only)
+// Ministry/Agency Types
 export const MINISTRY_TYPES = [
-  'Federal Ministry',
-  'Federal Agency',
+  isStateDeployment ? 'State Ministry' : 'Federal Ministry',
+  isStateDeployment ? 'State Agency' : 'Federal Agency',
   'Parastatal',
   'Department',
   'Commission',

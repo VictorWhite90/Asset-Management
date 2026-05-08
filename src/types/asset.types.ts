@@ -26,6 +26,7 @@ export interface Asset {
   agencyId: string; // Reference to user who uploaded
   ministryId: string; // Reference to ministry document (for multi-user ministry access)
   agencyName?: string; // Denormalized for quick display (e.g., "Ministry of Works")
+  staffAgencyName?: string; // Explicit agency lane for state ministry staff
   region?: string; // Uploader's state (e.g., "Abuja", "Lagos") - for approver matching
   ministryType?: string; // Uploader's ministry type (e.g., "Federal Agency")
   description: string;
@@ -45,6 +46,7 @@ export interface Asset {
   uploadedBy: string; // userId of uploader
   uploaderDisplayId?: string; // Short display ID of uploader e.g. "EDU-STF-0001"
   uploadTimestamp: Timestamp;
+  uploadedAt?: Timestamp; // Backward-compatible alias used by older reports/admin filters
 
   // Approver action (Agency Approver sends to Ministry Admin)
   approvedBy?: string; // userId of agency approver (if approved by approver)

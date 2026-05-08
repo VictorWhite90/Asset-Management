@@ -16,6 +16,27 @@ import { Category } from '@/types/category.types';
 import { COLLECTIONS, ERROR_MESSAGES } from '@/utils/constants';
 import { isValidAssetDate, sanitizeDocumentId, generateAssetId } from '@/utils/assetHelpers';
 import { logAction } from './auditLog.service';
+import { deploymentLabels, isStateDeployment } from '@/utils/deployment';
+
+/**
+ * Top-level admin dashboards (state vs federal) only show registry-eligible assets —
+ * not pending uploads still in agency/ministry workflow.
+ */
+export const assetsVisibleOnTopAdminRegistry = (assets: Asset[]): Asset[] => {
+  if (isStateDeployment) {
+    return assets.filter((a) => a.status === 'approved');
+  }
+  return assets.filter(
+    (a) => a.status === 'submitted_to_federal' || a.status === 'approved'
+  );
+};
+
+const toAssetDate = (value: unknown): Date => {
+  if (value && typeof value === 'object' && 'toDate' in value && typeof (value as { toDate: unknown }).toDate === 'function') {
+    return (value as { toDate: () => Date }).toDate();
+  }
+  return new Date((value as string | number | Date | undefined) || 0);
+};
 
 /**
  * Fetch category details from Firestore by category name
@@ -110,13 +131,14 @@ export const validateAssetData = (
 export const createAsset = async (
   assetData: AssetFormData,
   userId: string,
-  agencyName: string,
+  ministryName: string,
   skipCategoryValidation: boolean = false,
   userEmail?: string,
   userRole?: 'agency' | 'agency-approver' | 'ministry-admin' | 'admin',
   ministryId?: string,
   ministryType?: string,
-  uploaderDisplayId?: string
+  uploaderDisplayId?: string,
+  uploaderState?: string
 ): Promise<string> => {
   try {
     // Fetch category details to get required fields
@@ -130,19 +152,23 @@ export const createAsset = async (
     // Generate asset ID if not provided
     const assetId = assetData.assetId?.trim() || generateAssetId();
 
+    const uploadTime = Timestamp.now();
+
     // Prepare asset document (base required fields)
     const assetDocument: Record<string, unknown> = {
       assetId,
       agencyId: userId,
       ministryId: ministryId || '', // Required for ministry-level access control
-      agencyName,
+      agencyName: ministryName,
       ministryType, // Uploader's ministry type
       description: assetData.description,
       category: assetData.category,
       location: assetData.location,
+      state: uploaderState || assetData.state || '',
       purchasedDate: assetData.purchasedDate,
       purchaseCost: assetData.purchaseCost,
-      uploadTimestamp: Timestamp.now(),
+      uploadTimestamp: uploadTime,
+      uploadedAt: uploadTime,
 
       // Approval workflow fields
       status: 'pending', // New uploads start as pending
@@ -151,14 +177,13 @@ export const createAsset = async (
     };
 
     // Persist shared form fields for reporting and downstream workflows
-    if (assetData.state !== undefined && assetData.state !== null && String(assetData.state).trim() !== '') {
-      assetDocument.state = String(assetData.state).trim();
-    }
     if (assetData.ministry !== undefined && assetData.ministry !== null && String(assetData.ministry).trim() !== '') {
       assetDocument.ministry = String(assetData.ministry).trim();
     }
     if (assetData.agency !== undefined && assetData.agency !== null && String(assetData.agency).trim() !== '') {
-      assetDocument.agency = String(assetData.agency).trim();
+      const assetAgency = String(assetData.agency).trim();
+      assetDocument.agency = assetAgency;
+      assetDocument.staffAgencyName = assetAgency;
     }
     if (assetData.department !== undefined && assetData.department !== null && String(assetData.department).trim() !== '') {
       assetDocument.department = String(assetData.department).trim();
@@ -200,7 +225,7 @@ export const createAsset = async (
       await logAction({
         userId,
         userEmail,
-        agencyName,
+        agencyName: ministryName,
         userRole,
         action: 'asset.upload',
         resourceType: 'asset',
@@ -280,12 +305,14 @@ export const getAgencyAssets = async (userId: string): Promise<Asset[]> => {
  * @param ministryId - Ministry ID to filter assets
  * @returns Array of assets from the same ministry
  */
-export const getApproverAssets = async (ministryId: string): Promise<Asset[]> => {
+export const getApproverAssets = async (ministryId: string, state?: string): Promise<Asset[]> => {
   try {
     const assetsRef = collection(db, COLLECTIONS.ASSETS);
     // Query by ministryId - this matches the security rule that allows
     // approvers to read assets from their ministry
-    const q = query(assetsRef, where('ministryId', '==', ministryId));
+    const q = state
+      ? query(assetsRef, where('ministryId', '==', ministryId), where('state', '==', state))
+      : query(assetsRef, where('ministryId', '==', ministryId));
     const querySnapshot = await getDocs(q);
 
     return querySnapshot.docs.map((doc) => ({
@@ -367,15 +394,22 @@ export const getAssetById = async (assetId: string): Promise<Asset> => {
  * @param ministryId - Ministry ID to filter assets by
  * @returns Array of pending assets from the ministry
  */
-export const getPendingAssets = async (ministryId: string): Promise<Asset[]> => {
+export const getPendingAssets = async (ministryId: string, state?: string): Promise<Asset[]> => {
   try {
     const assetsRef = collection(db, COLLECTIONS.ASSETS);
     // Query by ministryId to match security rules for approvers
-    const q = query(
-      assetsRef,
-      where('ministryId', '==', ministryId),
-      where('status', '==', 'pending')
-    );
+    const q = state
+      ? query(
+          assetsRef,
+          where('ministryId', '==', ministryId),
+          where('state', '==', state),
+          where('status', '==', 'pending')
+        )
+      : query(
+          assetsRef,
+          where('ministryId', '==', ministryId),
+          where('status', '==', 'pending')
+        );
     const querySnapshot = await getDocs(q);
 
     return querySnapshot.docs.map((doc) => ({
@@ -455,7 +489,9 @@ export const approveAsset = async (
       throw new Error(`Cannot approve asset with status "${asset.status}". Asset must be in "pending" status.`);
     }
 
-    // WORKFLOW: Approver approves → goes directly to Federal Admin
+    // WORKFLOW NOTE: current live flow keeps issue #1 behavior:
+    // Approver approval sends assets directly to Federal Admin, bypassing the
+    // unused pending_ministry_review service path below.
     await updateDoc(assetRef, {
       status: 'submitted_to_federal',
       approvedBy: approverId,
@@ -472,7 +508,7 @@ export const approveAsset = async (
         action: 'asset.approve',
         resourceType: 'asset',
         resourceId: assetId,
-        details: `Approved asset and submitted to Federal Admin: ${asset.description} (${asset.assetId})`,
+        details: `Approved asset and submitted to ${deploymentLabels.topAdminShort}: ${asset.description} (${asset.assetId})`,
         metadata: {
           assetId: asset.assetId,
           category: asset.category,
@@ -611,6 +647,8 @@ export const updateRejectedAsset = async (
       throw new Error('You can only update your own assets');
     }
 
+    const resubmissionTime = Timestamp.now();
+
     // Reset to pending status and clear rejection fields
     await updateDoc(assetRef, {
       ...assetData,
@@ -618,7 +656,8 @@ export const updateRejectedAsset = async (
       rejectedBy: null,
       rejectedAt: null,
       rejectionReason: null,
-      uploadTimestamp: Timestamp.now(), // Update timestamp for resubmission
+      uploadTimestamp: resubmissionTime, // Update timestamp for resubmission
+      uploadedAt: resubmissionTime,
     });
 
     // Log the action
@@ -688,6 +727,11 @@ export const getAssetsByMinistry = async (
   try {
     let assets = await getAllAssets();
 
+    // Admin ministry summary: only assets that belong on the top-admin registry
+    if (!status) {
+      assets = assetsVisibleOnTopAdminRegistry(assets);
+    }
+
     // Exclude rejected assets by default unless explicitly filtering for them
     if (!status) {
       assets = assets.filter(a => a.status !== 'rejected');
@@ -752,7 +796,7 @@ export const getAssetsByMinistry = async (
  */
 export const getAllMinistries = async (): Promise<string[]> => {
   try {
-    const assets = await getAllAssets();
+    const assets = assetsVisibleOnTopAdminRegistry(await getAllAssets());
     const ministries = [...new Set(assets.map(a => a.agencyName).filter((name): name is string => !!name))];
     return ministries.sort();
   } catch (error: any) {
@@ -767,14 +811,13 @@ export const getAllMinistries = async (): Promise<string[]> => {
 export const getAdminDashboardStats = async (): Promise<AdminDashboardStats> => {
   try {
     const allAssets = await getAllAssets();
-    // Federal dashboard only counts assets that have reached federal level
-    const assets = allAssets.filter(a => a.status === 'submitted_to_federal' || a.status === 'approved');
+    const assets = assetsVisibleOnTopAdminRegistry(allAssets);
 
     const totalPurchaseValue = assets.reduce((sum, a) => sum + (a.purchaseCost || 0), 0);
     const totalMarketValue = assets.reduce((sum, a) => sum + (a.marketValue || 0), 0);
 
     const statusCounts = {
-      approved: assets.length, // All assets here are ministry-approved
+      approved: assets.length,
       rejected: allAssets.filter(a => a.status === 'rejected').length,
     };
 
@@ -785,8 +828,10 @@ export const getAdminDashboardStats = async (): Promise<AdminDashboardStats> => 
 
     const recentUploads = assets
       .sort((a, b) => {
-        const aTime = a.uploadedAt?.toDate?.() || new Date(a.uploadedAt);
-        const bTime = b.uploadedAt?.toDate?.() || new Date(b.uploadedAt);
+        const aRaw = a.uploadTimestamp || a.uploadedAt;
+        const bRaw = b.uploadTimestamp || b.uploadedAt;
+        const aTime = toAssetDate(aRaw);
+        const bTime = toAssetDate(bRaw);
         return bTime.getTime() - aTime.getTime();
       })
       .slice(0, 10);
@@ -852,7 +897,8 @@ export const getAgencyReportSummary = async (
     }
     if (yearFilter) {
       assets = assets.filter(a => {
-        const uploadDate = a.uploadedAt?.toDate?.() || new Date(a.uploadedAt);
+        const rawDate = a.uploadTimestamp || a.uploadedAt;
+        const uploadDate = toAssetDate(rawDate);
         return uploadDate.getFullYear().toString() === yearFilter;
       });
     }
@@ -880,7 +926,9 @@ export const getAgencyReportSummary = async (
 
       const yearBreakdown: Record<string, number> = {};
       categoryAssets.forEach(asset => {
-        const year = asset.uploadedAt?.toDate?.().getFullYear().toString() || 'Unknown';
+        const rawDate = asset.uploadTimestamp || asset.uploadedAt;
+        const date = toAssetDate(rawDate);
+        const year = date.getFullYear() ? date.getFullYear().toString() : 'Unknown';
         yearBreakdown[year] = (yearBreakdown[year] || 0) + 1;
       });
 
@@ -935,7 +983,8 @@ export const getAgencyAssetsByCategory = async (
 
     if (yearFilter) {
       assets = assets.filter(a => {
-        const uploadDate = a.uploadedAt?.toDate?.() || new Date(a.uploadedAt);
+        const rawDate = a.uploadTimestamp || a.uploadedAt;
+        const uploadDate = toAssetDate(rawDate);
         return uploadDate.getFullYear().toString() === yearFilter;
       });
     }
@@ -956,7 +1005,8 @@ export const getAgencyUploadYears = async (agencyId: string): Promise<string[]> 
     const years = new Set<string>();
 
     assets.forEach(asset => {
-      const uploadDate = asset.uploadedAt?.toDate?.() || new Date(asset.uploadedAt);
+      const rawDate = asset.uploadTimestamp || asset.uploadedAt;
+      const uploadDate = toAssetDate(rawDate);
       years.add(uploadDate.getFullYear().toString());
     });
 
@@ -1029,6 +1079,9 @@ export const approveAssetByMinistry = async (
   ministryAdminEmail?: string,
   agencyName?: string
 ): Promise<void> => {
+  // WORKFLOW NOTE: currently unused by the UI while issue #1 is intentionally
+  // left commented/parked. Keep this service available if ministry review is
+  // reintroduced later.
   try {
     const assetRef = doc(db, COLLECTIONS.ASSETS, assetId);
     const assetDoc = await getDoc(assetRef);
@@ -1062,7 +1115,7 @@ export const approveAssetByMinistry = async (
         action: 'asset.approve_by_ministry',
         resourceType: 'asset',
         resourceId: assetId,
-        details: `Approved asset at Ministry level and submitted to Federal: ${asset.description} (${asset.assetId})`,
+        details: `Approved asset at Ministry level and submitted to ${deploymentLabels.topAdminShort}: ${asset.description} (${asset.assetId})`,
         metadata: {
           assetId: asset.assetId,
           category: asset.category,
@@ -1185,6 +1238,9 @@ export const approveAssetByFederal = async (
   federalAdminId: string,
   federalAdminEmail?: string
 ): Promise<void> => {
+  // WORKFLOW NOTE: currently unused by the UI while issue #2 is intentionally
+  // left commented/parked. Federal-level status actions need a product decision
+  // before wiring this back into admin screens.
   try {
     const assetRef = doc(db, COLLECTIONS.ASSETS, assetId);
     const assetDoc = await getDoc(assetRef);
@@ -1211,12 +1267,12 @@ export const approveAssetByFederal = async (
       await logAction({
         userId: federalAdminId,
         userEmail: federalAdminEmail,
-        agencyName: 'Federal Asset Management Office',
+        agencyName: deploymentLabels.topAdminOffice,
         userRole: 'admin',
         action: 'asset.approve_by_federal',
         resourceType: 'asset',
         resourceId: assetId,
-        details: `Federal Admin approved asset: ${asset.description} (${asset.assetId})`,
+        details: `${deploymentLabels.topAdminShort} approved asset: ${asset.description} (${asset.assetId})`,
         metadata: { assetId: asset.assetId, category: asset.category },
       });
     }
@@ -1268,12 +1324,12 @@ export const rejectAssetByFederal = async (
       await logAction({
         userId: federalAdminId,
         userEmail: federalAdminEmail,
-        agencyName: 'Federal Asset Management Office',
+        agencyName: deploymentLabels.topAdminOffice,
         userRole: 'admin',
         action: 'asset.reject_by_federal',
         resourceType: 'asset',
         resourceId: assetId,
-        details: `Federal Admin rejected asset: ${asset.description} (${asset.assetId}). Reason: ${rejectionReason}`,
+        details: `${deploymentLabels.topAdminShort} rejected asset: ${asset.description} (${asset.assetId}). Reason: ${rejectionReason}`,
         metadata: { assetId: asset.assetId, category: asset.category, rejectionReason },
       });
     }

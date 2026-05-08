@@ -6,6 +6,7 @@ import {
   EmailTemplate,
   NotificationLog,
 } from '@/types/notification.types';
+import { deploymentLabels } from '@/utils/deployment';
 
 const NOTIFICATION_LOGS_COLLECTION = 'notification_logs';
 
@@ -36,7 +37,7 @@ const getEmailTemplate = (notification: NotificationData): EmailTemplate => {
           <p>Please review and approve or reject this asset.</p>
           <p><a href="${baseUrl}/review-uploads" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Review Asset</a></p>
 
-          <p>Thank you,<br/>Federal Asset Management System</p>
+          <p>Thank you,<br/>${deploymentLabels.systemName}</p>
         `,
         textBody: `
 New Asset Upload for Review
@@ -56,7 +57,7 @@ Please review and approve or reject this asset.
 Visit: ${baseUrl}/review-uploads
 
 Thank you,
-Federal Asset Management System
+${deploymentLabels.systemName}
         `,
       };
 
@@ -75,10 +76,10 @@ Federal Asset Management System
             <li><strong>Category:</strong> ${data.assetCategory}</li>
           </ul>
 
-          <p>The asset is now visible in the federal asset registry.</p>
+          <p>The asset is now visible in the ${deploymentLabels.registryName}.</p>
           <p><a href="${baseUrl}/agency-assets" style="background-color: #2e7d32; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">View My Assets</a></p>
 
-          <p>Thank you,<br/>Federal Asset Management System</p>
+          <p>Thank you,<br/>${deploymentLabels.systemName}</p>
         `,
         textBody: `
 Asset Approved
@@ -92,12 +93,12 @@ Asset Details:
 - Description: ${data.assetDescription}
 - Category: ${data.assetCategory}
 
-The asset is now visible in the federal asset registry.
+The asset is now visible in the ${deploymentLabels.registryName}.
 
 Visit: ${baseUrl}/agency-assets
 
 Thank you,
-Federal Asset Management System
+${deploymentLabels.systemName}
         `,
       };
 
@@ -120,7 +121,7 @@ Federal Asset Management System
           <p>You can edit and resubmit this asset.</p>
           <p><a href="${baseUrl}/agency-assets" style="background-color: #d32f2f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Edit & Resubmit</a></p>
 
-          <p>Thank you,<br/>Federal Asset Management System</p>
+          <p>Thank you,<br/>${deploymentLabels.systemName}</p>
         `,
         textBody: `
 Asset Rejected
@@ -140,7 +141,7 @@ You can edit and resubmit this asset.
 Visit: ${baseUrl}/agency-assets
 
 Thank you,
-Federal Asset Management System
+${deploymentLabels.systemName}
         `,
       };
 
@@ -163,7 +164,7 @@ Federal Asset Management System
           <p>Please review the updated submission.</p>
           <p><a href="${baseUrl}/review-uploads" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Review Asset</a></p>
 
-          <p>Thank you,<br/>Federal Asset Management System</p>
+          <p>Thank you,<br/>${deploymentLabels.systemName}</p>
         `,
         textBody: `
 Asset Resubmitted for Review
@@ -183,7 +184,7 @@ Please review the updated submission.
 Visit: ${baseUrl}/review-uploads
 
 Thank you,
-Federal Asset Management System
+${deploymentLabels.systemName}
         `,
       };
 
@@ -206,7 +207,7 @@ Federal Asset Management System
           <p>Please review and verify this user account.</p>
           <p><a href="${baseUrl}/admin/verify-users" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Verify User</a></p>
 
-          <p>Thank you,<br/>Federal Asset Management System</p>
+          <p>Thank you,<br/>${deploymentLabels.systemName}</p>
         `,
         textBody: `
 New User Registration
@@ -226,7 +227,7 @@ Please review and verify this user account.
 Visit: ${baseUrl}/admin/verify-users
 
 Thank you,
-Federal Asset Management System
+${deploymentLabels.systemName}
         `,
       };
 
@@ -241,7 +242,7 @@ Federal Asset Management System
           <p>You can now log in and approve asset uploads from your ministry.</p>
           <p><a href="${baseUrl}/login" style="background-color: #2e7d32; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Login to Dashboard</a></p>
 
-          <p>Thank you,<br/>Federal Asset Management System</p>
+          <p>Thank you,<br/>${deploymentLabels.systemName}</p>
         `,
         textBody: `
 Account Verified
@@ -255,7 +256,7 @@ You can now log in and approve asset uploads from your ministry.
 Visit: ${baseUrl}/login
 
 Thank you,
-Federal Asset Management System
+${deploymentLabels.systemName}
         `,
       };
 
@@ -269,9 +270,9 @@ Federal Asset Management System
 
           <p><strong>Reason:</strong> ${data.verificationReason || 'Not specified'}</p>
 
-          <p>If you believe this is an error, please contact your ministry administrator or the federal administrator.</p>
+          <p>If you believe this is an error, please contact your ministry administrator or the ${deploymentLabels.topAdminApprovalLower}.</p>
 
-          <p>Thank you,<br/>Federal Asset Management System</p>
+          <p>Thank you,<br/>${deploymentLabels.systemName}</p>
         `,
         textBody: `
 Account Registration Not Approved
@@ -282,10 +283,10 @@ Unfortunately, your approver account registration could not be approved.
 
 Reason: ${data.verificationReason || 'Not specified'}
 
-If you believe this is an error, please contact your ministry administrator or the federal administrator.
+If you believe this is an error, please contact your ministry administrator or the ${deploymentLabels.topAdminApprovalLower}.
 
 Thank you,
-Federal Asset Management System
+${deploymentLabels.systemName}
         `,
       };
 
@@ -308,7 +309,7 @@ Federal Asset Management System
           <p>Please review and verify this ministry registration.</p>
           <p><a href="${baseUrl}/admin/verify-ministries" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Verify Ministry</a></p>
 
-          <p>Thank you,<br/>Federal Asset Management System</p>
+          <p>Thank you,<br/>${deploymentLabels.systemName}</p>
         `,
         textBody: `
 New Ministry Registration
@@ -328,7 +329,7 @@ Please review and verify this ministry registration.
 Visit: ${baseUrl}/admin/verify-ministries
 
 Thank you,
-Federal Asset Management System
+${deploymentLabels.systemName}
         `,
       };
 
@@ -338,26 +339,26 @@ Federal Asset Management System
         htmlBody: `
           <h2>Ministry Verified</h2>
           <p>Hello,</p>
-          <p>Your ministry <strong>${data.ministryName}</strong> has been verified by the federal administrator.</p>
+          <p>Your ministry <strong>${data.ministryName}</strong> has been verified by the ${deploymentLabels.topAdminApprovalLower}.</p>
 
-          <p>Users from your ministry can now register and upload assets to the federal asset registry.</p>
+          <p>Users from your ministry can now register and upload assets to the ${deploymentLabels.registryName}.</p>
           <p><a href="${baseUrl}/register" style="background-color: #2e7d32; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Register User Account</a></p>
 
-          <p>Thank you,<br/>Federal Asset Management System</p>
+          <p>Thank you,<br/>${deploymentLabels.systemName}</p>
         `,
         textBody: `
 Ministry Verified
 
 Hello,
 
-Your ministry ${data.ministryName} has been verified by the federal administrator.
+Your ministry ${data.ministryName} has been verified by the ${deploymentLabels.topAdminApprovalLower}.
 
-Users from your ministry can now register and upload assets to the federal asset registry.
+Users from your ministry can now register and upload assets to the ${deploymentLabels.registryName}.
 
 Visit: ${baseUrl}/register
 
 Thank you,
-Federal Asset Management System
+${deploymentLabels.systemName}
         `,
       };
 
@@ -371,9 +372,9 @@ Federal Asset Management System
 
           <p><strong>Reason:</strong> ${data.verificationReason || 'Not specified'}</p>
 
-          <p>If you believe this is an error, please contact the federal administrator.</p>
+          <p>If you believe this is an error, please contact the ${deploymentLabels.topAdminApprovalLower}.</p>
 
-          <p>Thank you,<br/>Federal Asset Management System</p>
+          <p>Thank you,<br/>${deploymentLabels.systemName}</p>
         `,
         textBody: `
 Ministry Registration Not Approved
@@ -384,16 +385,16 @@ Unfortunately, the registration for ${data.ministryName} could not be approved.
 
 Reason: ${data.verificationReason || 'Not specified'}
 
-If you believe this is an error, please contact the federal administrator.
+If you believe this is an error, please contact the ${deploymentLabels.topAdminApprovalLower}.
 
 Thank you,
-Federal Asset Management System
+${deploymentLabels.systemName}
         `,
       };
 
     default:
       return {
-        subject: 'Notification from Federal Asset Management System',
+        subject: `Notification from ${deploymentLabels.systemName}`,
         htmlBody: '<p>You have a new notification.</p>',
         textBody: 'You have a new notification.',
       };

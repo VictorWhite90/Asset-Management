@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { deploymentLabels } from '@/utils/deployment';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -58,9 +59,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const getRoleDisplayName = (role: string) => {
     switch (role) {
       case 'admin':
-        return 'Federal Administrator';
+        return deploymentLabels.topAdminTitle;
       case 'ministry-admin':
-        return 'Ministry Administrator';
+        return deploymentLabels.ministryAdminTitle;
       case 'agency-approver':
         return 'Agency Approver';
       case 'agency':
@@ -124,7 +125,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             }}
           >
             <Lock sx={{ fontSize: 10 }} />
-            OFFICIAL • FEDERAL GOVERNMENT OF NIGERIA • SECURE PORTAL
+            OFFICIAL • {deploymentLabels.securePortalOwner} • SECURE PORTAL
             <Lock sx={{ fontSize: 10 }} />
           </Typography>
         </Container>
@@ -164,7 +165,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               </Box>
               <Box sx={{ minWidth: 0 }}>
                 <Typography variant="subtitle2" sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
-                  FEDERAL REPUBLIC OF NIGERIA
+                  {deploymentLabels.jurisdiction.toUpperCase()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: { xs: '0.55rem', sm: '0.65rem' }, display: { xs: 'none', sm: 'block' } }}>
                   Asset Management System
@@ -276,12 +277,12 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
               </Box>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                Federal Republic of Nigeria
+                {deploymentLabels.jurisdiction}
               </Typography>
             </Box>
 
             <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.4)', textAlign: 'center' }}>
-              &copy; {new Date().getFullYear()} Nigeria Government Asset Management System
+              &copy; {new Date().getFullYear()} {deploymentLabels.systemName}
             </Typography>
 
             <Typography

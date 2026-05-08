@@ -13,31 +13,31 @@ import RoleBasedRoute from '@/components/RoleBasedRoute';
 import Footer from '@/components/Footer';
 
 // Pages
-import LandingPage from '@/pages/LandingPage';
-import LoginPage from '@/pages/LoginPage';
-import RegisterLandingPage from '@/pages/RegisterLandingPage';
-import RegisterPage from '@/pages/RegisterPage';
-import RegisterMinistryAdminPage from '@/pages/RegisterMinistryAdminPage';
-import MinistryAdminDashboardPage from '@/pages/MinistryAdminDashboardPage';
-import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
-import VerifyEmailPage from '@/pages/VerifyEmailPage';
-import EmailActionPage from '@/pages/EmailActionPage';
-import DashboardPage from '@/pages/DashboardPage';
-import AssetUploadPage from '@/pages/AssetUploadPage';
-import BulkUploadPage from '@/pages/BulkUploadPage';
-import AgencyAssetsPage from '@/pages/AgencyAssetsPage';
-import AgencyReportsPage from '@/pages/AgencyReportsPage';
-import AssetDetailsPage from '@/pages/AssetDetailsPage';
-import EditAssetPage from '@/pages/EditAssetPage';
-import ReviewUploadsPage from '@/pages/ReviewUploadsPage';
-import ViewUploadsPage from '@/pages/ViewUploadsPage';
-import AdminAssetsPage from '@/pages/AdminAssetsPage';
-import AdminMinistryAdminVerificationsPage from '@/pages/AdminMinistryAdminVerificationsPage';
-import AdminMinistriesPage from '@/pages/AdminMinistriesPage';
-import AdminUsersPage from '@/pages/AdminUsersPage';
-import ProfilePage from '@/pages/ProfilePage';
-import ActivityLogPage from '@/pages/ActivityLogPage';
-import ReportsPage from '@/pages/ReportsPage';
+import LandingPage from '@/legacy-pages/LandingPage';
+import LoginPage from '@/legacy-pages/LoginPage';
+import RegisterLandingPage from '@/legacy-pages/RegisterLandingPage';
+import RegisterPage from '@/legacy-pages/RegisterPage';
+import RegisterMinistryAdminPage from '@/legacy-pages/RegisterMinistryAdminPage';
+import MinistryAdminDashboardPage from '@/legacy-pages/MinistryAdminDashboardPage';
+import ForgotPasswordPage from '@/legacy-pages/ForgotPasswordPage';
+import VerifyEmailPage from '@/legacy-pages/VerifyEmailPage';
+import EmailActionPage from '@/legacy-pages/EmailActionPage';
+import DashboardPage from '@/legacy-pages/DashboardPage';
+import AssetUploadPage from '@/legacy-pages/AssetUploadPage';
+import BulkUploadPage from '@/legacy-pages/BulkUploadPage';
+import AgencyAssetsPage from '@/legacy-pages/AgencyAssetsPage';
+import AgencyReportsPage from '@/legacy-pages/AgencyReportsPage';
+import AssetDetailsPage from '@/legacy-pages/AssetDetailsPage';
+import EditAssetPage from '@/legacy-pages/EditAssetPage';
+import ReviewUploadsPage from '@/legacy-pages/ReviewUploadsPage';
+import ViewUploadsPage from '@/legacy-pages/ViewUploadsPage';
+import AdminAssetsPage from '@/legacy-pages/AdminAssetsPage';
+import AdminMinistryAdminVerificationsPage from '@/legacy-pages/AdminMinistryAdminVerificationsPage';
+import AdminMinistriesPage from '@/legacy-pages/AdminMinistriesPage';
+import AdminUsersPage from '@/legacy-pages/AdminUsersPage';
+import ProfilePage from '@/legacy-pages/ProfilePage';
+import ActivityLogPage from '@/legacy-pages/ActivityLogPage';
+import ReportsPage from '@/legacy-pages/ReportsPage';
 
 // Dark Government Security Theme
 const theme = createTheme({

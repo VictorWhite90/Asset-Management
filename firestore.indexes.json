@@ -43,7 +43,7 @@
       ]
     },
     {
-      "collectionGroup": "audit_logs",
+      "collectionGroup": "auditLogs",
       "queryScope": "COLLECTION",
       "fields": [
         {
@@ -57,7 +57,7 @@
       ]
     },
     {
-      "collectionGroup": "audit_logs",
+      "collectionGroup": "auditLogs",
       "queryScope": "COLLECTION",
       "fields": [
         {
@@ -75,7 +75,7 @@
       ]
     },
     {
-      "collectionGroup": "audit_logs",
+      "collectionGroup": "auditLogs",
       "queryScope": "COLLECTION",
       "fields": [
         {
@@ -166,6 +166,60 @@
         },
         {
           "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "assets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ministryId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "state",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "assets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ministryId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "state",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ministryId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "state",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "role",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "accountStatus",
           "order": "ASCENDING"
         }
       ]

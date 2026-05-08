@@ -1,5 +1,6 @@
 import { Box, Container, Typography, Link } from '@mui/material';
 import { useLocation } from 'react-router-dom';
+import { deploymentLabels } from '@/utils/deployment';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -40,13 +41,13 @@ const Footer = () => {
               <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
             </Box>
             <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-              Federal Republic of Nigeria
+              {deploymentLabels.jurisdiction}
             </Typography>
           </Box>
 
           {/* Center - Copyright */}
           <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', textAlign: 'center' }}>
-            &copy; {currentYear} Nigeria Government Asset Management System. All rights reserved.
+            &copy; {currentYear} {deploymentLabels.systemName}. All rights reserved.
           </Typography>
 
           {/* Right - Links & Classification */}

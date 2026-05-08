@@ -74,6 +74,25 @@ export const rejectMinistryAdminCF = async (
 };
 
 /**
+ * Federal Admin: Disable Ministry Admin
+ */
+export const disableMinistryAdminCF = async (
+  ministryAdminId: string,
+  reason?: string
+): Promise<void> => {
+  await callFunction('disableMinistryAdminByFederalAdmin', { ministryAdminId, reason });
+};
+
+/**
+ * Federal Admin: Enable Ministry Admin
+ */
+export const enableMinistryAdminCF = async (
+  ministryAdminId: string
+): Promise<void> => {
+  await callFunction('enableMinistryAdminByFederalAdmin', { ministryAdminId });
+};
+
+/**
  * Ministry Admin: Approve Staff
  * Returns UUID assigned to the approved staff member
  */

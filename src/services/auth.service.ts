@@ -43,7 +43,10 @@ export const registerAgency = async (
       ministryId: registrationData.ministryId, // Reference to ministry document
       ministryType: registrationData.ministryType,
       agencyName: registrationData.agencyName,
+      ministryName: registrationData.ministryName,
+      staffAgencyName: registrationData.staffAgencyName || registrationData.agencyName,
       location: registrationData.location, // HQ address
+      state: registrationData.state,
       role: registrationData.role, // Use role selected during registration
       createdAt: Timestamp.now(),
       emailVerified: false,

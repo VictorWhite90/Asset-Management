@@ -4,6 +4,7 @@ import { UserRole } from '@/types/user.types';
 import { toast } from 'react-toastify';
 import { useEffect } from 'react';
 import { Box, CircularProgress } from '@mui/material';
+import { deploymentLabels } from '@/utils/deployment';
 
 interface RoleBasedRouteProps {
   children: React.ReactNode;
@@ -54,10 +55,10 @@ const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ children, allowedRoles 
     ) {
       toast.error(
         userData.accountStatus === 'pending_ministry_approval'
-          ? 'Your account is pending ministry admin approval. Please wait for your ministry admin to approve your registration.'
+          ? `Your account is pending ${deploymentLabels.ministryAdminShort.toLowerCase()} approval. Please wait for your ${deploymentLabels.ministryAdminShort.toLowerCase()} to approve your registration.`
           : userData.accountStatus === 'pending_verification'
             ? 'Please verify your email address first.'
-            : 'Your account is not yet active. Please contact your ministry admin.'
+            : `Your account is not yet active. Please contact your ${deploymentLabels.ministryAdminShort.toLowerCase()}.`
       );
       return <Navigate to="/dashboard" replace />;
     }

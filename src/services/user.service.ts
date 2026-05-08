@@ -112,48 +112,11 @@ export const disableUser = async (
   adminUserId: string,
   reason?: string
 ): Promise<void> => {
+  void adminUserId;
+  const { disableMinistryAdminCF } = await import('./cloudFunctions.service');
+
   try {
-    const userRef = doc(db, USERS_COLLECTION, userId);
-    const userDoc = await getDoc(userRef);
-
-    if (!userDoc.exists()) {
-      throw new Error('User not found');
-    }
-
-    const user = userDoc.data() as User;
-
-    // Cannot disable self
-    if (userId === adminUserId) {
-      throw new Error('You cannot disable your own account');
-    }
-
-    await updateDoc(userRef, {
-      accountStatus: 'disabled',
-      disabledAt: Timestamp.now(),
-      disabledBy: adminUserId,
-      disableReason: reason || 'Account disabled by administrator',
-    });
-
-    // Get admin user for logging
-    const adminDoc = await getDoc(doc(db, USERS_COLLECTION, adminUserId));
-    const admin = adminDoc.data() as User;
-
-    // Log the action
-    await logAction({
-      userId: adminUserId,
-      userEmail: admin.email,
-      agencyName: admin.agencyName,
-      userRole: admin.role,
-      action: 'user.account.disable',
-      resourceType: 'user',
-      resourceId: userId,
-      details: `Disabled user account: ${user.email}`,
-      metadata: {
-        targetUser: user.email,
-        targetAgency: user.agencyName,
-        reason: reason,
-      },
-    });
+    await disableMinistryAdminCF(userId, reason);
   } catch (error: any) {
     console.error('Error disabling user:', error);
     throw new Error(error.message || 'Failed to disable user');
@@ -167,44 +130,11 @@ export const enableUser = async (
   userId: string,
   adminUserId: string
 ): Promise<void> => {
+  void adminUserId;
+  const { enableMinistryAdminCF } = await import('./cloudFunctions.service');
+
   try {
-    const userRef = doc(db, USERS_COLLECTION, userId);
-    const userDoc = await getDoc(userRef);
-
-    if (!userDoc.exists()) {
-      throw new Error('User not found');
-    }
-
-    const user = userDoc.data() as User;
-
-    await updateDoc(userRef, {
-      accountStatus: 'active',
-      enabledAt: Timestamp.now(),
-      enabledBy: adminUserId,
-      disabledAt: null,
-      disabledBy: null,
-      disableReason: null,
-    });
-
-    // Get admin user for logging
-    const adminDoc = await getDoc(doc(db, USERS_COLLECTION, adminUserId));
-    const admin = adminDoc.data() as User;
-
-    // Log the action
-    await logAction({
-      userId: adminUserId,
-      userEmail: admin.email,
-      agencyName: admin.agencyName,
-      userRole: admin.role,
-      action: 'user.account.enable',
-      resourceType: 'user',
-      resourceId: userId,
-      details: `Enabled user account: ${user.email}`,
-      metadata: {
-        targetUser: user.email,
-        targetAgency: user.agencyName,
-      },
-    });
+    await enableMinistryAdminCF(userId);
   } catch (error: any) {
     console.error('Error enabling user:', error);
     throw new Error(error.message || 'Failed to enable user');

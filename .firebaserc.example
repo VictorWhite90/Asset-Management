@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "your_default_firebase_project_id",
+    "federal": "your_federal_firebase_project_id",
+    "rivers": "your_rivers_firebase_project_id",
+    "lagos": "your_lagos_firebase_project_id",
+    "nasarawa": "your_nasarawa_firebase_project_id"
+  }
+}

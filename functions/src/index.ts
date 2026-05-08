@@ -22,13 +22,18 @@ import {
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
-// Set global options for cost control
-setGlobalOptions({ maxInstances: 10 });
+// Callable functions must be publicly invokable at the Cloud Run layer so browser
+// preflight requests can reach Firebase's callable auth wrapper. Role checks below
+// still enforce application security.
+setGlobalOptions({ maxInstances: 10, invoker: "public" });
 
 // Constants
 const USERS_COLLECTION = "users";
 const MINISTRIES_COLLECTION = "ministries";
 const AUDIT_LOGS_COLLECTION = "auditLogs";
+const DEFAULT_MAX_UPLOADERS = 6;
+const DEFAULT_MAX_APPROVERS = 5;
+const callableOptions = { cors: true, invoker: "public" as const };
 
 // Types
 type UserRole = "agency" | "agency-approver" | "ministry-admin" | "admin";
@@ -54,7 +59,10 @@ interface User {
   ministryId: string;
   ministryType: string;
   agencyName: string;
+  ministryName?: string;
+  staffAgencyName?: string;
   location: string;
+  state?: string;
   role: UserRole;
   emailVerified: boolean;
   accountStatus?: AccountStatus;
@@ -128,14 +136,18 @@ async function setUserClaims(
   userId: string,
   role: UserRole,
   ministryId?: string,
+  state?: string,
 ): Promise<void> {
-  const claims: { role: UserRole; ministryId?: string } = { role };
+  const claims: { role: UserRole; ministryId?: string; state?: string } = { role };
   if (ministryId) {
     claims.ministryId = ministryId;
   }
+  if (state) {
+    claims.state = state;
+  }
 
   await admin.auth().setCustomUserClaims(userId, claims);
-  logger.info(`Set custom claims for user ${userId}`, { role, ministryId });
+  logger.info(`Set custom claims for user ${userId}`, { role, ministryId, state });
 }
 
 /**
@@ -170,7 +182,7 @@ async function logAction(data: {
  * Sets custom claims: { role: 'ministry-admin', ministryId }
  */
 export const approveMinistryAdmin = onCall(
-  { cors: true },
+  callableOptions,
   async (
     request,
   ): Promise<{ success: boolean; message: string; ministryId?: string }> => {
@@ -201,6 +213,13 @@ export const approveMinistryAdmin = onCall(
       throw new HttpsError(
         "failed-precondition",
         "User is not pending verification",
+      );
+    }
+
+    if (!ministryAdmin.emailVerified) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Ministry admin must verify their email before approval",
       );
     }
 
@@ -235,8 +254,8 @@ export const approveMinistryAdmin = onCall(
       ownerName: ministryAdmin.name || ministryAdmin.agencyName,
       uploaders: [],
       approvers: [],
-      maxUploaders: 10,
-      maxApprovers: 5,
+      maxUploaders: DEFAULT_MAX_UPLOADERS,
+      maxApprovers: DEFAULT_MAX_APPROVERS,
       hasUploader: false,
       hasApprover: false,
     });
@@ -296,7 +315,7 @@ export const approveMinistryAdmin = onCall(
  * Federal admin rejects ministry admin account.
  */
 export const rejectMinistryAdmin = onCall(
-  { cors: true },
+  callableOptions,
   async (request): Promise<{ success: boolean; message: string }> => {
     const { ministryAdminId, reason } = request.data;
 
@@ -372,6 +391,160 @@ export const rejectMinistryAdmin = onCall(
 );
 
 /**
+ * Disable Ministry Admin (Federal Admin Only)
+ *
+ * Disables an active ministry admin and revokes custom claims immediately.
+ */
+export const disableMinistryAdminByFederalAdmin = onCall(
+  callableOptions,
+  async (request): Promise<{ success: boolean; message: string }> => {
+    const { ministryAdminId, reason } = request.data;
+
+    if (!ministryAdminId || typeof ministryAdminId !== "string") {
+      throw new HttpsError("invalid-argument", "ministryAdminId is required");
+    }
+
+    requireRole(request.auth, "admin");
+    const callerAuth = requireAuth(request.auth);
+
+    if (ministryAdminId === callerAuth.uid) {
+      throw new HttpsError("invalid-argument", "You cannot disable yourself");
+    }
+
+    const ministryAdmin = await getUserDoc(ministryAdminId);
+
+    if (ministryAdmin.role !== "ministry-admin") {
+      throw new HttpsError(
+        "failed-precondition",
+        "User is not a ministry admin",
+      );
+    }
+
+    if (ministryAdmin.accountStatus !== "verified") {
+      throw new HttpsError(
+        "failed-precondition",
+        "Only active ministry admins can be disabled",
+      );
+    }
+
+    await admin
+      .firestore()
+      .collection(USERS_COLLECTION)
+      .doc(ministryAdminId)
+      .update({
+        accountStatus: "disabled",
+        disabledAt: admin.firestore.FieldValue.serverTimestamp(),
+        disabledBy: callerAuth.uid,
+        disableReason:
+          typeof reason === "string" && reason.trim()
+            ? reason.trim()
+            : "Disabled by Federal Administrator",
+      });
+
+    await admin.auth().setCustomUserClaims(ministryAdminId, null);
+
+    await logAction({
+      userId: callerAuth.uid,
+      userEmail: callerAuth.token.email || "unknown",
+      userRole: "admin",
+      action: "user.account.disable",
+      resourceType: "user",
+      resourceId: ministryAdminId,
+      details: `Disabled ministry admin: ${ministryAdmin.email}`,
+      metadata: {
+        targetUser: ministryAdmin.email,
+        ministryId: ministryAdmin.ministryId,
+        reason,
+      },
+    });
+
+    return {
+      success: true,
+      message: "Ministry admin disabled successfully",
+    };
+  },
+);
+
+/**
+ * Enable Ministry Admin (Federal Admin Only)
+ *
+ * Re-enables a disabled ministry admin and restores custom claims.
+ */
+export const enableMinistryAdminByFederalAdmin = onCall(
+  callableOptions,
+  async (request): Promise<{ success: boolean; message: string }> => {
+    const { ministryAdminId } = request.data;
+
+    if (!ministryAdminId || typeof ministryAdminId !== "string") {
+      throw new HttpsError("invalid-argument", "ministryAdminId is required");
+    }
+
+    requireRole(request.auth, "admin");
+    const callerAuth = requireAuth(request.auth);
+    const ministryAdmin = await getUserDoc(ministryAdminId);
+
+    if (ministryAdmin.role !== "ministry-admin") {
+      throw new HttpsError(
+        "failed-precondition",
+        "User is not a ministry admin",
+      );
+    }
+
+    if (ministryAdmin.accountStatus !== "disabled") {
+      throw new HttpsError(
+        "failed-precondition",
+        "Only disabled ministry admins can be enabled",
+      );
+    }
+
+    if (!ministryAdmin.ministryId) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Cannot restore claims because this ministry admin has no ministryId",
+      );
+    }
+
+    await admin
+      .firestore()
+      .collection(USERS_COLLECTION)
+      .doc(ministryAdminId)
+      .update({
+        accountStatus: "verified",
+        enabledAt: admin.firestore.FieldValue.serverTimestamp(),
+        enabledBy: callerAuth.uid,
+        disabledAt: admin.firestore.FieldValue.delete(),
+        disabledBy: admin.firestore.FieldValue.delete(),
+        disableReason: admin.firestore.FieldValue.delete(),
+      });
+
+    await setUserClaims(
+      ministryAdminId,
+      "ministry-admin",
+      ministryAdmin.ministryId,
+    );
+
+    await logAction({
+      userId: callerAuth.uid,
+      userEmail: callerAuth.token.email || "unknown",
+      userRole: "admin",
+      action: "user.account.enable",
+      resourceType: "user",
+      resourceId: ministryAdminId,
+      details: `Enabled ministry admin: ${ministryAdmin.email}`,
+      metadata: {
+        targetUser: ministryAdmin.email,
+        ministryId: ministryAdmin.ministryId,
+      },
+    });
+
+    return {
+      success: true,
+      message: "Ministry admin enabled successfully",
+    };
+  },
+);
+
+/**
  * Approve Staff by Ministry Admin
  *
  * Ministry admin approves staff (uploader/approver) joining their ministry.
@@ -379,7 +552,7 @@ export const rejectMinistryAdmin = onCall(
  * Sets custom claims: { role: 'agency' | 'agency-approver', ministryId: '...' }
  */
 export const approveStaffByMinistryAdmin = onCall(
-  { cors: true },
+  callableOptions,
   async (
     request,
   ): Promise<{
@@ -423,6 +596,20 @@ export const approveStaffByMinistryAdmin = onCall(
       );
     }
 
+    if (!staffUser.emailVerified) {
+      throw new HttpsError(
+        "failed-precondition",
+        "User must verify their email before ministry approval",
+      );
+    }
+
+    if (!staffUser.state) {
+      throw new HttpsError(
+        "failed-precondition",
+        "User must have a state assignment before ministry approval",
+      );
+    }
+
     // Verify staff belongs to caller's ministry
     if (staffUser.ministryId !== callerUser.ownedMinistryId) {
       throw new HttpsError(
@@ -458,35 +645,37 @@ export const approveStaffByMinistryAdmin = onCall(
       staffUser.role,
     );
 
-    // Update user document
-    await admin
-      .firestore()
-      .collection(USERS_COLLECTION)
-      .doc(staffUserId)
-      .update({
-        accountStatus: "verified",
-        verifiedBy: callerAuth.uid,
-        verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-        displayId, // short human-readable ID
-        uuid: displayId, // keep uuid field in sync for backward compatibility
-      });
-
-    // Set custom claims
-    await setUserClaims(staffUserId, staffUser.role, staffUser.ministryId);
-
     // Update ministry document to add staff to appropriate role array
     const ministryData = ministryDoc.data();
+    const staffAgencyName = staffUser.staffAgencyName || staffUser.agencyName;
+    const existingSameStateRole = await admin
+      .firestore()
+      .collection(USERS_COLLECTION)
+      .where("ministryId", "==", staffUser.ministryId)
+      .where("state", "==", staffUser.state)
+      .where("role", "==", staffUser.role)
+      .where("accountStatus", "==", "verified")
+      .limit(1)
+      .get();
+
+    if (!existingSameStateRole.empty) {
+      throw new HttpsError(
+        "already-exists",
+        `This ministry already has an active ${staffUser.role === "agency" ? "uploader" : "approver"} for ${staffUser.state}`,
+      );
+    }
+
+    const uploaders = (ministryData?.uploaders || []) as string[];
+    const approvers = (ministryData?.approvers || []) as string[];
     const updateData: any = {};
 
     if (staffUser.role === "agency") {
-      const uploaders = ministryData?.uploaders || [];
       if (!uploaders.includes(staffUserId)) {
         updateData.uploaders =
           admin.firestore.FieldValue.arrayUnion(staffUserId);
         updateData.hasUploader = true;
       }
     } else if (staffUser.role === "agency-approver") {
-      const approvers = ministryData?.approvers || [];
       if (!approvers.includes(staffUserId)) {
         updateData.approvers =
           admin.firestore.FieldValue.arrayUnion(staffUserId);
@@ -502,6 +691,23 @@ export const approveStaffByMinistryAdmin = onCall(
         role: staffUser.role,
       });
     }
+
+    // Update user document
+    await admin
+      .firestore()
+      .collection(USERS_COLLECTION)
+      .doc(staffUserId)
+      .update({
+        accountStatus: "verified",
+        verifiedBy: callerAuth.uid,
+        verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+        staffAgencyName,
+        displayId, // short human-readable ID
+        uuid: displayId, // keep uuid field in sync for backward compatibility
+      });
+
+    // Set custom claims
+    await setUserClaims(staffUserId, staffUser.role, staffUser.ministryId, staffUser.state);
 
     // Log action
     await logAction({
@@ -544,7 +750,7 @@ export const approveStaffByMinistryAdmin = onCall(
  * Ministry admin rejects staff registration request.
  */
 export const rejectStaffByMinistryAdmin = onCall(
-  { cors: true },
+  callableOptions,
   async (request): Promise<{ success: boolean; message: string }> => {
     const { staffUserId, reason } = request.data;
 
@@ -638,7 +844,7 @@ export const rejectStaffByMinistryAdmin = onCall(
  * Ministry admin removes staff from their ministry (when they leave).
  */
 export const removeStaffFromMinistry = onCall(
-  { cors: true },
+  callableOptions,
   async (request): Promise<{ success: boolean; message: string }> => {
     const { staffUserId, reason } = request.data;
 
@@ -730,7 +936,7 @@ export const removeStaffFromMinistry = onCall(
  * Updates custom claims with the new role.
  */
 export const changeStaffRoleByMinistryAdmin = onCall(
-  { cors: true },
+  callableOptions,
   async (request): Promise<{ success: boolean; message: string }> => {
     const { staffUserId, newRole } = request.data;
 
@@ -795,6 +1001,13 @@ export const changeStaffRoleByMinistryAdmin = onCall(
       );
     }
 
+    if (!staffUser.state) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Staff member must have a state assignment before role changes",
+      );
+    }
+
     // Check if role is actually changing
     if (staffUser.role === newRole) {
       throw new HttpsError(
@@ -804,6 +1017,23 @@ export const changeStaffRoleByMinistryAdmin = onCall(
     }
 
     const oldRole = staffUser.role;
+
+    const existingSameStateRole = await admin
+      .firestore()
+      .collection(USERS_COLLECTION)
+      .where("ministryId", "==", staffUser.ministryId)
+      .where("state", "==", staffUser.state)
+      .where("role", "==", newRole)
+      .where("accountStatus", "==", "verified")
+      .limit(1)
+      .get();
+
+    if (!existingSameStateRole.empty) {
+      throw new HttpsError(
+        "already-exists",
+        `This ministry already has an active ${newRole === "agency" ? "uploader" : "approver"} for ${staffUser.state}`,
+      );
+    }
 
     // Update user document
     await admin
@@ -817,7 +1047,7 @@ export const changeStaffRoleByMinistryAdmin = onCall(
       });
 
     // Update custom claims with new role
-    await setUserClaims(staffUserId, newRole, staffUser.ministryId);
+    await setUserClaims(staffUserId, newRole, staffUser.ministryId, staffUser.state);
 
     // Log action
     await logAction({
@@ -858,7 +1088,7 @@ export const changeStaffRoleByMinistryAdmin = onCall(
  * Revokes custom claims to prevent access.
  */
 export const disableStaffByMinistryAdmin = onCall(
-  { cors: true },
+  callableOptions,
   async (request): Promise<{ success: boolean; message: string }> => {
     const { staffUserId, reason } = request.data;
 
@@ -970,7 +1200,7 @@ export const disableStaffByMinistryAdmin = onCall(
  * Restores custom claims to allow access.
  */
 export const enableStaffByMinistryAdmin = onCall(
-  { cors: true },
+  callableOptions,
   async (request): Promise<{ success: boolean; message: string }> => {
     const { staffUserId } = request.data;
 
@@ -1021,6 +1251,30 @@ export const enableStaffByMinistryAdmin = onCall(
       );
     }
 
+    if (!staffUser.state) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Staff member must have a state assignment before being enabled",
+      );
+    }
+
+    const existingSameStateRole = await admin
+      .firestore()
+      .collection(USERS_COLLECTION)
+      .where("ministryId", "==", staffUser.ministryId)
+      .where("state", "==", staffUser.state)
+      .where("role", "==", staffUser.role)
+      .where("accountStatus", "==", "verified")
+      .limit(1)
+      .get();
+
+    if (!existingSameStateRole.empty) {
+      throw new HttpsError(
+        "already-exists",
+        `This ministry already has an active ${staffUser.role === "agency" ? "uploader" : "approver"} for ${staffUser.state}`,
+      );
+    }
+
     // Update user document
     await admin
       .firestore()
@@ -1036,7 +1290,7 @@ export const enableStaffByMinistryAdmin = onCall(
       });
 
     // Restore custom claims
-    await setUserClaims(staffUserId, staffUser.role, staffUser.ministryId);
+    await setUserClaims(staffUserId, staffUser.role, staffUser.ministryId, staffUser.state);
 
     // Log action
     await logAction({
@@ -1070,7 +1324,7 @@ export const enableStaffByMinistryAdmin = onCall(
  * Search staff by display ID (ministry admin, own ministry only).
  */
 export const searchStaffByDisplayId = onCall(
-  { cors: true },
+  callableOptions,
   async (
     request,
   ): Promise<{
@@ -1144,7 +1398,7 @@ export const searchStaffByDisplayId = onCall(
  * Callable only by federal admin (`role: 'admin'` in custom claims).
  */
 export const runBackfillDisplayIds = onCall(
-  { cors: true },
+  callableOptions,
   async (
     request,
   ): Promise<{ migrated: number; skipped: number; errors: string[] }> => {

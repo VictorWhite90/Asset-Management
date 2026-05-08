@@ -22,6 +22,11 @@ service cloud.firestore {
       return request.auth.token.ministryId;
     }
 
+    // Get user's assigned state workflow lane from custom claims
+    function getUserState() {
+      return request.auth.token.state;
+    }
+
     // Check if user has a specific role
     function hasRole(role) {
       return isAuthenticated() && getUserRole() == role;
@@ -84,13 +89,14 @@ service cloud.firestore {
                     && (
                       // Normal profile updates (no sensitive fields)
                       !request.resource.data.diff(resource.data).affectedKeys()
-                           .hasAny(['role', 'accountStatus', 'isMinistryOwner', 'ownedMinistryId'])
+                           .hasAny(['role', 'accountStatus', 'state', 'isMinistryOwner', 'ownedMinistryId'])
                       ||
                       // Email verification sync: allow emailVerified and accountStatus update
                       // Only when setting emailVerified to true and accountStatus to pending_ministry_approval
                       (request.resource.data.diff(resource.data).affectedKeys()
                            .hasOnly(['emailVerified', 'accountStatus'])
                        && request.resource.data.emailVerified == true
+                       && request.auth.token.email_verified == true
                        && (request.resource.data.accountStatus == 'pending_ministry_approval'
                            || request.resource.data.accountStatus == resource.data.accountStatus))
                     );
@@ -152,30 +158,57 @@ service cloud.firestore {
       allow read: if isUploader() && resource.data.uploadedBy == request.auth.uid;
 
       // Approvers can read all assets from their ministry
-      allow read: if isApprover() && belongsToMinistry(resource.data.ministryId);
+      allow read: if isApprover()
+                  && belongsToMinistry(resource.data.ministryId)
+                  && resource.data.state == getUserState();
 
       // Ministry admin can read all assets from their ministry (read-only access to view all)
       allow read: if isMinistryAdmin() && belongsToMinistry(resource.data.ministryId);
-
-      // Approvers can read assets in their ministry
-      allow read: if isApprover() && belongsToMinistry(resource.data.ministryId);
 
       // Uploaders can create assets for their ministry
       allow create: if isUploader()
                     && belongsToMinistry(request.resource.data.ministryId)
                     && request.resource.data.uploadedBy == request.auth.uid
+                    && request.resource.data.state == getUserState()
                     && request.resource.data.status == 'pending';
 
       // Uploaders can update their own pending or rejected assets only (cannot edit approved/under review assets)
       allow update: if isUploader()
                     && resource.data.uploadedBy == request.auth.uid
-                    && (resource.data.status == 'pending' || resource.data.status == 'rejected');
+                    && (resource.data.status == 'pending' || resource.data.status == 'rejected')
+                    && request.resource.data.uploadedBy == resource.data.uploadedBy
+                    && request.resource.data.agencyId == resource.data.agencyId
+                    && request.resource.data.ministryId == resource.data.ministryId
+                    && request.resource.data.status in ['pending', 'rejected']
+                    && (
+                      request.resource.data.status == resource.data.status
+                      || (resource.data.status == 'rejected' && request.resource.data.status == 'pending')
+                    )
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                         .hasAny([
+                           'approvedBy', 'approvedAt',
+                           'sentToMinistryAdminBy', 'sentToMinistryAdminAt',
+                           'approvedByMinistry', 'approvedByMinistryAt',
+                           'approvedByFederal', 'approvedByFederalAt'
+                         ]);
 
       // Approvers can update assets in their ministry (approve/reject/send to ministry)
       // Must match asset ministryId to token.ministryId (same as read rule)
       allow update: if isApprover()
                     && belongsToMinistry(resource.data.ministryId)
+                    && resource.data.state == getUserState()
                     && resource.data.status == 'pending'
+                    && request.resource.data.ministryId == resource.data.ministryId
+                    && request.resource.data.uploadedBy == resource.data.uploadedBy
+                    && request.resource.data.state == resource.data.state
+                    && request.resource.data.status in ['submitted_to_federal', 'rejected']
+                    && (
+                      (request.resource.data.status == 'submitted_to_federal'
+                       && request.resource.data.approvedBy == request.auth.uid)
+                      || (request.resource.data.status == 'rejected'
+                          && request.resource.data.rejectedBy == request.auth.uid
+                          && request.resource.data.rejectionLevel == 'approver')
+                    )
                     && request.resource.data.diff(resource.data).affectedKeys()
                          .hasOnly(['status', 'approvedBy', 'approvedAt', 'sentToMinistryAdminBy', 'sentToMinistryAdminAt', 'rejectionReason', 'rejectedBy', 'rejectedAt', 'rejectionLevel']);
 
@@ -183,6 +216,16 @@ service cloud.firestore {
       allow update: if isMinistryAdmin()
                     && belongsToMinistry(resource.data.ministryId)
                     && resource.data.status == 'pending_ministry_review'
+                    && request.resource.data.ministryId == resource.data.ministryId
+                    && request.resource.data.uploadedBy == resource.data.uploadedBy
+                    && request.resource.data.status in ['submitted_to_federal', 'rejected']
+                    && (
+                      (request.resource.data.status == 'submitted_to_federal'
+                       && request.resource.data.approvedByMinistry == request.auth.uid)
+                      || (request.resource.data.status == 'rejected'
+                          && request.resource.data.rejectedBy == request.auth.uid
+                          && request.resource.data.rejectionLevel == 'ministry-admin')
+                    )
                     && request.resource.data.diff(resource.data).affectedKeys()
                          .hasOnly(['status', 'approvedByMinistry', 'approvedByMinistryAt',
                                    'rejectedBy', 'rejectedAt', 'rejectionReason', 'rejectionLevel']);
