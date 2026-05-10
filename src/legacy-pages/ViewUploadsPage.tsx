@@ -36,7 +36,7 @@ import {
   PendingActions,
   ArrowBack,
   Search,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import { format } from 'date-fns';
 import AppLayout from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -185,14 +185,14 @@ const ViewUploadsPage: React.FC = () => {
       <TableContainer component={Paper} sx={{ mt: 2 }}>
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: '#0d2818' }}>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Asset ID</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Description</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Category</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Location</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Purchase Cost</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Status</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }} align="right">
+            <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>
+              <TableCell sx={{ color: '#143625', fontWeight: 'bold' }}>Asset ID</TableCell>
+              <TableCell sx={{ color: '#143625', fontWeight: 'bold' }}>Description</TableCell>
+              <TableCell sx={{ color: '#143625', fontWeight: 'bold' }}>Category</TableCell>
+              <TableCell sx={{ color: '#143625', fontWeight: 'bold' }}>Location</TableCell>
+              <TableCell sx={{ color: '#143625', fontWeight: 'bold' }}>Purchase Cost</TableCell>
+              <TableCell sx={{ color: '#143625', fontWeight: 'bold' }}>Status</TableCell>
+              <TableCell sx={{ color: '#143625', fontWeight: 'bold' }} align="right">
                 Actions
               </TableCell>
             </TableRow>
@@ -256,12 +256,12 @@ const ViewUploadsPage: React.FC = () => {
             <Button
               startIcon={<ArrowBack />}
               onClick={() => navigate('/dashboard')}
-              sx={{ color: '#00ff88' }}
+              sx={{ color: '#008751' }}
             >
               Back to Dashboard
             </Button>
           </Box>
-          <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: '#00ff88', fontSize: { xs: '1.25rem', sm: '2rem' } }}>
+          <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: '#008751', fontSize: { xs: '1.25rem', sm: '2rem' } }}>
             {pageTitle}
           </Typography>
           <Typography variant="body2" sx={{ color: '#aaa' }}>
@@ -287,7 +287,7 @@ const ViewUploadsPage: React.FC = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search sx={{ color: '#00ff88' }} />
+                  <Search sx={{ color: '#008751' }} />
                 </InputAdornment>
               ),
             }}
@@ -307,7 +307,7 @@ const ViewUploadsPage: React.FC = () => {
               sx={{
                 borderBottom: '1px solid rgba(0, 135, 81, 0.2)',
                 '& .MuiTab-root': { color: '#aaa' },
-                '& .Mui-selected': { color: '#00ff88' },
+                '& .Mui-selected': { color: '#008751' },
               }}
             >
               <Tab
@@ -343,7 +343,7 @@ const ViewUploadsPage: React.FC = () => {
 
         {/* Asset Details Dialog */}
         <Dialog open={detailsOpen} onClose={handleCloseDetails} maxWidth="sm" fullWidth>
-          <DialogTitle sx={{ backgroundColor: '#0d2818', color: '#00ff88', fontWeight: 'bold' }}>
+          <DialogTitle sx={{ backgroundColor: '#ffffff', color: '#006038', fontWeight: 'bold', borderBottom: '1px solid rgba(0, 135, 81, 0.15)' }}>
             Asset Details
           </DialogTitle>
           <DialogContent sx={{ mt: 2 }}>

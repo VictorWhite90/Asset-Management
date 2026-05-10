@@ -34,7 +34,7 @@ import {
   Visibility,
   Print,
   PictureAsPdf,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -340,9 +340,9 @@ const AdminAssetsPage = () => {
             to="/dashboard"
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(15, 48, 31, 0.68)',
               '&:hover': {
-                color: '#00ff88',
+                color: '#008751',
                 backgroundColor: 'transparent',
               },
             }}
@@ -363,10 +363,10 @@ const AdminAssetsPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box>
-              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                 {deploymentLabels.topAdminShort} - {isStateDeployment ? 'State Asset Management' : 'National Asset Management'}
               </Typography>
-              <Typography variant="subtitle1" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 1 }}>
+              <Typography variant="subtitle1" sx={{ color: 'rgba(15, 48, 31, 0.68)', mt: 1 }}>
                 Comprehensive view of all government assets {isStateDeployment ? 'across the state' : 'nationwide'}
               </Typography>
             </Box>
@@ -376,7 +376,7 @@ const AdminAssetsPage = () => {
                   loadDashboardData();
                   viewMode === 'summary' ? loadMinistryStats() : loadDetailedAssets();
                 }}
-                sx={{ color: '#00ff88' }}
+                sx={{ color: '#008751' }}
               >
                 <Refresh />
               </IconButton>
@@ -390,21 +390,21 @@ const AdminAssetsPage = () => {
             <Grid item xs={12} sm={6} md={3}>
               <Card
                 sx={{
-                  background: 'linear-gradient(135deg, #008751 0%, #006038 100%)',
+                  background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.18) 0%, rgba(0, 96, 56, 0.08) 100%)',
                   border: 'none',
                 }}
               >
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box>
-                      <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
+                      <Typography sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: '0.875rem' }}>
                         Ministry Approved Assets
                       </Typography>
-                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                      <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {dashboardStats.totalAssets.toLocaleString()}
                       </Typography>
                     </Box>
-                    <TrendingUp sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
+                    <TrendingUp sx={{ fontSize: 40, color: 'rgba(15, 48, 31, 0.5)' }} />
                   </Box>
                 </CardContent>
               </Card>
@@ -413,21 +413,21 @@ const AdminAssetsPage = () => {
             <Grid item xs={12} sm={6} md={3}>
               <Card
                 sx={{
-                  background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+                  background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.16) 0%, rgba(21, 101, 192, 0.07) 100%)',
                   border: 'none',
                 }}
               >
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box>
-                      <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
+                      <Typography sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: '0.875rem' }}>
                         Total Value
                       </Typography>
-                      <Typography variant="h5" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                      <Typography variant="h5" sx={{ color: '#143625', fontWeight: 700 }}>
                         {formatCurrency(dashboardStats.totalPurchaseValue)}
                       </Typography>
                     </Box>
-                    <TrendingUp sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
+                    <TrendingUp sx={{ fontSize: 40, color: 'rgba(15, 48, 31, 0.5)' }} />
                   </Box>
                 </CardContent>
               </Card>
@@ -437,7 +437,7 @@ const AdminAssetsPage = () => {
 
         {/* Filter Panel */}
         <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
+          <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600, mb: 2 }}>
             Filter Assets
           </Typography>
           <Grid container spacing={2} alignItems="center">
@@ -593,7 +593,7 @@ const AdminAssetsPage = () => {
         {/* Loading State */}
         {loading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress sx={{ color: '#00ff88' }} />
+            <CircularProgress sx={{ color: '#008751' }} />
           </Box>
         )}
 
@@ -614,11 +614,11 @@ const AdminAssetsPage = () => {
                 background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.15) 0%, rgba(0, 135, 81, 0.05) 100%)',
               }}
             >
-              <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+              <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
                 Ministry/Agency Statistics
                 {categoryFilter && ` - ${categoryFilter}`}
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                 Showing {ministryStats.length} {ministryStats.length === 1 ? 'ministry' : 'ministries'}
               </Typography>
             </Box>
@@ -627,19 +627,19 @@ const AdminAssetsPage = () => {
               <Table>
                 <TableHead>
                   <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Ministry/Agency</TableCell>
-                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Assets</TableCell>
-                    <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Purchase Value</TableCell>
-                    <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Market Value</TableCell>
-                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>States</TableCell>
-                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
+                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Ministry/Agency</TableCell>
+                    <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>Assets</TableCell>
+                    <TableCell align="right" sx={{ color: '#008751', fontWeight: 600 }}>Purchase Value</TableCell>
+                    <TableCell align="right" sx={{ color: '#008751', fontWeight: 600 }}>Market Value</TableCell>
+                    <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>States</TableCell>
+                    <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {ministryStats.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} align="center">
-                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)', py: 4 }}>
+                        <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)', py: 4 }}>
                           No data found. Try adjusting your filters.
                         </Typography>
                       </TableCell>
@@ -654,7 +654,7 @@ const AdminAssetsPage = () => {
                         }}
                       >
                         <TableCell>
-                          <Typography variant="body2" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                          <Typography variant="body2" sx={{ color: '#143625', fontWeight: 600 }}>
                             {ministry.ministryName}
                           </Typography>
                         </TableCell>
@@ -664,15 +664,15 @@ const AdminAssetsPage = () => {
                             size="small"
                             sx={{
                               backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                              color: '#00ff88',
+                              color: '#008751',
                               fontWeight: 600,
                             }}
                           />
                         </TableCell>
-                        <TableCell align="right" sx={{ color: '#FFFFFF' }}>
+                        <TableCell align="right" sx={{ color: '#143625' }}>
                           {formatCurrency(ministry.totalPurchaseCost)}
                         </TableCell>
-                        <TableCell align="right" sx={{ color: '#FFFFFF' }}>
+                        <TableCell align="right" sx={{ color: '#143625' }}>
                           {formatCurrency(ministry.totalMarketValue)}
                         </TableCell>
                         <TableCell align="center">
@@ -682,7 +682,7 @@ const AdminAssetsPage = () => {
                               size="small"
                               sx={{
                                 backgroundColor: 'rgba(0, 135, 81, 0.1)',
-                                color: 'rgba(255, 255, 255, 0.8)',
+                                color: 'rgba(15, 48, 31, 0.76)',
                                 border: '1px solid rgba(0, 135, 81, 0.3)',
                               }}
                             />
@@ -721,11 +721,11 @@ const AdminAssetsPage = () => {
               }}
             >
               <Box>
-                <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
                   Asset Details
                   {selectedMinistry && ` - ${selectedMinistry}`}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                   Showing {detailedAssets.length} {detailedAssets.length === 1 ? 'asset' : 'assets'}
                 </Typography>
               </Box>
@@ -738,7 +738,7 @@ const AdminAssetsPage = () => {
                     setMinistryFilter('');
                     setViewMode('summary');
                   }}
-                  sx={{ color: '#00ff88' }}
+                  sx={{ color: '#008751' }}
                 >
                   ← Back to Summary
                 </Button>
@@ -749,20 +749,20 @@ const AdminAssetsPage = () => {
               <Table>
                 <TableHead>
                   <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Asset ID</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Description</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Category</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Agency</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Location</TableCell>
-                    <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Purchase Cost</TableCell>
-                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
+                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Asset ID</TableCell>
+                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Description</TableCell>
+                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Category</TableCell>
+                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Agency</TableCell>
+                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Location</TableCell>
+                    <TableCell align="right" sx={{ color: '#008751', fontWeight: 600 }}>Purchase Cost</TableCell>
+                    <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {detailedAssets.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={7} align="center">
-                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)', py: 4 }}>
+                        <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)', py: 4 }}>
                           No assets found. Try adjusting your filters.
                         </Typography>
                       </TableCell>
@@ -779,25 +779,25 @@ const AdminAssetsPage = () => {
                           }}
                         >
                           <TableCell>
-                            <Typography variant="body2" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                            <Typography variant="body2" sx={{ color: '#008751', fontWeight: 600 }}>
                               {asset.assetId}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ color: '#FFFFFF' }}>{asset.description}</TableCell>
+                          <TableCell sx={{ color: '#143625' }}>{asset.description}</TableCell>
                           <TableCell>
                             <Chip
                               label={asset.category}
                               size="small"
                               sx={{
                                 backgroundColor: 'rgba(0, 135, 81, 0.1)',
-                                color: 'rgba(255, 255, 255, 0.8)',
+                                color: 'rgba(15, 48, 31, 0.76)',
                                 border: '1px solid rgba(0, 135, 81, 0.3)',
                               }}
                             />
                           </TableCell>
-                          <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{asset.agencyName}</TableCell>
-                          <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{asset.location}</TableCell>
-                          <TableCell align="right" sx={{ color: '#FFFFFF' }}>
+                          <TableCell sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>{asset.agencyName}</TableCell>
+                          <TableCell sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>{asset.location}</TableCell>
+                          <TableCell align="right" sx={{ color: '#143625' }}>
                             ₦{asset.purchaseCost?.toLocaleString()}
                           </TableCell>
                           <TableCell align="center">
@@ -806,7 +806,7 @@ const AdminAssetsPage = () => {
                                 component={Link}
                                 to={`/assets/view/${asset.id}`}
                                 size="small"
-                                sx={{ color: '#00ff88' }}
+                                sx={{ color: '#008751' }}
                               >
                                 <Visibility />
                               </IconButton>
@@ -832,8 +832,8 @@ const AdminAssetsPage = () => {
                 }}
                 rowsPerPageOptions={[10, 25, 50, 100]}
                 sx={{
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  '.MuiTablePagination-selectIcon': { color: 'rgba(255, 255, 255, 0.7)' },
+                  color: 'rgba(15, 48, 31, 0.68)',
+                  '.MuiTablePagination-selectIcon': { color: 'rgba(15, 48, 31, 0.68)' },
                 }}
               />
             )}

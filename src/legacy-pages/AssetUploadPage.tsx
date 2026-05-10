@@ -1,6 +1,6 @@
 import { Container, Paper, Box, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { ArrowBack as ArrowBackIcon } from '@/components/icons';
 import AssetUploadForm from '@/components/AssetUploadForm';
 
 /**
@@ -10,7 +10,7 @@ import AssetUploadForm from '@/components/AssetUploadForm';
  */
 const AssetUploadPage = () => {
   return (
-    <Container component="main" maxWidth="md">
+    <Container component="main" maxWidth="lg">
       <Box
         sx={{
           marginTop: 4,
@@ -36,10 +36,14 @@ const AssetUploadPage = () => {
           elevation={3}
           sx={{
             width: '100%',
-            padding: 4,
+            padding: { xs: 2.5, md: 4 },
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.72)',
+            border: '1px solid rgba(0, 135, 81, 0.18)',
+            boxShadow: '0 24px 70px rgba(20, 54, 37, 0.12)',
+            backdropFilter: 'blur(18px)',
           }}
         >
           {/* Page Title */}

@@ -33,10 +33,13 @@ const MINISTRIES_COLLECTION = "ministries";
 const AUDIT_LOGS_COLLECTION = "auditLogs";
 const DEFAULT_MAX_UPLOADERS = 6;
 const DEFAULT_MAX_APPROVERS = 5;
+const MAX_UPLOADERS_PER_STATE = 4;
+const MAX_APPROVERS_PER_STATE = 4;
 const callableOptions = { cors: true, invoker: "public" as const };
 
 // Types
 type UserRole = "agency" | "agency-approver" | "ministry-admin" | "admin";
+type StaffRole = "agency" | "agency-approver";
 
 type AccountStatus =
   | "pending_verification"
@@ -127,6 +130,39 @@ async function getUserDoc(userId: string): Promise<User> {
   }
 
   return userDoc.data() as User;
+}
+
+function getStateRoleLimit(role: StaffRole): number {
+  return role === "agency" ? MAX_UPLOADERS_PER_STATE : MAX_APPROVERS_PER_STATE;
+}
+
+function getStateRoleLabel(role: StaffRole, count: number): string {
+  const singular = role === "agency" ? "uploader" : "approver";
+  return count === 1 ? singular : `${singular}s`;
+}
+
+async function assertStateRoleCapacity(
+  ministryId: string,
+  state: string,
+  role: StaffRole,
+): Promise<void> {
+  const maxActiveStaff = getStateRoleLimit(role);
+  const existingSameStateRole = await admin
+    .firestore()
+    .collection(USERS_COLLECTION)
+    .where("ministryId", "==", ministryId)
+    .where("state", "==", state)
+    .where("role", "==", role)
+    .where("accountStatus", "==", "verified")
+    .limit(maxActiveStaff)
+    .get();
+
+  if (existingSameStateRole.size >= maxActiveStaff) {
+    throw new HttpsError(
+      "already-exists",
+      `This ministry already has ${maxActiveStaff} active ${getStateRoleLabel(role, maxActiveStaff)} for ${state}`,
+    );
+  }
 }
 
 /**
@@ -648,22 +684,11 @@ export const approveStaffByMinistryAdmin = onCall(
     // Update ministry document to add staff to appropriate role array
     const ministryData = ministryDoc.data();
     const staffAgencyName = staffUser.staffAgencyName || staffUser.agencyName;
-    const existingSameStateRole = await admin
-      .firestore()
-      .collection(USERS_COLLECTION)
-      .where("ministryId", "==", staffUser.ministryId)
-      .where("state", "==", staffUser.state)
-      .where("role", "==", staffUser.role)
-      .where("accountStatus", "==", "verified")
-      .limit(1)
-      .get();
-
-    if (!existingSameStateRole.empty) {
-      throw new HttpsError(
-        "already-exists",
-        `This ministry already has an active ${staffUser.role === "agency" ? "uploader" : "approver"} for ${staffUser.state}`,
-      );
-    }
+    await assertStateRoleCapacity(
+      staffUser.ministryId,
+      staffUser.state,
+      staffUser.role,
+    );
 
     const uploaders = (ministryData?.uploaders || []) as string[];
     const approvers = (ministryData?.approvers || []) as string[];
@@ -1018,22 +1043,11 @@ export const changeStaffRoleByMinistryAdmin = onCall(
 
     const oldRole = staffUser.role;
 
-    const existingSameStateRole = await admin
-      .firestore()
-      .collection(USERS_COLLECTION)
-      .where("ministryId", "==", staffUser.ministryId)
-      .where("state", "==", staffUser.state)
-      .where("role", "==", newRole)
-      .where("accountStatus", "==", "verified")
-      .limit(1)
-      .get();
-
-    if (!existingSameStateRole.empty) {
-      throw new HttpsError(
-        "already-exists",
-        `This ministry already has an active ${newRole === "agency" ? "uploader" : "approver"} for ${staffUser.state}`,
-      );
-    }
+    await assertStateRoleCapacity(
+      staffUser.ministryId,
+      staffUser.state,
+      newRole,
+    );
 
     // Update user document
     await admin
@@ -1258,22 +1272,11 @@ export const enableStaffByMinistryAdmin = onCall(
       );
     }
 
-    const existingSameStateRole = await admin
-      .firestore()
-      .collection(USERS_COLLECTION)
-      .where("ministryId", "==", staffUser.ministryId)
-      .where("state", "==", staffUser.state)
-      .where("role", "==", staffUser.role)
-      .where("accountStatus", "==", "verified")
-      .limit(1)
-      .get();
-
-    if (!existingSameStateRole.empty) {
-      throw new HttpsError(
-        "already-exists",
-        `This ministry already has an active ${staffUser.role === "agency" ? "uploader" : "approver"} for ${staffUser.state}`,
-      );
-    }
+    await assertStateRoleCapacity(
+      staffUser.ministryId,
+      staffUser.state,
+      staffUser.role,
+    );
 
     // Update user document
     await admin

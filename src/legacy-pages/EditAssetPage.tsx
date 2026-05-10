@@ -16,7 +16,7 @@ import {
   Typography,
   InputAdornment,
 } from '@mui/material';
-import { ArrowBack, Save } from '@mui/icons-material';
+import { ArrowBack, Save } from '@/components/icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAssetById, getCategoryDetails, updateRejectedAsset } from '@/services/asset.service';
@@ -286,31 +286,31 @@ const EditAssetPage = () => {
   // Generate day options (1 to 31)
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
-  // Dark theme input styles
   const inputStyles = {
     '& .MuiOutlinedInput-root': {
-      color: '#FFFFFF',
-      '& fieldset': { borderColor: 'rgba(0, 135, 81, 0.3)' },
-      '&:hover fieldset': { borderColor: 'rgba(0, 135, 81, 0.5)' },
+      color: 'rgba(0, 0, 0, 0.87)',
+      backgroundColor: '#fafcfb',
+      '& fieldset': { borderColor: 'rgba(0, 135, 81, 0.25)' },
+      '&:hover fieldset': { borderColor: 'rgba(0, 135, 81, 0.4)' },
       '&.Mui-focused fieldset': { borderColor: '#008751' },
     },
-    '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.6)' },
-    '& .MuiInputLabel-root.Mui-focused': { color: '#00ff88' },
-    '& .MuiFormHelperText-root': { color: 'rgba(255, 255, 255, 0.5)' },
-    '& .MuiSelect-icon': { color: 'rgba(255, 255, 255, 0.6)' },
+    '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.72)' },
+    '& .MuiInputLabel-root.Mui-focused': { color: '#006038' },
+    '& .MuiFormHelperText-root': { color: 'rgba(0, 0, 0, 0.55)' },
+    '& .MuiSelect-icon': { color: 'rgba(0, 0, 0, 0.54)' },
   };
 
   const menuProps = {
     PaperProps: {
       sx: {
-        backgroundColor: '#0d2818',
-        border: '1px solid rgba(0, 135, 81, 0.3)',
+        backgroundColor: '#ffffff',
+        border: '1px solid rgba(0, 135, 81, 0.2)',
         '& .MuiMenuItem-root': {
-          color: '#FFFFFF',
-          '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.2)' },
+          color: 'rgba(0, 0, 0, 0.87)',
+          '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.08)' },
           '&.Mui-selected': {
-            backgroundColor: 'rgba(0, 135, 81, 0.3)',
-            '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.4)' },
+            backgroundColor: 'rgba(0, 135, 81, 0.12)',
+            '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.16)' },
           },
         },
       },
@@ -322,7 +322,7 @@ const EditAssetPage = () => {
       <AppLayout>
         <Container component="main" maxWidth="lg">
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-            <CircularProgress sx={{ color: '#00ff88' }} />
+            <CircularProgress sx={{ color: '#008751' }} />
           </Box>
         </Container>
       </AppLayout>
@@ -339,9 +339,9 @@ const EditAssetPage = () => {
               to="/assets/my-assets"
               startIcon={<ArrowBack />}
               sx={{
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: 'rgba(15, 48, 31, 0.68)',
                 '&:hover': {
-                  color: '#00ff88',
+                  color: '#008751',
                   backgroundColor: 'transparent',
                 },
               }}
@@ -374,9 +374,9 @@ const EditAssetPage = () => {
             to={`/assets/view/${id}`}
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(15, 48, 31, 0.68)',
               '&:hover': {
-                color: '#00ff88',
+                color: '#008751',
                 backgroundColor: 'transparent',
               },
             }}
@@ -395,10 +395,10 @@ const EditAssetPage = () => {
             borderLeft: '4px solid #008751',
           }}
         >
-          <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 1, fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>
+          <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, mb: 1, fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>
             Edit Asset
           </Typography>
-          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+          <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
             Fix the issues and resubmit for approval
           </Typography>
         </Paper>
@@ -455,8 +455,8 @@ const EditAssetPage = () => {
                   sx={{
                     ...inputStyles,
                     '& .Mui-disabled': {
-                      color: 'rgba(255, 255, 255, 0.4)',
-                      '-webkit-text-fill-color': 'rgba(255, 255, 255, 0.4)',
+                      color: 'rgba(15, 48, 31, 0.4)',
+                      '-webkit-text-fill-color': 'rgba(15, 48, 31, 0.4)',
                     },
                   }}
                 />
@@ -526,7 +526,7 @@ const EditAssetPage = () => {
                   type="number"
                   InputProps={{
                     startAdornment: (
-                      <InputAdornment position="start" sx={{ color: '#00ff88' }}>
+                      <InputAdornment position="start" sx={{ color: '#008751' }}>
                         ₦
                       </InputAdornment>
                     ),
@@ -547,7 +547,7 @@ const EditAssetPage = () => {
                   type="number"
                   InputProps={{
                     startAdornment: (
-                      <InputAdornment position="start" sx={{ color: '#00ff88' }}>
+                      <InputAdornment position="start" sx={{ color: '#008751' }}>
                         ₦
                       </InputAdornment>
                     ),
@@ -627,8 +627,8 @@ const EditAssetPage = () => {
               {loadingCategory && (
                 <Grid item xs={12}>
                   <Box display="flex" alignItems="center" gap={2}>
-                    <CircularProgress size={20} sx={{ color: '#00ff88' }} />
-                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                    <CircularProgress size={20} sx={{ color: '#008751' }} />
+                    <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                       Loading category fields...
                     </Typography>
                   </Box>
@@ -638,7 +638,7 @@ const EditAssetPage = () => {
               {categoryDetails && categoryDetails.requiredFields?.length > 0 && (
                 <>
                   <Grid item xs={12}>
-                    <Typography variant="subtitle2" sx={{ color: '#00ff88', mt: 1, fontWeight: 600 }}>
+                    <Typography variant="subtitle2" sx={{ color: '#008751', mt: 1, fontWeight: 600 }}>
                       Category-Specific Information
                     </Typography>
                   </Grid>
@@ -684,14 +684,14 @@ const EditAssetPage = () => {
                   variant="contained"
                   size="large"
                   disabled={loading || loadingCategory}
-                  startIcon={loading ? <CircularProgress size={20} sx={{ color: '#FFFFFF' }} /> : <Save />}
+                  startIcon={loading ? <CircularProgress size={20} sx={{ color: '#143625' }} /> : <Save />}
                   sx={{
                     mt: 2,
                     backgroundColor: '#008751',
                     '&:hover': { backgroundColor: '#006038' },
                     '&.Mui-disabled': {
                       backgroundColor: 'rgba(0, 135, 81, 0.3)',
-                      color: 'rgba(255, 255, 255, 0.5)',
+                      color: 'rgba(15, 48, 31, 0.5)',
                     },
                   }}
                 >

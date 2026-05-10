@@ -34,7 +34,7 @@ import {
   Schedule,
   Visibility,
   Refresh,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -301,30 +301,30 @@ const AgencyReportsPage = () => {
     setPage(0);
   };
 
-  // Input styles for dark theme
   const inputStyles = {
     '& .MuiOutlinedInput-root': {
-      color: '#FFFFFF',
-      '& fieldset': { borderColor: 'rgba(0, 135, 81, 0.3)' },
-      '&:hover fieldset': { borderColor: 'rgba(0, 135, 81, 0.5)' },
+      color: 'rgba(0, 0, 0, 0.87)',
+      backgroundColor: '#fafcfb',
+      '& fieldset': { borderColor: 'rgba(0, 135, 81, 0.25)' },
+      '&:hover fieldset': { borderColor: 'rgba(0, 135, 81, 0.4)' },
       '&.Mui-focused fieldset': { borderColor: '#008751' },
     },
-    '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.6)' },
-    '& .MuiInputLabel-root.Mui-focused': { color: '#00ff88' },
-    '& .MuiSelect-icon': { color: 'rgba(255, 255, 255, 0.6)' },
+    '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.72)' },
+    '& .MuiInputLabel-root.Mui-focused': { color: '#006038' },
+    '& .MuiSelect-icon': { color: 'rgba(0, 0, 0, 0.54)' },
   };
 
   const menuProps = {
     PaperProps: {
       sx: {
-        backgroundColor: '#0d2818',
-        border: '1px solid rgba(0, 135, 81, 0.3)',
+        backgroundColor: '#ffffff',
+        border: '1px solid rgba(0, 135, 81, 0.2)',
         '& .MuiMenuItem-root': {
-          color: '#FFFFFF',
-          '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.2)' },
+          color: 'rgba(0, 0, 0, 0.87)',
+          '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.08)' },
           '&.Mui-selected': {
-            backgroundColor: 'rgba(0, 135, 81, 0.3)',
-            '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.4)' },
+            backgroundColor: 'rgba(0, 135, 81, 0.12)',
+            '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.16)' },
           },
         },
       },
@@ -359,9 +359,9 @@ const AgencyReportsPage = () => {
             startIcon={<ArrowBack />}
             onClick={() => navigate('/dashboard')}
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(15, 48, 31, 0.68)',
               '&:hover': {
-                color: '#00ff88',
+                color: '#008751',
                 backgroundColor: 'transparent',
               },
             }}
@@ -382,12 +382,12 @@ const AgencyReportsPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Assessment sx={{ fontSize: 40, color: '#00ff88' }} />
+              <Assessment sx={{ fontSize: 40, color: '#008751' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   Asset Reports
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
                   {reportStats?.agencyName}
                 </Typography>
               </Box>
@@ -398,9 +398,9 @@ const AgencyReportsPage = () => {
               onClick={loadReportSummary}
               sx={{
                 borderColor: 'rgba(0, 255, 136, 0.5)',
-                color: '#00ff88',
+                color: '#008751',
                 '&:hover': {
-                  borderColor: '#00ff88',
+                  borderColor: '#008751',
                   backgroundColor: 'rgba(0, 255, 136, 0.1)',
                 },
               }}
@@ -414,72 +414,72 @@ const AgencyReportsPage = () => {
         {viewMode === 'summary' && reportStats && (
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ background: 'linear-gradient(135deg, #008751 0%, #006038 100%)', border: 'none' }}>
+              <Card sx={{ background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.18) 0%, rgba(0, 96, 56, 0.08) 100%)', border: 'none' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box>
-                      <Typography sx={{ color: 'rgba(255,255,255,0.8)' }} variant="body2">
+                      <Typography sx={{ color: 'rgba(15,48,31,0.76)' }} variant="body2">
                         Total Assets
                       </Typography>
-                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                      <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {reportStats.totalAssets}
                       </Typography>
                     </Box>
-                    <TrendingUp sx={{ fontSize: 40, color: 'rgba(255,255,255,0.3)' }} />
+                    <TrendingUp sx={{ fontSize: 40, color: 'rgba(15,48,31,0.3)' }} />
                   </Box>
                 </CardContent>
               </Card>
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ background: 'linear-gradient(135deg, #ed6c02 0%, #c25700 100%)', border: 'none' }}>
+              <Card sx={{ background: 'linear-gradient(135deg, rgba(237, 108, 2, 0.16) 0%, rgba(194, 87, 0, 0.07) 100%)', border: 'none' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box>
-                      <Typography sx={{ color: 'rgba(255,255,255,0.8)' }} variant="body2">
+                      <Typography sx={{ color: 'rgba(15,48,31,0.76)' }} variant="body2">
                         Pending Review
                       </Typography>
-                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                      <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {reportStats.statusCounts.pending}
                       </Typography>
                     </Box>
-                    <Schedule sx={{ fontSize: 40, color: 'rgba(255,255,255,0.3)' }} />
+                    <Schedule sx={{ fontSize: 40, color: 'rgba(15,48,31,0.3)' }} />
                   </Box>
                 </CardContent>
               </Card>
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', border: 'none' }}>
+              <Card sx={{ background: 'linear-gradient(135deg, rgba(46, 125, 50, 0.18) 0%, rgba(27, 94, 32, 0.08) 100%)', border: 'none' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box>
-                      <Typography sx={{ color: 'rgba(255,255,255,0.8)' }} variant="body2">
+                      <Typography sx={{ color: 'rgba(15,48,31,0.76)' }} variant="body2">
                         Approved
                       </Typography>
-                      <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                      <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {reportStats.statusCounts.approved}
                       </Typography>
                     </Box>
-                    <CheckCircle sx={{ fontSize: 40, color: 'rgba(255,255,255,0.3)' }} />
+                    <CheckCircle sx={{ fontSize: 40, color: 'rgba(15,48,31,0.3)' }} />
                   </Box>
                 </CardContent>
               </Card>
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)', border: 'none' }}>
+              <Card sx={{ background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.16) 0%, rgba(21, 101, 192, 0.07) 100%)', border: 'none' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box>
-                      <Typography sx={{ color: 'rgba(255,255,255,0.8)' }} variant="body2">
+                      <Typography sx={{ color: 'rgba(15,48,31,0.76)' }} variant="body2">
                         Total Value
                       </Typography>
-                      <Typography variant="h5" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                      <Typography variant="h5" sx={{ color: '#143625', fontWeight: 700 }}>
                         {formatCurrency(reportStats.totalPurchaseValue)}
                       </Typography>
                     </Box>
-                    <TrendingUp sx={{ fontSize: 40, color: 'rgba(255,255,255,0.3)' }} />
+                    <TrendingUp sx={{ fontSize: 40, color: 'rgba(15,48,31,0.3)' }} />
                   </Box>
                 </CardContent>
               </Card>
@@ -489,7 +489,7 @@ const AgencyReportsPage = () => {
 
         {/* Filter Panel */}
         <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
+          <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600, mb: 2 }}>
             Filter Report
           </Typography>
           <Grid container spacing={2} alignItems="center">
@@ -536,9 +536,9 @@ const AgencyReportsPage = () => {
                 onClick={handleClearFilters}
                 sx={{
                   borderColor: 'rgba(0, 255, 136, 0.5)',
-                  color: '#00ff88',
+                  color: '#008751',
                   '&:hover': {
-                    borderColor: '#00ff88',
+                    borderColor: '#008751',
                     backgroundColor: 'rgba(0, 255, 136, 0.1)',
                   },
                 }}
@@ -559,9 +559,9 @@ const AgencyReportsPage = () => {
                 onClick={handleBackToSummary}
                 sx={{
                   borderColor: 'rgba(0, 255, 136, 0.5)',
-                  color: '#00ff88',
+                  color: '#008751',
                   '&:hover': {
-                    borderColor: '#00ff88',
+                    borderColor: '#008751',
                     backgroundColor: 'rgba(0, 255, 136, 0.1)',
                   },
                 }}
@@ -599,11 +599,11 @@ const AgencyReportsPage = () => {
               startIcon={<Print />}
               onClick={handlePrint}
               sx={{
-                borderColor: 'rgba(255, 255, 255, 0.3)',
-                color: 'rgba(255, 255, 255, 0.7)',
+                borderColor: 'rgba(15, 48, 31, 0.3)',
+                color: 'rgba(15, 48, 31, 0.68)',
                 '&:hover': {
-                  borderColor: 'rgba(255, 255, 255, 0.5)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  borderColor: 'rgba(15, 48, 31, 0.5)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
                 },
               }}
             >
@@ -615,7 +615,7 @@ const AgencyReportsPage = () => {
         {/* Loading State */}
         {loading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', padding: 4 }}>
-            <CircularProgress sx={{ color: '#00ff88' }} />
+            <CircularProgress sx={{ color: '#008751' }} />
           </Box>
         )}
 
@@ -641,14 +641,14 @@ const AgencyReportsPage = () => {
               <Table>
                 <TableHead>
                   <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Category</TableCell>
-                    <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Asset Count</TableCell>
-                    <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Purchase Value</TableCell>
-                    <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Market Value</TableCell>
-                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Approved</TableCell>
-                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Pending</TableCell>
-                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Rejected</TableCell>
-                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
+                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Category</TableCell>
+                    <TableCell align="right" sx={{ color: '#008751', fontWeight: 600 }}>Asset Count</TableCell>
+                    <TableCell align="right" sx={{ color: '#008751', fontWeight: 600 }}>Purchase Value</TableCell>
+                    <TableCell align="right" sx={{ color: '#008751', fontWeight: 600 }}>Market Value</TableCell>
+                    <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>Approved</TableCell>
+                    <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>Pending</TableCell>
+                    <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>Rejected</TableCell>
+                    <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -660,7 +660,7 @@ const AgencyReportsPage = () => {
                         borderBottom: '1px solid rgba(0, 135, 81, 0.1)',
                       }}
                     >
-                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <TableCell sx={{ color: '#143625', fontWeight: 600 }}>
                         {category.category}
                       </TableCell>
                       <TableCell align="right">
@@ -669,15 +669,15 @@ const AgencyReportsPage = () => {
                           size="small"
                           sx={{
                             backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                            color: '#00ff88',
+                            color: '#008751',
                             border: '1px solid rgba(0, 135, 81, 0.4)',
                           }}
                         />
                       </TableCell>
-                      <TableCell align="right" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                      <TableCell align="right" sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
                         {formatCurrency(category.totalPurchaseCost)}
                       </TableCell>
-                      <TableCell align="right" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                      <TableCell align="right" sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
                         {formatCurrency(category.totalMarketValue)}
                       </TableCell>
                       <TableCell align="center">
@@ -720,7 +720,7 @@ const AgencyReportsPage = () => {
                             startIcon={<Visibility />}
                             onClick={() => loadCategoryDetails(category.category)}
                             sx={{
-                              color: '#00ff88',
+                              color: '#008751',
                               '&:hover': { backgroundColor: 'rgba(0, 255, 136, 0.1)' },
                             }}
                           >
@@ -748,7 +748,7 @@ const AgencyReportsPage = () => {
                 border: '1px solid rgba(0, 135, 81, 0.2)',
               }}
             >
-              <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+              <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
                 {selectedCategory} - Detailed Assets ({detailedAssets.length} items)
               </Typography>
             </Paper>
@@ -758,13 +758,13 @@ const AgencyReportsPage = () => {
                 <Table>
                   <TableHead>
                     <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Asset ID</TableCell>
-                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Description</TableCell>
-                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Location</TableCell>
-                      <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Purchase Cost</TableCell>
-                      <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Market Value</TableCell>
-                      <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Status</TableCell>
-                      <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
+                      <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Asset ID</TableCell>
+                      <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Location</TableCell>
+                      <TableCell align="right" sx={{ color: '#008751', fontWeight: 600 }}>Purchase Cost</TableCell>
+                      <TableCell align="right" sx={{ color: '#008751', fontWeight: 600 }}>Market Value</TableCell>
+                      <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>Status</TableCell>
+                      <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -778,13 +778,13 @@ const AgencyReportsPage = () => {
                             borderBottom: '1px solid rgba(0, 135, 81, 0.1)',
                           }}
                         >
-                          <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>{asset.assetId}</TableCell>
-                          <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{asset.description}</TableCell>
-                          <TableCell sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>{asset.location}</TableCell>
-                          <TableCell align="right" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                          <TableCell sx={{ color: '#008751', fontWeight: 600 }}>{asset.assetId}</TableCell>
+                          <TableCell sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>{asset.description}</TableCell>
+                          <TableCell sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>{asset.location}</TableCell>
+                          <TableCell align="right" sx={{ color: '#143625', fontWeight: 600 }}>
                             ₦{asset.purchaseCost.toLocaleString()}
                           </TableCell>
-                          <TableCell align="right" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                          <TableCell align="right" sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
                             {asset.marketValue ? `₦${asset.marketValue.toLocaleString()}` : 'N/A'}
                           </TableCell>
                           <TableCell align="center">
@@ -796,7 +796,7 @@ const AgencyReportsPage = () => {
                               startIcon={<Visibility />}
                               onClick={() => navigate(`/assets/view/${asset.assetId}`)}
                               sx={{
-                                color: '#00ff88',
+                                color: '#008751',
                                 '&:hover': { backgroundColor: 'rgba(0, 255, 136, 0.1)' },
                               }}
                             >
@@ -817,12 +817,12 @@ const AgencyReportsPage = () => {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 sx={{
-                  color: 'rgba(255, 255, 255, 0.7)',
+                  color: 'rgba(15, 48, 31, 0.68)',
                   borderTop: '1px solid rgba(0, 135, 81, 0.2)',
-                  '& .MuiTablePagination-select': { color: 'rgba(255, 255, 255, 0.7)' },
-                  '& .MuiTablePagination-selectIcon': { color: 'rgba(255, 255, 255, 0.5)' },
-                  '& .MuiIconButton-root': { color: 'rgba(255, 255, 255, 0.5)' },
-                  '& .MuiIconButton-root.Mui-disabled': { color: 'rgba(255, 255, 255, 0.2)' },
+                  '& .MuiTablePagination-select': { color: 'rgba(15, 48, 31, 0.68)' },
+                  '& .MuiTablePagination-selectIcon': { color: 'rgba(15, 48, 31, 0.5)' },
+                  '& .MuiIconButton-root': { color: 'rgba(15, 48, 31, 0.5)' },
+                  '& .MuiIconButton-root.Mui-disabled': { color: 'rgba(15, 48, 31, 0.22)' },
                 }}
               />
             </Paper>
@@ -833,10 +833,10 @@ const AgencyReportsPage = () => {
         {!loading && !error && reportStats?.totalAssets === 0 && (
           <Paper elevation={0} sx={{ p: 4, textAlign: 'center' }}>
             <Assessment sx={{ fontSize: 60, color: 'rgba(0, 135, 81, 0.3)', mb: 2 }} />
-            <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+            <Typography variant="h6" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
               No assets uploaded yet
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.5)', mt: 1 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.5)', mt: 1 }}>
               Upload assets to generate reports
             </Typography>
             <Button

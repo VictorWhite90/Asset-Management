@@ -18,7 +18,7 @@ import {
   Person,
   KeyboardArrowDown,
   Dashboard,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { deploymentLabels } from '@/utils/deployment';
@@ -73,11 +73,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <Box
+      className="light-glass-text"
       sx={{
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
+        background:
+          'linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(246,251,247,0.78) 100%)',
       }}
     >
       {/* Presidential Seal Watermark */}
@@ -87,9 +90,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '600px',
-          height: '600px',
-          opacity: 0.02,
+          width: { xs: '340px', md: '680px' },
+          height: { xs: '340px', md: '680px' },
+          opacity: 0.065,
           backgroundImage: 'url("/Seal_of_the_President_of_Nigeria.svg")',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
@@ -102,18 +105,19 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Security Classification Banner */}
       <Box
         sx={{
-          backgroundColor: '#0a0505',
+          backgroundColor: 'rgba(255, 255, 255, 0.76)',
           py: 0.5,
           borderBottom: '2px solid #008751',
           position: 'relative',
           zIndex: 100,
+          backdropFilter: 'blur(16px)',
         }}
       >
         <Container maxWidth="xl">
           <Typography
             variant="caption"
             sx={{
-              color: '#00ff88',
+              color: '#006038',
               fontFamily: '"Courier New", monospace',
               letterSpacing: 3,
               display: 'flex',
@@ -134,11 +138,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Main Header */}
       <Box
         sx={{
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'rgba(255, 255, 255, 0.78)',
           py: 1.5,
-          borderBottom: '1px solid rgba(0, 135, 81, 0.3)',
+          borderBottom: '1px solid rgba(0, 135, 81, 0.2)',
+          boxShadow: '0 10px 28px rgba(20, 54, 37, 0.08)',
           position: 'relative',
           zIndex: 100,
+          backdropFilter: 'blur(18px)',
         }}
       >
         <Container maxWidth="xl">
@@ -160,14 +166,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               {/* Nigerian Flag */}
               <Box sx={{ display: 'flex', borderRadius: 0.5, overflow: 'hidden', boxShadow: '0 0 10px rgba(0,135,81,0.3)', flexShrink: 0 }}>
                 <Box sx={{ width: { xs: 8, sm: 10 }, height: { xs: 16, sm: 20 }, backgroundColor: '#008751' }} />
-                <Box sx={{ width: { xs: 8, sm: 10 }, height: { xs: 16, sm: 20 }, backgroundColor: '#FFFFFF' }} />
+                <Box sx={{ width: { xs: 8, sm: 10 }, height: { xs: 16, sm: 20 }, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
                 <Box sx={{ width: { xs: 8, sm: 10 }, height: { xs: 16, sm: 20 }, backgroundColor: '#008751' }} />
               </Box>
               <Box sx={{ minWidth: 0 }}>
-                <Typography variant="subtitle2" sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
+                <Typography variant="subtitle2" sx={{ color: '#0d331f', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
                   {deploymentLabels.jurisdiction.toUpperCase()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: { xs: '0.55rem', sm: '0.65rem' }, display: { xs: 'none', sm: 'block' } }}>
+                <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)', fontSize: { xs: '0.55rem', sm: '0.65rem' }, display: { xs: 'none', sm: 'block' } }}>
                   Asset Management System
                 </Typography>
               </Box>
@@ -178,13 +184,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               {/* Trust Badges - Desktop Only */}
               <Box sx={{ display: { xs: 'none', lg: 'flex' }, gap: 1 }}>
                 <Chip
-                  icon={<GppGood sx={{ fontSize: 12, color: '#00ff88 !important' }} />}
+                  icon={<GppGood sx={{ fontSize: 12, color: '#008751 !important' }} />}
                   label="Secure"
                   size="small"
                   sx={{
-                    backgroundColor: 'rgba(0, 135, 81, 0.15)',
-                    color: '#00ff88',
-                    border: '1px solid rgba(0, 135, 81, 0.3)',
+                    backgroundColor: 'rgba(0, 135, 81, 0.1)',
+                    color: '#006038',
+                    border: '1px solid rgba(0, 135, 81, 0.25)',
                     fontSize: '0.6rem',
                     height: 22,
                   }}
@@ -196,14 +202,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 onClick={handleMenuOpen}
                 endIcon={<KeyboardArrowDown />}
                 sx={{
-                  color: '#FFFFFF',
+                  color: '#0d331f',
                   textTransform: 'none',
-                  backgroundColor: 'rgba(0, 135, 81, 0.15)',
-                  border: '1px solid rgba(0, 135, 81, 0.3)',
+                  backgroundColor: 'rgba(0, 135, 81, 0.08)',
+                  border: '1px solid rgba(0, 135, 81, 0.22)',
                   px: 2,
                   py: 0.75,
                   '&:hover': {
-                    backgroundColor: 'rgba(0, 135, 81, 0.25)',
+                    backgroundColor: 'rgba(0, 135, 81, 0.14)',
                     borderColor: '#008751',
                   },
                 }}
@@ -213,7 +219,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   <Typography variant="caption" sx={{ display: 'block', lineHeight: 1.2, fontWeight: 600 }}>
                     {userData?.name || userData?.email?.split('@')[0] || 'User'}
                   </Typography>
-                  <Typography variant="caption" sx={{ display: 'block', lineHeight: 1.2, color: '#00ff88', fontSize: '0.6rem' }}>
+                  <Typography variant="caption" sx={{ display: 'block', lineHeight: 1.2, color: '#008751', fontSize: '0.6rem' }}>
                     {getRoleDisplayName(userData?.role || '')}
                   </Typography>
                 </Box>
@@ -261,11 +267,12 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Footer */}
       <Box
         sx={{
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          borderTop: '1px solid rgba(0, 135, 81, 0.2)',
+          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+          borderTop: '1px solid rgba(0, 135, 81, 0.15)',
           py: 2,
           position: 'relative',
           zIndex: 100,
+          backdropFilter: 'blur(16px)',
         }}
       >
         <Container maxWidth="xl">
@@ -273,15 +280,15 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Box sx={{ display: 'flex' }}>
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 12, height: 8, backgroundColor: '#FFFFFF' }} />
+                <Box sx={{ width: 12, height: 8, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
               </Box>
-              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+              <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
                 {deploymentLabels.jurisdiction}
               </Typography>
             </Box>
 
-            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.4)', textAlign: 'center' }}>
+            <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)', textAlign: 'center' }}>
               &copy; {new Date().getFullYear()} {deploymentLabels.systemName}
             </Typography>
 

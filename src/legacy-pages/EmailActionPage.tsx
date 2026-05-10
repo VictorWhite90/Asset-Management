@@ -11,7 +11,7 @@ import {
   Alert,
   Button,
 } from '@mui/material';
-import { CheckCircle, Error as ErrorIcon } from '@mui/icons-material';
+import { CheckCircle, Error as ErrorIcon } from '@/components/icons';
 
 const EmailActionPage = () => {
   const [searchParams] = useSearchParams();

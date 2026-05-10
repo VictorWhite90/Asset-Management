@@ -32,7 +32,7 @@ import {
   AccountBalance,
   Security,
   Groups,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   getAgencyAssets,
@@ -130,6 +130,47 @@ const DashboardPage: React.FC = () => {
     return `₦${amount.toLocaleString()}`;
   };
 
+  const statCardSx = (accent: string) => ({
+    position: 'relative',
+    overflow: 'hidden',
+    minHeight: 128,
+    background:
+      'linear-gradient(135deg, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.62) 100%)',
+    border: '1px solid rgba(0, 135, 81, 0.14)',
+    borderLeft: `5px solid ${accent}`,
+    boxShadow: '0 18px 44px rgba(20, 54, 37, 0.09)',
+    transition: 'transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease',
+    '&:hover': {
+      transform: 'translateY(-3px)',
+      boxShadow: '0 24px 56px rgba(20, 54, 37, 0.13)',
+      borderColor: 'rgba(0, 135, 81, 0.22)',
+    },
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: -48,
+      right: -42,
+      width: 132,
+      height: 132,
+      borderRadius: '50%',
+      background: accent,
+      opacity: 0.08,
+    },
+  });
+
+  const statIconWrapSx = (accent: string) => ({
+    width: 54,
+    height: 54,
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: accent,
+    backgroundColor: `${accent}14`,
+    border: `1px solid ${accent}24`,
+    flexShrink: 0,
+  });
+
   // Get recent uploads (last 2)
   const recentUploads = [...assets]
     .sort((a, b) => {
@@ -155,7 +196,7 @@ const DashboardPage: React.FC = () => {
   };
 
   const getRoleIcon = (role: string) => {
-    const iconSx = { fontSize: { xs: 32, sm: 48 }, color: '#00ff88' };
+    const iconSx = { fontSize: { xs: 32, sm: 48 }, color: '#008751' };
     switch (role) {
       case 'admin':
         return <Security sx={iconSx} />;
@@ -205,7 +246,7 @@ const DashboardPage: React.FC = () => {
               <Typography
                 variant="h4"
                 sx={{
-                  color: '#FFFFFF',
+                  color: '#143625',
                   fontWeight: 700,
                   mb: 0.5,
                   fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' },
@@ -220,14 +261,14 @@ const DashboardPage: React.FC = () => {
                   size="small"
                   sx={{
                     backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                    color: '#00ff88',
+                    color: '#008751',
                     border: '1px solid rgba(0, 135, 81, 0.4)',
                     fontWeight: 600,
                     fontSize: { xs: '0.7rem', sm: '0.8125rem' },
                   }}
                 />
                 {userData?.agencyName && userData.role !== 'admin' && (
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                     {userData.agencyName}
                   </Typography>
                 )}
@@ -250,7 +291,7 @@ const DashboardPage: React.FC = () => {
             <Button
               size="small"
               onClick={() => navigate('/verify-email')}
-              sx={{ ml: 2, color: '#00ff88' }}
+              sx={{ ml: 2, color: '#008751' }}
             >
               Verify Now
             </Button>
@@ -262,7 +303,7 @@ const DashboardPage: React.FC = () => {
           <>
             {loadingStats ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4, py: 4 }}>
-                <CircularProgress sx={{ color: '#00ff88' }} />
+                <CircularProgress sx={{ color: '#008751' }} />
               </Box>
             ) : statsError ? (
               <Alert severity="error" sx={{ mb: 3 }}>
@@ -274,75 +315,83 @@ const DashboardPage: React.FC = () => {
                 {userData?.role === 'agency' && (
                   <>
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #008751 0%, #006038 100%)', border: 'none' }}>
-                        <CardContent>
+                      <Card sx={statCardSx('#008751')}>
+                        <CardContent sx={{ p: 2.5, position: 'relative', zIndex: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.72)', fontWeight: 700 }}>
                                 Total Assets
                               </Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 800, mt: 1 }}>
                                 {totalAssets}
                               </Typography>
                             </Box>
-                            <TrendingUp sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <Box sx={statIconWrapSx('#008751')}>
+                              <TrendingUp sx={{ fontSize: 32 }} />
+                            </Box>
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #b8860b 0%, #8b6914 100%)', border: 'none' }}>
-                        <CardContent>
+                      <Card sx={statCardSx('#b8860b')}>
+                        <CardContent sx={{ p: 2.5, position: 'relative', zIndex: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.72)', fontWeight: 700 }}>
                                 Pending
                               </Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 800, mt: 1 }}>
                                 {pendingAssets}
                               </Typography>
-                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem' }}>
+                              <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)', fontSize: '0.75rem', fontWeight: 600 }}>
                                 Pending Assets
                               </Typography>
                             </Box>
-                            <Schedule sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <Box sx={statIconWrapSx('#b8860b')}>
+                              <Schedule sx={{ fontSize: 32 }} />
+                            </Box>
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', border: 'none' }}>
-                        <CardContent>
+                      <Card sx={statCardSx('#2e7d32')}>
+                        <CardContent sx={{ p: 2.5, position: 'relative', zIndex: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.72)', fontWeight: 700 }}>
                                 Approved
                               </Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 800, mt: 1 }}>
                                 {approvedAssets}
                               </Typography>
                             </Box>
-                            <CheckCircle sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <Box sx={statIconWrapSx('#2e7d32')}>
+                              <CheckCircle sx={{ fontSize: 32 }} />
+                            </Box>
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #c62828 0%, #8e0000 100%)', border: 'none' }}>
-                        <CardContent>
+                      <Card sx={statCardSx('#c62828')}>
+                        <CardContent sx={{ p: 2.5, position: 'relative', zIndex: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.72)', fontWeight: 700 }}>
                                 Rejected
                               </Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 800, mt: 1 }}>
                                 {rejectedAssets}
                               </Typography>
                             </Box>
-                            <Cancel sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <Box sx={statIconWrapSx('#c62828')}>
+                              <Cancel sx={{ fontSize: 32 }} />
+                            </Box>
                           </Box>
                         </CardContent>
                       </Card>
@@ -352,10 +401,10 @@ const DashboardPage: React.FC = () => {
                       <Card>
                         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                            <AttachMoney sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
-                            <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.95rem', sm: '1.25rem' } }}>Total Purchase Cost</Typography>
+                            <AttachMoney sx={{ mr: 1, color: '#008751', fontSize: { xs: 20, sm: 24 } }} />
+                            <Typography variant="h6" sx={{ color: '#143625', fontSize: { xs: '0.95rem', sm: '1.25rem' } }}>Total Purchase Cost</Typography>
                           </Box>
-                          <Typography variant="h4" sx={{ color: '#00ff88', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2rem' }, wordBreak: 'break-word' }}>
+                          <Typography variant="h4" sx={{ color: '#008751', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2rem' }, wordBreak: 'break-word' }}>
                             {formatCurrency(totalPurchaseCost)}
                           </Typography>
                         </CardContent>
@@ -367,7 +416,7 @@ const DashboardPage: React.FC = () => {
                         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                             <AttachMoney sx={{ mr: 1, color: '#4caf50', fontSize: { xs: 20, sm: 24 } }} />
-                            <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.95rem', sm: '1.25rem' } }}>Total Market Value</Typography>
+                            <Typography variant="h6" sx={{ color: '#143625', fontSize: { xs: '0.95rem', sm: '1.25rem' } }}>Total Market Value</Typography>
                           </Box>
                           <Typography variant="h4" sx={{ color: '#4caf50', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2rem' }, wordBreak: 'break-word' }}>
                             {formatCurrency(totalMarketValue)}
@@ -380,7 +429,7 @@ const DashboardPage: React.FC = () => {
                     <Grid item xs={12}>
                       <Paper sx={{ p: 3 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                          <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
                             Recent Uploads
                           </Typography>
                           <Button
@@ -388,13 +437,13 @@ const DashboardPage: React.FC = () => {
                             to="/assets/my-assets"
                             size="small"
                             variant="outlined"
-                            sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#00ff88', fontSize: '0.75rem' }}
+                            sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#008751', fontSize: '0.75rem' }}
                           >
                             View All Uploads
                           </Button>
                         </Box>
                         {recentUploads.length === 0 ? (
-                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', py: 3 }}>
+                          <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.5)', textAlign: 'center', py: 3 }}>
                             No uploads yet
                           </Typography>
                         ) : (
@@ -424,10 +473,10 @@ const DashboardPage: React.FC = () => {
                                   }}
                                 >
                                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                                    <Typography variant="body2" sx={{ color: '#FFFFFF', fontWeight: 600, wordBreak: 'break-word' }}>
+                                    <Typography variant="body2" sx={{ color: '#143625', fontWeight: 600, wordBreak: 'break-word' }}>
                                       {asset.description}
                                     </Typography>
-                                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+                                    <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.5)' }}>
                                       {asset.assetId} • {asset.category} • ₦{asset.purchaseCost?.toLocaleString()}
                                     </Typography>
                                   </Box>
@@ -457,72 +506,72 @@ const DashboardPage: React.FC = () => {
                 {userData?.role === 'agency-approver' && (
                   <>
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #b8860b 0%, #8b6914 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(184, 134, 11, 0.18) 0%, rgba(139, 105, 20, 0.08) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>
                                 Pending Approval
                               </Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>
                                 {pendingAssets}
                               </Typography>
                             </Box>
-                            <Schedule sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <Schedule sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #008751 0%, #006038 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.18) 0%, rgba(0, 96, 56, 0.08) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>
                                 Total Assets
                               </Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>
                                 {totalAssets}
                               </Typography>
                             </Box>
-                            <TrendingUp sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <TrendingUp sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(46, 125, 50, 0.18) 0%, rgba(27, 94, 32, 0.08) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>
                                 Approved
                               </Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>
                                 {approvedAssets}
                               </Typography>
                             </Box>
-                            <CheckCircle sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <CheckCircle sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #c62828 0%, #8e0000 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(198, 40, 40, 0.16) 0%, rgba(142, 0, 0, 0.07) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>
                                 Rejected
                               </Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>
                                 {rejectedAssets}
                               </Typography>
                             </Box>
-                            <Cancel sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <Cancel sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
@@ -533,18 +582,18 @@ const DashboardPage: React.FC = () => {
                       <Grid item xs={12} md={6}>
                         <Card>
                           <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                            <Typography variant="h6" sx={{ color: '#00ff88', mb: 2.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
+                            <Typography variant="h6" sx={{ color: '#008751', mb: 2.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
                               Assets by Category
                             </Typography>
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                               {categoryBreakdown.map(([cat, count], idx) => {
                                 const pct = totalAssets > 0 ? (count / totalAssets) * 100 : 0;
-                                const barColors = ['#00ff88', '#2196f3', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4'];
+                                const barColors = ['#008751', '#2196f3', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4'];
                                 const col = barColors[idx % barColors.length];
                                 return (
                                   <Box key={cat}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
-                                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{cat}</Typography>
+                                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', fontWeight: 500 }}>{cat}</Typography>
                                       <Typography sx={{ fontSize: '0.78rem', color: col, fontWeight: 700 }}>{count} asset{count !== 1 ? 's' : ''}</Typography>
                                     </Box>
                                     <Box sx={{ height: 9, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
@@ -564,7 +613,7 @@ const DashboardPage: React.FC = () => {
                       <Grid item xs={12} md={6}>
                         <Card>
                           <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                            <Typography variant="h6" sx={{ color: '#00ff88', mb: 2.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
+                            <Typography variant="h6" sx={{ color: '#008751', mb: 2.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
                               Asset Status Overview
                             </Typography>
                             {(() => {
@@ -574,7 +623,7 @@ const DashboardPage: React.FC = () => {
                                 { label: 'Rejected', count: rejectedAssets, color: '#f44336' },
                                 { label: 'Ministry Review', count: pendingMinistryReview, color: '#2196f3' },
                               ].filter(s => s.count > 0);
-                              if (slices.length === 0) return <Typography sx={{ color: 'rgba(255,255,255,0.5)' }}>No data yet</Typography>;
+                              if (slices.length === 0) return <Typography sx={{ color: 'rgba(15,48,31,0.5)' }}>No data yet</Typography>;
                               const r = 58; const cx = 78; const cy = 78;
                               let startAngle = -Math.PI / 2;
                               const paths = slices.map(s => {
@@ -591,13 +640,13 @@ const DashboardPage: React.FC = () => {
                               return (
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                                   <svg width="156" height="156" viewBox="0 0 156 156">
-                                    {paths.map(p => <path key={p.label} d={p.d} fill={p.color} stroke="#0d2818" strokeWidth="2" />)}
+                                    {paths.map(p => <path key={p.label} d={p.d} fill={p.color} stroke="#cfd8dc" strokeWidth="2" />)}
                                   </svg>
                                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}>
                                     {slices.map(s => (
                                       <Box key={s.label} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <Box sx={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: s.color, flexShrink: 0 }} />
-                                        <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)' }}>
+                                        <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)' }}>
                                           {s.label}: <strong>{s.count}</strong>
                                         </Typography>
                                       </Box>
@@ -615,7 +664,7 @@ const DashboardPage: React.FC = () => {
                     <Grid item xs={12}>
                       <Paper sx={{ p: 3 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                          <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
                             Recent Asset History
                           </Typography>
                           <Button
@@ -623,13 +672,13 @@ const DashboardPage: React.FC = () => {
                             to="/approver/review-uploads?tab=history"
                             size="small"
                             variant="outlined"
-                            sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#00ff88', fontSize: '0.75rem' }}
+                            sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#008751', fontSize: '0.75rem' }}
                           >
                             View All
                           </Button>
                         </Box>
                         {recentUploads.length === 0 ? (
-                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', py: 3 }}>
+                          <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.5)', textAlign: 'center', py: 3 }}>
                             No assets yet
                           </Typography>
                         ) : (
@@ -659,10 +708,10 @@ const DashboardPage: React.FC = () => {
                                   }}
                                 >
                                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                                    <Typography variant="body2" sx={{ color: '#FFFFFF', fontWeight: 600, wordBreak: 'break-word' }}>
+                                    <Typography variant="body2" sx={{ color: '#143625', fontWeight: 600, wordBreak: 'break-word' }}>
                                       {asset.description}
                                     </Typography>
-                                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+                                    <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.5)' }}>
                                       {asset.assetId} • {asset.category} • ₦{asset.purchaseCost?.toLocaleString()}
                                     </Typography>
                                   </Box>
@@ -692,57 +741,57 @@ const DashboardPage: React.FC = () => {
                 {userData?.role === 'ministry-admin' && (
                   <>
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #008751 0%, #006038 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.18) 0%, rgba(0, 96, 56, 0.08) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Total Assets</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{totalAssets}</Typography>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>Total Assets</Typography>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>{totalAssets}</Typography>
                             </Box>
-                            <TrendingUp sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <TrendingUp sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(21, 101, 192, 0.16) 0%, rgba(13, 71, 161, 0.07) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Awaiting Review</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{pendingMinistryReview}</Typography>
-                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Needs your action</Typography>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>Awaiting Review</Typography>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>{pendingMinistryReview}</Typography>
+                              <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>Needs your action</Typography>
                             </Box>
-                            <Schedule sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <Schedule sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(46, 125, 50, 0.18) 0%, rgba(27, 94, 32, 0.08) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>{deploymentLabels.sentToTopAdmin}</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{approvedAssets}</Typography>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>{deploymentLabels.sentToTopAdmin}</Typography>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>{approvedAssets}</Typography>
                             </Box>
-                            <CheckCircle sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <CheckCircle sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #c62828 0%, #8e0000 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(198, 40, 40, 0.16) 0%, rgba(142, 0, 0, 0.07) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Rejected</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{rejectedAssets}</Typography>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>Rejected</Typography>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>{rejectedAssets}</Typography>
                             </Box>
-                            <Cancel sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <Cancel sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
@@ -753,18 +802,18 @@ const DashboardPage: React.FC = () => {
                       <Grid item xs={12} md={6}>
                         <Card>
                           <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                            <Typography variant="h6" sx={{ color: '#00ff88', mb: 2.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
+                            <Typography variant="h6" sx={{ color: '#008751', mb: 2.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
                               Assets by Category
                             </Typography>
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                               {categoryBreakdown.map(([cat, count], idx) => {
                                 const pct = totalAssets > 0 ? (count / totalAssets) * 100 : 0;
-                                const barColors = ['#00ff88', '#2196f3', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4'];
+                                const barColors = ['#008751', '#2196f3', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4'];
                                 const col = barColors[idx % barColors.length];
                                 return (
                                   <Box key={cat}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
-                                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{cat}</Typography>
+                                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', fontWeight: 500 }}>{cat}</Typography>
                                       <Typography sx={{ fontSize: '0.78rem', color: col, fontWeight: 700 }}>{count} asset{count !== 1 ? 's' : ''}</Typography>
                                     </Box>
                                     <Box sx={{ height: 9, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
@@ -784,7 +833,7 @@ const DashboardPage: React.FC = () => {
                       <Grid item xs={12} md={6}>
                         <Card>
                           <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                            <Typography variant="h6" sx={{ color: '#00ff88', mb: 0.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
+                            <Typography variant="h6" sx={{ color: '#008751', mb: 0.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
                               Market Value by State
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.45)', display: 'block', mb: 2 }}>
@@ -800,10 +849,10 @@ const DashboardPage: React.FC = () => {
                                 .sort((a, b) => b[1] - a[1])
                                 .slice(0, 7);
                               if (stateData.length === 0) return (
-                                <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.82rem' }}>No market value data yet</Typography>
+                                <Typography sx={{ color: 'rgba(15,48,31,0.5)', fontSize: '0.82rem' }}>No market value data yet</Typography>
                               );
                               const maxVal = stateData[0][1];
-                              const barColors = ['#2196f3', '#00bcd4', '#00ff88', '#ff9800', '#e91e63', '#9c27b0', '#4caf50'];
+                              const barColors = ['#2196f3', '#00bcd4', '#008751', '#ff9800', '#e91e63', '#9c27b0', '#4caf50'];
                               const chartH = 160;
                               return (
                                 <Box>
@@ -842,7 +891,7 @@ const DashboardPage: React.FC = () => {
                                   <Box sx={{ display: 'flex', gap: '6px', px: 0.5 }}>
                                     {stateData.map(([state]) => (
                                       <Box key={state} sx={{ flex: 1, textAlign: 'center' }}>
-                                        <Typography sx={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.2, wordBreak: 'break-word' }}>
+                                        <Typography sx={{ fontSize: '0.58rem', color: 'rgba(15,48,31,0.58)', lineHeight: 1.2, wordBreak: 'break-word' }}>
                                           {state.length > 6 ? state.slice(0, 6) + '…' : state}
                                         </Typography>
                                       </Box>
@@ -860,7 +909,7 @@ const DashboardPage: React.FC = () => {
                     <Grid item xs={12}>
                       <Paper sx={{ p: 3 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                          <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
                             Recent Asset History
                           </Typography>
                           <Button
@@ -868,13 +917,13 @@ const DashboardPage: React.FC = () => {
                             to="/ministry-admin/dashboard"
                             size="small"
                             variant="outlined"
-                            sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#00ff88', fontSize: '0.75rem' }}
+                            sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#008751', fontSize: '0.75rem' }}
                           >
                             View All
                           </Button>
                         </Box>
                         {recentUploads.length === 0 ? (
-                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', py: 3 }}>
+                          <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.5)', textAlign: 'center', py: 3 }}>
                             No assets in your ministry yet
                           </Typography>
                         ) : (
@@ -904,10 +953,10 @@ const DashboardPage: React.FC = () => {
                                   }}
                                 >
                                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                                    <Typography variant="body2" sx={{ color: '#FFFFFF', fontWeight: 600, wordBreak: 'break-word' }}>
+                                    <Typography variant="body2" sx={{ color: '#143625', fontWeight: 600, wordBreak: 'break-word' }}>
                                       {asset.description}
                                     </Typography>
-                                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+                                    <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.5)' }}>
                                       {asset.assetId} • {asset.category} • ₦{asset.purchaseCost?.toLocaleString()}
                                     </Typography>
                                   </Box>
@@ -938,60 +987,60 @@ const DashboardPage: React.FC = () => {
                   <>
                     {/* Row 1: 4 stat cards */}
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #008751 0%, #006038 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.18) 0%, rgba(0, 96, 56, 0.08) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Total Assets</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{totalAssets}</Typography>
-                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Across all ministries</Typography>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>Total Assets</Typography>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>{totalAssets}</Typography>
+                              <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>Across all ministries</Typography>
                             </Box>
-                            <TrendingUp sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <TrendingUp sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(21, 101, 192, 0.16) 0%, rgba(13, 71, 161, 0.07) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Ministries</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{uniqueMinistries}</Typography>
-                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Reporting ministries</Typography>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>Ministries</Typography>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>{uniqueMinistries}</Typography>
+                              <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>Reporting ministries</Typography>
                             </Box>
-                            <AccountBalance sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <AccountBalance sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #e65100 0%, #bf360c 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(230, 81, 0, 0.16) 0%, rgba(191, 54, 12, 0.07) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Asset Categories</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{uniqueCategories}</Typography>
-                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Unique asset types</Typography>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>Asset Categories</Typography>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>{uniqueCategories}</Typography>
+                              <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>Unique asset types</Typography>
                             </Box>
-                            <Assessment sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <Assessment sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #6a1b9a 0%, #4a148c 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, rgba(106, 27, 154, 0.15) 0%, rgba(74, 20, 140, 0.07) 100%)', border: 'none' }}>
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Approved Assets</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{newSubmissions}</Typography>
-                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Sent by ministries</Typography>
+                              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)' }}>Approved Assets</Typography>
+                              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>{newSubmissions}</Typography>
+                              <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>Sent by ministries</Typography>
                             </Box>
-                            <Schedule sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                            <Schedule sx={{ fontSize: 48, color: 'rgba(15,48,31,0.3)' }} />
                           </Box>
                         </CardContent>
                       </Card>
@@ -1002,13 +1051,13 @@ const DashboardPage: React.FC = () => {
                       <Card>
                         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                            <AttachMoney sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
-                            <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.95rem', sm: '1.25rem' } }}>Total Purchase Cost</Typography>
+                            <AttachMoney sx={{ mr: 1, color: '#008751', fontSize: { xs: 20, sm: 24 } }} />
+                            <Typography variant="h6" sx={{ color: '#143625', fontSize: { xs: '0.95rem', sm: '1.25rem' } }}>Total Purchase Cost</Typography>
                           </Box>
-                          <Typography variant="h4" sx={{ color: '#00ff88', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2rem' }, wordBreak: 'break-word' }}>
+                          <Typography variant="h4" sx={{ color: '#008751', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2rem' }, wordBreak: 'break-word' }}>
                             {formatCurrency(totalPurchaseCost)}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Across all ministries</Typography>
+                          <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>Across all ministries</Typography>
                         </CardContent>
                       </Card>
                     </Grid>
@@ -1018,12 +1067,12 @@ const DashboardPage: React.FC = () => {
                         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                             <AttachMoney sx={{ mr: 1, color: '#4caf50', fontSize: { xs: 20, sm: 24 } }} />
-                            <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.95rem', sm: '1.25rem' } }}>Total Market Value</Typography>
+                            <Typography variant="h6" sx={{ color: '#143625', fontSize: { xs: '0.95rem', sm: '1.25rem' } }}>Total Market Value</Typography>
                           </Box>
                           <Typography variant="h4" sx={{ color: '#4caf50', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2rem' }, wordBreak: 'break-word' }}>
                             {formatCurrency(totalMarketValue)}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Current valuation</Typography>
+                          <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>Current valuation</Typography>
                         </CardContent>
                       </Card>
                     </Grid>
@@ -1032,9 +1081,9 @@ const DashboardPage: React.FC = () => {
                     <Grid item xs={12} md={6}>
                       <Card>
                         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                          <Typography variant="h6" sx={{ color: '#00ff88', mb: 2, fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>Asset Status Breakdown</Typography>
+                          <Typography variant="h6" sx={{ color: '#008751', mb: 2, fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>Asset Status Breakdown</Typography>
                           {totalAssets === 0 ? (
-                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)' }}>No assets yet</Typography>
+                            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.5)' }}>No assets yet</Typography>
                           ) : (() => {
                             const slices = [
                               { label: 'Approved', count: approvedAssets, color: '#4caf50' },
@@ -1058,13 +1107,13 @@ const DashboardPage: React.FC = () => {
                             return (
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                                 <svg width="160" height="160" viewBox="0 0 160 160">
-                                  {paths.map(p => <path key={p.label} d={p.d} fill={p.color} stroke="#0d2818" strokeWidth="2" />)}
+                                  {paths.map(p => <path key={p.label} d={p.d} fill={p.color} stroke="#cfd8dc" strokeWidth="2" />)}
                                 </svg>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                                   {slices.map(s => (
                                     <Box key={s.label} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                       <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: s.color, flexShrink: 0 }} />
-                                      <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem' }}>
+                                      <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)', fontSize: '0.8rem' }}>
                                         {s.label}: {s.count}
                                       </Typography>
                                     </Box>
@@ -1080,9 +1129,9 @@ const DashboardPage: React.FC = () => {
                     <Grid item xs={12} md={6}>
                       <Card>
                         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                          <Typography variant="h6" sx={{ color: '#00ff88', mb: 2, fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>Assets by Category</Typography>
+                          <Typography variant="h6" sx={{ color: '#008751', mb: 2, fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>Assets by Category</Typography>
                           {categoryBreakdown.length === 0 ? (
-                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)' }}>No assets yet</Typography>
+                            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.5)' }}>No assets yet</Typography>
                           ) : (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                               {categoryBreakdown.map(([cat, count]) => {
@@ -1090,8 +1139,8 @@ const DashboardPage: React.FC = () => {
                                 return (
                                   <Box key={cat}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25 }}>
-                                      <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem' }}>{cat}</Typography>
-                                      <Typography variant="caption" sx={{ color: '#00ff88', fontSize: '0.75rem', fontWeight: 600 }}>{count}</Typography>
+                                      <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.68)', fontSize: '0.75rem' }}>{cat}</Typography>
+                                      <Typography variant="caption" sx={{ color: '#008751', fontSize: '0.75rem', fontWeight: 600 }}>{count}</Typography>
                                     </Box>
                                     <Box sx={{ height: 8, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 4, overflow: 'hidden' }}>
                                       <Box sx={{ height: '100%', width: `${pct}%`, backgroundColor: '#008751', borderRadius: 4, transition: 'width 0.5s ease' }} />
@@ -1117,10 +1166,10 @@ const DashboardPage: React.FC = () => {
             <Card>
               <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Person sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
-                  <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Ministry/Agency</Typography>
+                  <Person sx={{ mr: 1, color: '#008751', fontSize: { xs: 20, sm: 24 } }} />
+                  <Typography variant="h6" sx={{ color: '#143625', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Ministry/Agency</Typography>
                 </Box>
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.85rem', sm: '1rem' }, wordBreak: 'break-word' }}>
+                <Typography variant="body1" sx={{ color: 'rgba(15,48,31,0.68)', fontSize: { xs: '0.85rem', sm: '1rem' }, wordBreak: 'break-word' }}>
                   {userData?.agencyName || deploymentLabels.administrationFallback}
                 </Typography>
               </CardContent>
@@ -1131,10 +1180,10 @@ const DashboardPage: React.FC = () => {
             <Card>
               <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Email sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
-                  <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Email</Typography>
+                  <Email sx={{ mr: 1, color: '#008751', fontSize: { xs: 20, sm: 24 } }} />
+                  <Typography variant="h6" sx={{ color: '#143625', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Email</Typography>
                 </Box>
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.85rem', sm: '1rem' }, wordBreak: 'break-word' }}>
+                <Typography variant="body1" sx={{ color: 'rgba(15,48,31,0.68)', fontSize: { xs: '0.85rem', sm: '1rem' }, wordBreak: 'break-word' }}>
                   {currentUser?.email || 'N/A'}
                 </Typography>
               </CardContent>
@@ -1145,10 +1194,10 @@ const DashboardPage: React.FC = () => {
             <Card>
               <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <DashboardIcon sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
-                  <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Role</Typography>
+                  <DashboardIcon sx={{ mr: 1, color: '#008751', fontSize: { xs: 20, sm: 24 } }} />
+                  <Typography variant="h6" sx={{ color: '#143625', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Role</Typography>
                 </Box>
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.85rem', sm: '1rem' } }}>
+                <Typography variant="body1" sx={{ color: 'rgba(15,48,31,0.68)', fontSize: { xs: '0.85rem', sm: '1rem' } }}>
                   {getRoleDisplayName(userData?.role || '')}
                 </Typography>
               </CardContent>
@@ -1166,10 +1215,10 @@ const DashboardPage: React.FC = () => {
               borderLeft: '4px solid #008751',
             }}
           >
-            <Typography variant="h6" sx={{ color: '#00ff88', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+            <Typography variant="h6" sx={{ color: '#008751', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Asset Management
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
               Upload and manage your ministry's assets
             </Typography>
             <Grid container spacing={{ xs: 1.5, sm: 2 }}>
@@ -1245,10 +1294,10 @@ const DashboardPage: React.FC = () => {
             <Typography variant="h6" sx={{ color: '#ffc107', mb: 1 }}>
               Account Pending Verification
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', mb: 1 }}>
               Your approver account is awaiting verification by your ministry administrator.
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.58)' }}>
               <strong>Registered:</strong> {userData.createdAt?.toDate().toLocaleDateString('en-GB')}
             </Typography>
           </Paper>
@@ -1270,11 +1319,11 @@ const DashboardPage: React.FC = () => {
             <Typography variant="h6" sx={{ color: '#ef5350', mb: 1 }}>
               Account Verification Rejected
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', mb: 1 }}>
               Your approver account was rejected by your ministry administrator.
             </Typography>
             {userData.rejectionReason && (
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.58)' }}>
                 <strong>Reason:</strong> {userData.rejectionReason}
               </Typography>
             )}
@@ -1296,7 +1345,7 @@ const DashboardPage: React.FC = () => {
             <Typography variant="h6" sx={{ color: '#ffc107', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Review & Approval
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
               Review and approve asset uploads from your ministry
             </Typography>
             <Grid container spacing={{ xs: 1.5, sm: 2 }}>
@@ -1350,10 +1399,10 @@ const DashboardPage: React.FC = () => {
               borderLeft: '4px solid #008751',
             }}
           >
-            <Typography variant="h6" sx={{ color: '#00ff88', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+            <Typography variant="h6" sx={{ color: '#008751', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               {deploymentLabels.topAdminPanel}
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
               Manage all assets, ministries, and ministry admin verifications
             </Typography>
             <Grid container spacing={{ xs: 1.5, sm: 2 }}>
@@ -1448,10 +1497,10 @@ const DashboardPage: React.FC = () => {
             <Typography variant="h6" sx={{ color: '#ffc107', mb: 1 }}>
               {deploymentLabels.ministryAdminShort} Account Pending Approval
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', mb: 1 }}>
               Your {deploymentLabels.ministryAdminShort.toLowerCase()} account is awaiting approval by the {deploymentLabels.topAdminApprovalLower}.
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.58)' }}>
               <strong>Registered:</strong> {userData.createdAt?.toDate().toLocaleDateString('en-GB')}
             </Typography>
           </Paper>
@@ -1473,11 +1522,11 @@ const DashboardPage: React.FC = () => {
             <Typography variant="h6" sx={{ color: '#ef5350', mb: 1 }}>
               {deploymentLabels.ministryAdminShort} Account Rejected
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', mb: 1 }}>
               Your {deploymentLabels.ministryAdminShort.toLowerCase()} account was rejected by the {deploymentLabels.topAdminApprovalLower}.
             </Typography>
             {userData.rejectionReason && (
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.58)' }}>
                 <strong>Reason:</strong> {userData.rejectionReason}
               </Typography>
             )}
@@ -1496,10 +1545,10 @@ const DashboardPage: React.FC = () => {
               borderLeft: '4px solid #008751',
             }}
           >
-            <Typography variant="h6" sx={{ color: '#00ff88', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+            <Typography variant="h6" sx={{ color: '#008751', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Ministry Management
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
               Manage staff registrations and approvals for your ministry
             </Typography>
             <Grid container spacing={{ xs: 1.5, sm: 2 }}>
@@ -1542,18 +1591,18 @@ const DashboardPage: React.FC = () => {
 
         {/* System Info */}
         <Paper sx={{ p: { xs: 2, sm: 3 } }}>
-          <Typography variant="h6" sx={{ color: '#00ff88', mb: 2, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+          <Typography variant="h6" sx={{ color: '#008751', mb: 2, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
             {deploymentLabels.systemName}
           </Typography>
-          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+          <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
             A comprehensive platform for managing government assets across ministries, departments, and agencies.
           </Typography>
 
           <Box sx={{ pt: 2, borderTop: '1px solid rgba(0, 135, 81, 0.2)' }}>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.58)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
               <strong>Ministry Type:</strong> {userData?.ministryType || deploymentLabels.administrationFallback}
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.58)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
               <strong>Location:</strong> {userData?.location || 'Abuja, FCT'}
             </Typography>
           </Box>

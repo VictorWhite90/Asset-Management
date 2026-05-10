@@ -23,7 +23,7 @@ import {
   Lock,
   GppGood,
   ArrowBack,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import { toast } from 'react-toastify';
 import { loginUser } from '@/services/auth.service';
 import { UserLoginData } from '@/types/user.types';
@@ -93,6 +93,8 @@ const LoginPage: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
+        background:
+          'linear-gradient(180deg, rgba(255,255,255,0.84) 0%, rgba(245,250,247,0.76) 100%)',
       }}
     >
       {/* Presidential Seal Watermark */}
@@ -102,9 +104,9 @@ const LoginPage: React.FC = () => {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '500px',
-          height: '500px',
-          opacity: 0.03,
+          width: { xs: '320px', sm: '560px' },
+          height: { xs: '320px', sm: '560px' },
+          opacity: 0.075,
           backgroundImage: 'url("/Seal_of_the_President_of_Nigeria.svg")',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
@@ -117,18 +119,19 @@ const LoginPage: React.FC = () => {
       {/* Security Banner */}
       <Box
         sx={{
-          backgroundColor: '#0a0505',
+          backgroundColor: 'rgba(255, 255, 255, 0.72)',
           py: 0.5,
           borderBottom: '2px solid #008751',
           position: 'relative',
           zIndex: 10,
+          backdropFilter: 'blur(16px)',
         }}
       >
         <Container maxWidth="lg">
           <Typography
             variant="caption"
             sx={{
-              color: '#00ff88',
+              color: '#008751',
               fontFamily: '"Courier New", monospace',
               letterSpacing: 3,
               display: 'flex',
@@ -149,11 +152,13 @@ const LoginPage: React.FC = () => {
       {/* Header */}
       <Box
         sx={{
-          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backgroundColor: 'rgba(255, 255, 255, 0.66)',
           py: 1.5,
           borderBottom: '1px solid rgba(0, 135, 81, 0.2)',
           position: 'relative',
           zIndex: 10,
+          backdropFilter: 'blur(18px)',
+          boxShadow: '0 10px 28px rgba(20,54,37,0.08)',
         }}
       >
         <Container maxWidth="lg">
@@ -170,14 +175,14 @@ const LoginPage: React.FC = () => {
             >
               <Box sx={{ display: 'flex', borderRadius: 0.5, overflow: 'hidden' }}>
                 <Box sx={{ width: 10, height: 20, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 10, height: 20, backgroundColor: '#FFFFFF' }} />
+                <Box sx={{ width: 10, height: 20, backgroundColor: '#FFFFFF', border: '1px solid rgba(0,135,81,0.16)', borderTop: 0, borderBottom: 0 }} />
                 <Box sx={{ width: 10, height: 20, backgroundColor: '#008751' }} />
               </Box>
               <Box>
-                <Typography variant="subtitle2" sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2 }}>
+                <Typography variant="subtitle2" sx={{ color: '#143625', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2 }}>
                   {deploymentLabels.jurisdiction.toUpperCase()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.65rem' }}>
+                <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)', fontSize: '0.65rem' }}>
                   Asset Management System
                 </Typography>
               </Box>
@@ -185,12 +190,12 @@ const LoginPage: React.FC = () => {
 
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
               <Chip
-                icon={<GppGood sx={{ fontSize: 12, color: '#00ff88 !important' }} />}
+                icon={<GppGood sx={{ fontSize: 12, color: '#008751 !important' }} />}
                 label="256-bit Encrypted"
                 size="small"
                 sx={{
                   backgroundColor: 'rgba(0, 135, 81, 0.15)',
-                  color: '#00ff88',
+                  color: '#008751',
                   border: '1px solid rgba(0, 135, 81, 0.3)',
                   fontSize: '0.6rem',
                   height: 22,
@@ -221,9 +226,9 @@ const LoginPage: React.FC = () => {
               to="/"
               startIcon={<ArrowBack />}
               sx={{
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: 'rgba(15, 48, 31, 0.68)',
                 '&:hover': {
-                  color: '#00ff88',
+                  color: '#008751',
                   backgroundColor: 'transparent',
                 },
               }}
@@ -235,14 +240,16 @@ const LoginPage: React.FC = () => {
           <Paper
             elevation={0}
             sx={{
-              padding: 4,
+              padding: { xs: 3, sm: 4 },
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               width: '100%',
-              backgroundColor: 'rgba(13, 40, 24, 0.8)',
-              border: '1px solid rgba(0, 135, 81, 0.3)',
-              backdropFilter: 'blur(10px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.78)',
+              border: '1px solid rgba(0, 135, 81, 0.18)',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 28px 80px rgba(20, 54, 37, 0.12)',
+              borderRadius: 3,
             }}
           >
             {/* Logo and Title */}
@@ -260,14 +267,14 @@ const LoginPage: React.FC = () => {
                 boxShadow: '0 0 30px rgba(0, 135, 81, 0.3)',
               }}
             >
-              <LoginIcon sx={{ fontSize: 32, color: '#00ff88' }} />
+              <LoginIcon sx={{ fontSize: 32, color: '#008751' }} />
             </Box>
 
             <Typography
               component="h1"
               variant="h4"
               sx={{
-                color: '#FFFFFF',
+                color: '#143625',
                 fontWeight: 700,
                 letterSpacing: 1,
                 mb: 1,
@@ -279,7 +286,7 @@ const LoginPage: React.FC = () => {
             <Typography
               variant="body2"
               sx={{
-                color: 'rgba(255, 255, 255, 0.6)',
+                color: 'rgba(15, 48, 31, 0.58)',
                 mb: 3,
                 textAlign: 'center',
               }}
@@ -321,27 +328,27 @@ const LoginPage: React.FC = () => {
                 helperText={errors.email?.message}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
                     backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(0, 135, 81, 0.12)',
                     borderRadius: '12px',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.15)',
+                      borderColor: 'rgba(0, 135, 81, 0.18)',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     },
                     '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                      backgroundColor: 'rgba(0, 135, 81, 0.08)',
                       '& fieldset': {
                         borderColor: 'rgba(0, 255, 136, 0.4)',
                       },
                     },
                     '&.Mui-focused': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                      borderColor: '#00ff88',
+                      backgroundColor: 'rgba(0, 135, 81, 0.08)',
+                      borderColor: '#008751',
                       boxShadow: '0 0 0 3px rgba(0, 255, 136, 0.1)',
                       '& fieldset': {
-                        borderColor: '#00ff88',
+                        borderColor: '#008751',
                         borderWidth: '2px',
                       },
                     },
@@ -352,29 +359,29 @@ const LoginPage: React.FC = () => {
                     },
                   },
                   '& .MuiInputLabel-root': {
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: 'rgba(15, 48, 31, 0.68)',
                     fontSize: '0.95rem',
                     fontWeight: 500,
                     '&.Mui-focused': {
-                      color: '#00ff88',
+                      color: '#008751',
                     },
                     '&.Mui-error': {
                       color: '#ff4444',
                     },
                   },
                   '& .MuiOutlinedInput-input': {
-                    color: '#ffffff',
+                    color: '#143625',
                     fontSize: '0.95rem',
                     padding: '14px 16px',
                     '&::placeholder': {
-                      color: 'rgba(255, 255, 255, 0.4)',
+                      color: 'rgba(15, 48, 31, 0.4)',
                       opacity: 1,
                     },
                     // Override autofill styles
                     '&:-webkit-autofill': {
                       WebkitBoxShadow: '0 0 0 100px rgba(0, 135, 81, 0.15) inset !important',
-                      WebkitTextFillColor: '#ffffff !important',
-                      caretColor: '#ffffff',
+                      WebkitTextFillColor: '#143625 !important',
+                      caretColor: '#006038',
                       borderRadius: '12px',
                       transition: 'background-color 5000s ease-in-out 0s',
                     },
@@ -414,10 +421,10 @@ const LoginPage: React.FC = () => {
                         onClick={togglePasswordVisibility}
                         edge="end"
                         sx={{
-                          color: 'rgba(255, 255, 255, 0.7)',
+                          color: 'rgba(15, 48, 31, 0.68)',
                           transition: 'all 0.2s ease',
                           '&:hover': {
-                            color: '#00ff88',
+                            color: '#008751',
                             backgroundColor: 'rgba(0, 255, 136, 0.1)',
                           },
                         }}
@@ -429,27 +436,27 @@ const LoginPage: React.FC = () => {
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
                     backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(0, 135, 81, 0.12)',
                     borderRadius: '12px',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.15)',
+                      borderColor: 'rgba(0, 135, 81, 0.18)',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     },
                     '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                      backgroundColor: 'rgba(0, 135, 81, 0.08)',
                       '& fieldset': {
                         borderColor: 'rgba(0, 255, 136, 0.4)',
                       },
                     },
                     '&.Mui-focused': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                      borderColor: '#00ff88',
+                      backgroundColor: 'rgba(0, 135, 81, 0.08)',
+                      borderColor: '#008751',
                       boxShadow: '0 0 0 3px rgba(0, 255, 136, 0.1)',
                       '& fieldset': {
-                        borderColor: '#00ff88',
+                        borderColor: '#008751',
                         borderWidth: '2px',
                       },
                     },
@@ -460,29 +467,29 @@ const LoginPage: React.FC = () => {
                     },
                   },
                   '& .MuiInputLabel-root': {
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: 'rgba(15, 48, 31, 0.68)',
                     fontSize: '0.95rem',
                     fontWeight: 500,
                     '&.Mui-focused': {
-                      color: '#00ff88',
+                      color: '#008751',
                     },
                     '&.Mui-error': {
                       color: '#ff4444',
                     },
                   },
                   '& .MuiOutlinedInput-input': {
-                    color: '#ffffff',
+                    color: '#143625',
                     fontSize: '0.95rem',
                     padding: '14px 16px',
                     '&::placeholder': {
-                      color: 'rgba(255, 255, 255, 0.4)',
+                      color: 'rgba(15, 48, 31, 0.4)',
                       opacity: 1,
                     },
                     // Override autofill styles
                     '&:-webkit-autofill': {
                       WebkitBoxShadow: '0 0 0 100px rgba(0, 135, 81, 0.15) inset !important',
-                      WebkitTextFillColor: '#ffffff !important',
-                      caretColor: '#ffffff',
+                      WebkitTextFillColor: '#143625 !important',
+                      caretColor: '#006038',
                       borderRadius: '12px',
                       transition: 'background-color 5000s ease-in-out 0s',
                     },
@@ -528,8 +535,8 @@ const LoginPage: React.FC = () => {
                   to="/forgot-password"
                   variant="body2"
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    '&:hover': { color: '#00ff88' },
+                    color: 'rgba(15, 48, 31, 0.68)',
+                    '&:hover': { color: '#008751' },
                   }}
                 >
                   Forgot password?
@@ -539,8 +546,8 @@ const LoginPage: React.FC = () => {
                   to="/register"
                   variant="body2"
                   sx={{
-                    color: '#00ff88',
-                    '&:hover': { color: '#66ffaa' },
+                    color: '#008751',
+                    '&:hover': { color: '#00a862' },
                   }}
                 >
                   Don't have an account? Sign Up
@@ -554,11 +561,12 @@ const LoginPage: React.FC = () => {
       {/* Footer */}
       <Box
         sx={{
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'rgba(255, 255, 255, 0.68)',
           borderTop: '1px solid rgba(0, 135, 81, 0.2)',
           py: 2,
           position: 'relative',
           zIndex: 10,
+          backdropFilter: 'blur(16px)',
         }}
       >
         <Container maxWidth="lg">
@@ -566,10 +574,10 @@ const LoginPage: React.FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box sx={{ display: 'flex' }}>
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 12, height: 8, backgroundColor: '#FFFFFF' }} />
+                <Box sx={{ width: 12, height: 8, backgroundColor: '#FFFFFF', borderTop: '1px solid rgba(0,135,81,0.12)', borderBottom: '1px solid rgba(0,135,81,0.12)' }} />
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
               </Box>
-              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+              <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                 {deploymentLabels.jurisdiction}
               </Typography>
             </Box>

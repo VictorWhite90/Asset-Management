@@ -12,7 +12,7 @@ import {
   IconButton,
   InputAdornment,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from '@/components/icons';
 import { toast } from 'react-toastify';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { useAuth } from '@/contexts/AuthContext';

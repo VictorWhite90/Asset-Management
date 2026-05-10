@@ -26,7 +26,7 @@ import {
   Category as CategoryIcon,
   AttachMoney,
   Description,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAssetById, getCategoryDetails } from '@/services/asset.service';
@@ -153,7 +153,7 @@ const AssetDetailsPage = () => {
       <AppLayout>
         <Container component="main" maxWidth="lg">
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-            <CircularProgress sx={{ color: '#00ff88' }} />
+            <CircularProgress sx={{ color: '#008751' }} />
           </Box>
         </Container>
       </AppLayout>
@@ -170,9 +170,9 @@ const AssetDetailsPage = () => {
               to="/dashboard"
               startIcon={<ArrowBack />}
               sx={{
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: 'rgba(15, 48, 31, 0.68)',
                 '&:hover': {
-                  color: '#00ff88',
+                  color: '#008751',
                   backgroundColor: 'transparent',
                 },
               }}
@@ -213,9 +213,9 @@ const AssetDetailsPage = () => {
             }
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(15, 48, 31, 0.68)',
               '&:hover': {
-                color: '#00ff88',
+                color: '#008751',
                 backgroundColor: 'transparent',
               },
             }}
@@ -246,13 +246,13 @@ const AssetDetailsPage = () => {
         <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Box>
-              <Typography variant="h4" sx={{ color: '#00ff88', fontWeight: 700, mb: 1 }}>
+              <Typography variant="h4" sx={{ color: '#008751', fontWeight: 700, mb: 1 }}>
                 Asset Details
               </Typography>
-              <Typography variant="h6" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+              <Typography variant="h6" sx={{ color: '#143625', fontWeight: 600 }}>
                 {asset.assetId}
               </Typography>
-              <Typography variant="subtitle1" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+              <Typography variant="subtitle1" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
                 {asset.description}
               </Typography>
             </Box>
@@ -262,7 +262,7 @@ const AssetDetailsPage = () => {
 
         {/* Basic Information */}
         <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
+          <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600, mb: 2 }}>
             📋 Basic Information
           </Typography>
           <Grid container spacing={3}>
@@ -273,33 +273,33 @@ const AssetDetailsPage = () => {
                     <Box>
                       <Typography
                         variant="caption"
-                        sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                       >
                         <CategoryIcon fontSize="small" /> Category
                       </Typography>
-                      <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 700 }}>
+                      <Typography variant="h6" sx={{ color: '#008751', fontWeight: 700 }}>
                         {asset.category}
                       </Typography>
                     </Box>
                     <Box>
                       <Typography
                         variant="caption"
-                        sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                       >
                         <Description fontSize="small" /> Description
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                         {asset.description || 'N/A'}
                       </Typography>
                     </Box>
                     <Box>
                       <Typography
                         variant="caption"
-                        sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                       >
                         <CalendarToday fontSize="small" /> Purchase Date
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                         {formatDate(asset.purchasedDate)}
                       </Typography>
                     </Box>
@@ -315,18 +315,18 @@ const AssetDetailsPage = () => {
                     <Box>
                       <Typography
                         variant="caption"
-                        sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                       >
                         <AttachMoney fontSize="small" /> Purchase Cost
                       </Typography>
-                      <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 700 }}>
+                      <Typography variant="h6" sx={{ color: '#008751', fontWeight: 700 }}>
                         {formatCurrency(asset.purchaseCost)}
                       </Typography>
                     </Box>
                     <Box>
                       <Typography
                         variant="caption"
-                        sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                       >
                         <AttachMoney fontSize="small" /> Market Value
                       </Typography>
@@ -337,11 +337,11 @@ const AssetDetailsPage = () => {
                     <Box>
                       <Typography
                         variant="caption"
-                        sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                       >
                         <Description fontSize="small" /> Condition
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                         {asset.condition || 'Not specified'}
                       </Typography>
                     </Box>
@@ -357,22 +357,22 @@ const AssetDetailsPage = () => {
                     <Box>
                       <Typography
                         variant="caption"
-                        sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                       >
                         <LocationOn fontSize="small" /> Location/Address
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                         {asset.location || 'N/A'}
                       </Typography>
                     </Box>
                     <Box>
                       <Typography
                         variant="caption"
-                        sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                       >
                         <LocationOn fontSize="small" /> State
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                         {asset.state || 'Not specified'}
                       </Typography>
                     </Box>
@@ -385,7 +385,7 @@ const AssetDetailsPage = () => {
 
         {/* Organization Information */}
         <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
+          <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600, mb: 2 }}>
             🏛️ Organization Information
           </Typography>
           <Grid container spacing={3}>
@@ -394,11 +394,11 @@ const AssetDetailsPage = () => {
                 <CardContent>
                   <Typography
                     variant="caption"
-                    sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                    sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                   >
                     <Person fontSize="small" /> Ministry
                   </Typography>
-                  <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                  <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                     {asset.ministry || asset.ministryName || 'N/A'}
                   </Typography>
                 </CardContent>
@@ -410,11 +410,11 @@ const AssetDetailsPage = () => {
                 <CardContent>
                   <Typography
                     variant="caption"
-                    sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                    sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                   >
                     <Person fontSize="small" /> Agency
                   </Typography>
-                  <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                  <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                     {asset.agency || asset.agencyName || 'N/A'}
                   </Typography>
                 </CardContent>
@@ -426,11 +426,11 @@ const AssetDetailsPage = () => {
                 <CardContent>
                   <Typography
                     variant="caption"
-                    sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}
+                    sx={{ color: 'rgba(15, 48, 31, 0.58)', display: 'flex', alignItems: 'center', gap: 0.5 }}
                   >
                     <Person fontSize="small" /> Department
                   </Typography>
-                  <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                  <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                     {asset.department || 'Not specified'}
                   </Typography>
                 </CardContent>
@@ -442,7 +442,7 @@ const AssetDetailsPage = () => {
         {/* Category-Specific Fields */}
         {category && category.requiredFields.length > 0 && (
           <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
+            <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600, mb: 2 }}>
               {asset.category} Specific Details
             </Typography>
             <Grid container spacing={3}>
@@ -455,10 +455,10 @@ const AssetDetailsPage = () => {
                     }}
                   >
                     <CardContent>
-                      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                      <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                         {camelToTitle(field)}
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                         {asset[field] || 'N/A'}
                       </Typography>
                     </CardContent>
@@ -472,7 +472,7 @@ const AssetDetailsPage = () => {
         {/* Additional Fields that might not be in requiredFields */}
         {(asset.landAcquisitionPurpose || asset.capacity || asset.remarks) && (
           <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
+            <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600, mb: 2 }}>
               Additional Information
             </Typography>
             <Grid container spacing={3}>
@@ -480,10 +480,10 @@ const AssetDetailsPage = () => {
                 <Grid item xs={12}>
                   <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
                     <CardContent>
-                      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                      <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                         Land Acquisition Purpose
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                         {asset.landAcquisitionPurpose}
                       </Typography>
                     </CardContent>
@@ -494,10 +494,10 @@ const AssetDetailsPage = () => {
                 <Grid item xs={12} sm={6}>
                   <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
                     <CardContent>
-                      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                      <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                         Capacity
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                         {asset.capacity}
                       </Typography>
                     </CardContent>
@@ -508,10 +508,10 @@ const AssetDetailsPage = () => {
                 <Grid item xs={12}>
                   <Card sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', border: '1px solid rgba(0, 135, 81, 0.2)' }}>
                     <CardContent>
-                      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                      <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                         Remarks
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
                         {asset.remarks}
                       </Typography>
                     </CardContent>
@@ -527,7 +527,7 @@ const AssetDetailsPage = () => {
           <Typography
             variant="h6"
             sx={{
-              color: '#00ff88',
+              color: '#008751',
               fontWeight: 600,
               mb: 2,
               display: 'flex',
@@ -553,7 +553,7 @@ const AssetDetailsPage = () => {
                     <Typography variant="subtitle2" sx={{ color: '#42a5f5', fontWeight: 700 }}>
                       UPLOADED
                     </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
                       {formatTimestamp(asset.uploadTimestamp)}
                     </Typography>
                   </Box>
@@ -576,10 +576,10 @@ const AssetDetailsPage = () => {
                       <Typography variant="subtitle2" sx={{ color: '#66bb6a', fontWeight: 700 }}>
                         APPROVED
                       </Typography>
-                      <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                      <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
                         {formatTimestamp(asset.approvedAt)}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                      <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.5)' }}>
                         Approved by: {asset.approvedBy}
                       </Typography>
                     </Box>
@@ -604,10 +604,10 @@ const AssetDetailsPage = () => {
                         <Typography variant="subtitle2" sx={{ color: '#ef5350', fontWeight: 700 }}>
                           REJECTED
                         </Typography>
-                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                        <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
                           {formatTimestamp(asset.rejectedAt)}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                        <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.5)' }}>
                           Rejected by: {asset.rejectedBy}
                         </Typography>
                       </Box>
@@ -617,15 +617,15 @@ const AssetDetailsPage = () => {
                       <Box
                         sx={{
                           p: 2,
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.7)',
                           borderRadius: 1,
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          border: '1px solid rgba(0, 135, 81, 0.12)',
                         }}
                       >
-                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                        <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                           Reason:
                         </Typography>
-                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+                        <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.9)' }}>
                           {asset.rejectionReason}
                         </Typography>
                       </Box>
@@ -649,7 +649,7 @@ const AssetDetailsPage = () => {
                       <Typography variant="subtitle2" sx={{ color: '#ffa726', fontWeight: 700 }}>
                         PENDING APPROVAL
                       </Typography>
-                      <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                      <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
                         Awaiting review by agency approver
                       </Typography>
                     </Box>

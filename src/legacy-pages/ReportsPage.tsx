@@ -13,7 +13,7 @@ import {
   Error as ErrorIcon, BarChart, PieChart, Description, ArrowBack,
   Category, AccountBalance, FiberManualRecord, LocationOn, KeyboardArrowDown,
   KeyboardArrowUp, Print, ArrowDropDown,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import AppLayout from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -90,7 +90,7 @@ const groupAssetsForReport = (assets: any[], mode: ReportGroupingMode) => {
 
 /** Condition badge color */
 const conditionStyle = (cond?: string | null) => {
-  if (!cond) return { color: 'rgba(255,255,255,0.3)', bg: 'transparent', border: 'transparent' };
+  if (!cond) return { color: 'rgba(15,48,31,0.3)', bg: 'transparent', border: 'transparent' };
   const l = cond.toLowerCase();
   if (l.includes('excellent') || l.includes('good'))
     return { color: '#4caf50', bg: 'rgba(76,175,80,0.15)', border: 'rgba(76,175,80,0.3)' };
@@ -143,11 +143,11 @@ const TD: React.FC<{ children: React.ReactNode; align?: 'left' | 'center' | 'rig
 // ─── Section heading ──────────────────────────────────────────────────────────
 const SectionHeading: React.FC<{ icon: React.ReactNode; title: string; count?: number }> = ({ icon, title, count }) => (
   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, mt: 1 }}>
-    <Box sx={{ color: '#00ff88' }}>{icon}</Box>
-    <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 700, fontSize: '1rem' }}>{title}</Typography>
+    <Box sx={{ color: '#008751' }}>{icon}</Box>
+    <Typography variant="h6" sx={{ color: '#008751', fontWeight: 700, fontSize: '1rem' }}>{title}</Typography>
     {count !== undefined && (
       <Chip label={`${count} records`} size="small"
-        sx={{ backgroundColor: 'rgba(0,255,136,0.1)', color: '#00ff88', borderColor: 'rgba(0,255,136,0.3)', border: '1px solid' }} />
+        sx={{ backgroundColor: 'rgba(0,255,136,0.1)', color: '#008751', borderColor: 'rgba(0,255,136,0.3)', border: '1px solid' }} />
     )}
   </Box>
 );
@@ -184,16 +184,16 @@ const StateGroup: React.FC<{
         cursor: 'pointer', userSelect: 'none',
       }} onClick={() => setCollapsed(!collapsed)}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <LocationOn sx={{ fontSize: 18, color: '#00ff88' }} />
-          <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.95rem', letterSpacing: 0.5 }}>
+          <LocationOn sx={{ fontSize: 18, color: '#008751' }} />
+          <Typography sx={{ fontWeight: 700, color: '#143625', fontSize: '0.95rem', letterSpacing: 0.5 }}>
             {state.toUpperCase()}
           </Typography>
           <Chip label={`${assets.length} asset${assets.length !== 1 ? 's' : ''}`} size="small"
-            sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#00ff88', fontSize: '0.68rem', height: 20 }} />
+            sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#008751', fontSize: '0.68rem', height: 20 }} />
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Box sx={{ textAlign: 'right' }}>
-            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
               Total Purchase Cost
             </Typography>
             <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#4caf50' }}>
@@ -202,7 +202,7 @@ const StateGroup: React.FC<{
           </Box>
           {stateMktTotal > 0 && (
             <Box sx={{ textAlign: 'right' }}>
-              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 Market Value
               </Typography>
               <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#2196f3' }}>
@@ -233,13 +233,13 @@ const StateGroup: React.FC<{
               <IconButton
                 size="small"
                 onClick={(e) => { e.stopPropagation(); onPrint?.(); }}
-                sx={{ color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.25)', p: 0.45, '&:hover': { backgroundColor: 'rgba(255,255,255,0.08)' } }}
+                sx={{ color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(15,48,31,0.28)', p: 0.45, '&:hover': { backgroundColor: 'rgba(255,255,255,0.08)' } }}
               >
                 <Print sx={{ fontSize: 15 }} />
               </IconButton>
             </Tooltip>
           </Box>
-          <IconButton size="small" sx={{ color: 'rgba(255,255,255,0.6)', p: 0.3 }}>
+          <IconButton size="small" sx={{ color: 'rgba(15,48,31,0.58)', p: 0.3 }}>
             {collapsed ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowUp fontSize="small" />}
           </IconButton>
         </Box>
@@ -286,7 +286,7 @@ const StateGroup: React.FC<{
                 const cond = asset.condition || asset.assetCondition || asset.currentCondition || asset.conditionStatus || null;
                 const cs = conditionStyle(cond);
                 const st = statusStyle(asset.status || 'pending');
-                const rowBg = i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)';
+                const rowBg = i % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)';
 
                 return (
                   <TableRow key={asset.id || i} sx={{
@@ -299,7 +299,7 @@ const StateGroup: React.FC<{
                     {/* Asset ID */}
                     <TD mono>
                       <Typography sx={{ fontFamily: 'monospace', fontSize: '0.72rem',
-                        color: '#00ff88', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2,
+                        color: '#008751', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2,
                         borderRadius: 0.5, border: '1px solid rgba(0,255,136,0.15)',
                         display: 'inline-block', letterSpacing: 0.5, whiteSpace: 'nowrap' }}>
                         {asset.assetId || asset.id || '—'}
@@ -324,29 +324,29 @@ const StateGroup: React.FC<{
 
                     {/* Location */}
                     <TD>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.location || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.location || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TD>
 
                     {/* Ministry */}
                     <TD>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.ministry || asset.ministryName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.ministry || asset.ministryName || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TD>
 
                     {/* Agency */}
                     <TD>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.agency || asset.agencyName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.agency || asset.agencyName || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TD>
 
                     {/* Department */}
                     <TD>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.department || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.department || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TD>
 
@@ -358,14 +358,14 @@ const StateGroup: React.FC<{
                     {/* Purchase Cost */}
                     <TD align="right">
                       <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50', whiteSpace: 'nowrap' }}>
-                        {asset.purchaseCost ? formatCurrency(Number(asset.purchaseCost)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.purchaseCost ? formatCurrency(Number(asset.purchaseCost)) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TD>
 
                     {/* Market Value */}
                     <TD align="right">
                       <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#2196f3', whiteSpace: 'nowrap' }}>
-                        {asset.marketValue ? formatCurrency(Number(asset.marketValue)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.marketValue ? formatCurrency(Number(asset.marketValue)) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TD>
 
@@ -381,7 +381,7 @@ const StateGroup: React.FC<{
                           </Typography>
                         </Box>
                       ) : (
-                        <Typography sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>—</Typography>
+                        <Typography sx={{ color: 'rgba(15,48,31,0.28)', fontSize: '0.75rem' }}>—</Typography>
                       )}
                     </TD>
 
@@ -965,18 +965,18 @@ const ReportsPage: React.FC = () => {
         return (
           <Grid item xs={12} sm={6} md={3} key={type}>
             <Card sx={{ cursor: 'pointer', height: '100%', transition: 'all 0.3s',
-              border: isSelected ? '2px solid #00ff88' : '1px solid rgba(0,135,81,0.3)',
+              border: isSelected ? '2px solid #008751' : '1px solid rgba(0,135,81,0.3)',
               background: isSelected ? 'linear-gradient(135deg,rgba(0,135,81,0.3),rgba(0,135,81,0.1))' : 'transparent',
-              '&:hover': { borderColor: '#00ff88', transform: 'translateY(-2px)', boxShadow: '0 4px 20px rgba(0,255,136,0.2)' },
+              '&:hover': { borderColor: '#008751', transform: 'translateY(-2px)', boxShadow: '0 4px 20px rgba(0,255,136,0.2)' },
             }} onClick={() => handleReportTypeChange(type)}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1, color: isSelected ? '#00ff88' : 'rgba(255,255,255,0.7)' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1, color: isSelected ? '#008751' : 'rgba(15,48,31,0.68)' }}>
                   {icons[template.icon] ?? <Assessment sx={{ fontSize: 32 }} />}
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'inherit' }}>
                     {template.title.replace(' Report', '')}
                   </Typography>
                 </Box>
-                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>
+                <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.58)', fontSize: '0.8rem' }}>
                   {template.description}
                 </Typography>
               </CardContent>
@@ -991,8 +991,8 @@ const ReportsPage: React.FC = () => {
   const renderFiltersPanel = () => (
     <Paper sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg,rgba(0,135,81,0.1),rgba(0,135,81,0.05))', borderLeft: '4px solid #008751' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-        <FilterList sx={{ color: '#00ff88' }} />
-        <Typography variant="h6" sx={{ color: '#00ff88' }}>Report Filters</Typography>
+        <FilterList sx={{ color: '#008751' }} />
+        <Typography variant="h6" sx={{ color: '#008751' }}>Report Filters</Typography>
       </Box>
       <Grid container spacing={2}>
         {isAdmin && (
@@ -1103,8 +1103,8 @@ const ReportsPage: React.FC = () => {
               <Grid item xs={12} sm={6} md={3} key={card.label}>
                 <Card sx={{ background: card.grad }}>
                   <CardContent>
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 1 }}>{card.label}</Typography>
-                    <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mt: 0.5, fontSize: { xs: '1.4rem', sm: '1.8rem' } }}>{card.value}</Typography>
+                    <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 1 }}>{card.label}</Typography>
+                    <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, mt: 0.5, fontSize: { xs: '1.4rem', sm: '1.8rem' } }}>{card.value}</Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -1149,14 +1149,14 @@ const ReportsPage: React.FC = () => {
 
                   return (
                     <React.Fragment key={group.state}>
-                      <TableRow sx={{ backgroundColor: idx % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
+                      <TableRow sx={{ backgroundColor: idx % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
                         <TD>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                             {isStateDeployment
-                              ? <AccountBalance sx={{ fontSize: 13, color: '#00ff88' }} />
-                              : <LocationOn sx={{ fontSize: 13, color: '#00ff88' }} />}
-                            <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#fff' }}>{group.state}</Typography>
-                            <Chip label={group.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.2)', color: '#00ff88', fontSize: '0.65rem', height: 18, ml: 0.5 }} />
+                              ? <AccountBalance sx={{ fontSize: 13, color: '#008751' }} />
+                              : <LocationOn sx={{ fontSize: 13, color: '#008751' }} />}
+                            <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#143625' }}>{group.state}</Typography>
+                            <Chip label={group.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.2)', color: '#008751', fontSize: '0.65rem', height: 18, ml: 0.5 }} />
                           </Box>
                         </TD>
                         <TD align="center">
@@ -1188,7 +1188,7 @@ const ReportsPage: React.FC = () => {
                               <IconButton
                                 size="small"
                                 onClick={() => handlePrintGroup(group)}
-                                sx={{ color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.25)', p: 0.45, '&:hover': { backgroundColor: 'rgba(255,255,255,0.08)' } }}
+                                sx={{ color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(15,48,31,0.28)', p: 0.45, '&:hover': { backgroundColor: 'rgba(255,255,255,0.08)' } }}
                               >
                                 <Print sx={{ fontSize: 15 }} />
                               </IconButton>
@@ -1202,9 +1202,9 @@ const ReportsPage: React.FC = () => {
                                 sx={{
                                   fontSize: '0.65rem', py: 0.3, px: 1, whiteSpace: 'nowrap',
                                   borderColor: isExpanded ? 'rgba(0,255,136,0.6)' : 'rgba(0,255,136,0.25)',
-                                  color: isExpanded ? '#00ff88' : 'rgba(0,255,136,0.7)',
+                                  color: isExpanded ? '#008751' : 'rgba(0,255,136,0.7)',
                                   backgroundColor: isExpanded ? 'rgba(0,255,136,0.08)' : 'transparent',
-                                  '&:hover': { borderColor: '#00ff88', backgroundColor: 'rgba(0,255,136,0.1)', color: '#00ff88' },
+                                  '&:hover': { borderColor: '#008751', backgroundColor: 'rgba(0,255,136,0.1)', color: '#008751' },
                                   minWidth: 'unset',
                                 }}
                               >
@@ -1231,14 +1231,14 @@ const ReportsPage: React.FC = () => {
                                 px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap',
                                 background: 'rgba(0,135,81,0.25)', borderBottom: '1px solid rgba(0,255,136,0.15)',
                               }}>
-                                <Category sx={{ fontSize: 14, color: '#00ff88' }} />
-                                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#00ff88', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                                <Category sx={{ fontSize: 14, color: '#008751' }} />
+                                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#008751', textTransform: 'uppercase', letterSpacing: 0.8 }}>
                                   {group.state} — Asset Category Summary
                                 </Typography>
                                 <Chip
                                   label={`${catBreakdown.length} ${catBreakdown.length === 1 ? 'category' : 'categories'}`}
                                   size="small"
-                                  sx={{ backgroundColor: 'rgba(0,255,136,0.12)', color: '#00ff88', fontSize: '0.65rem', height: 18 }}
+                                  sx={{ backgroundColor: 'rgba(0,255,136,0.12)', color: '#008751', fontSize: '0.65rem', height: 18 }}
                                 />
                                 <Button
                                   size="small"
@@ -1295,7 +1295,7 @@ const ReportsPage: React.FC = () => {
                                           <Chip
                                             label={cat.count}
                                             size="small"
-                                            sx={{ backgroundColor: 'rgba(0,135,81,0.3)', color: '#00ff88', fontSize: '0.72rem', fontWeight: 700, minWidth: 32 }}
+                                            sx={{ backgroundColor: 'rgba(0,135,81,0.3)', color: '#008751', fontSize: '0.72rem', fontWeight: 700, minWidth: 32 }}
                                           />
                                         </TableCell>
                                         <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
@@ -1305,7 +1305,7 @@ const ReportsPage: React.FC = () => {
                                         </TableCell>
                                         <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                                           <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#2196f3', whiteSpace: 'nowrap' }}>
-                                            {cat.marketValue > 0 ? formatCurrency(cat.marketValue) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                                            {cat.marketValue > 0 ? formatCurrency(cat.marketValue) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                                           </Typography>
                                         </TableCell>
                                         <TableCell align="center" sx={{ py: 0.8, px: 1.5, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
@@ -1319,7 +1319,7 @@ const ReportsPage: React.FC = () => {
                                                 '& .MuiLinearProgress-bar': { backgroundColor: '#00aa66' },
                                               }}
                                             />
-                                            <Typography sx={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', minWidth: 30 }}>
+                                            <Typography sx={{ fontSize: '0.7rem', color: 'rgba(15,48,31,0.58)', minWidth: 30 }}>
                                               {catPct}%
                                             </Typography>
                                           </Box>
@@ -1336,7 +1336,7 @@ const ReportsPage: React.FC = () => {
                                       </Typography>
                                     </TableCell>
                                     <TableCell align="center" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
-                                      <Chip label={group.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.2)', color: '#00ff88', fontWeight: 700, fontSize: '0.72rem' }} />
+                                      <Chip label={group.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.2)', color: '#008751', fontWeight: 700, fontSize: '0.72rem' }} />
                                     </TableCell>
                                     <TableCell align="right" sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
                                       <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#4caf50', whiteSpace: 'nowrap' }}>
@@ -1385,12 +1385,12 @@ const ReportsPage: React.FC = () => {
               <Grid item xs={12} sm={6} md={4} key={item.name}>
                 <Box sx={{ p: 1.5, borderRadius: 1, border: '1px solid rgba(0,135,81,0.25)', background: 'rgba(0,135,81,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Category sx={{ fontSize: 14, color: '#00ff88' }} />
+                    <Category sx={{ fontSize: 14, color: '#008751' }} />
                     <Typography sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.85)' }}>{item.name}</Typography>
                   </Box>
                   <Box sx={{ textAlign: 'right' }}>
-                    <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#fff' }}>{item.count}</Typography>
-                    <Typography sx={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)' }}>{formatCurrency(item.value)}</Typography>
+                    <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#143625' }}>{item.count}</Typography>
+                    <Typography sx={{ fontSize: '0.7rem', color: 'rgba(15,48,31,0.5)' }}>{formatCurrency(item.value)}</Typography>
                   </Box>
                 </Box>
               </Grid>
@@ -1414,8 +1414,8 @@ const ReportsPage: React.FC = () => {
             <Grid item xs={12} md={3} key={c.label}>
               <Card sx={{ background: c.grad }}>
                 <CardContent>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 1 }}>{c.label}</Typography>
-                  <Typography variant="h5" sx={{ color: '#FFFFFF', fontWeight: 700, mt: 0.5 }}>{c.value}</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 1 }}>{c.label}</Typography>
+                  <Typography variant="h5" sx={{ color: '#143625', fontWeight: 700, mt: 0.5 }}>{c.value}</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -1437,8 +1437,8 @@ const ReportsPage: React.FC = () => {
             <Grid item xs={12} md={3} key={c.label}>
               <Card sx={{ background: c.grad }}>
                 <CardContent>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 1 }}>{c.label}</Typography>
-                  <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mt: 0.5 }}>{c.value}</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 1 }}>{c.label}</Typography>
+                  <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, mt: 0.5 }}>{c.value}</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -1459,10 +1459,10 @@ const ReportsPage: React.FC = () => {
             <Grid item xs={12} md={3} key={c.label}>
               <Card sx={{ background: c.grad }}>
                 <CardContent>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 1 }}>{c.label}</Typography>
-                  <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mt: 0.5 }}>{c.value}</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 1 }}>{c.label}</Typography>
+                  <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, mt: 0.5 }}>{c.value}</Typography>
                   <LinearProgress variant="determinate" value={c.prog}
-                    sx={{ mt: 1, backgroundColor: 'rgba(255,255,255,0.2)', '& .MuiLinearProgress-bar': { backgroundColor: 'rgba(255,255,255,0.8)' } }} />
+                    sx={{ mt: 1, backgroundColor: 'rgba(15,48,31,0.22)', '& .MuiLinearProgress-bar': { backgroundColor: 'rgba(15,48,31,0.76)' } }} />
                 </CardContent>
               </Card>
             </Grid>
@@ -1470,8 +1470,8 @@ const ReportsPage: React.FC = () => {
           <Grid item xs={12} md={3}>
             <Card sx={{ background: 'linear-gradient(135deg,#b8860b,#8b6914)' }}>
               <CardContent>
-                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 1 }}>Potential Savings</Typography>
-                <Typography variant="h5" sx={{ color: '#FFFFFF', fontWeight: 700, mt: 0.5 }}>{formatCurrency(data.potentialSavings)}</Typography>
+                <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 1 }}>Potential Savings</Typography>
+                <Typography variant="h5" sx={{ color: '#143625', fontWeight: 700, mt: 0.5 }}>{formatCurrency(data.potentialSavings)}</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -1492,8 +1492,8 @@ const ReportsPage: React.FC = () => {
       if (groups.length === 0) {
         return (
           <Box sx={{ textAlign: 'center', py: 6 }}>
-            <Inventory sx={{ fontSize: 60, color: 'rgba(255,255,255,0.2)', mb: 2 }} />
-            <Typography sx={{ color: 'rgba(255,255,255,0.5)' }}>No asset records found. Try broadening your filters.</Typography>
+            <Inventory sx={{ fontSize: 60, color: 'rgba(15,48,31,0.22)', mb: 2 }} />
+            <Typography sx={{ color: 'rgba(15,48,31,0.5)' }}>No asset records found. Try broadening your filters.</Typography>
           </Box>
         );
       }
@@ -1503,16 +1503,16 @@ const ReportsPage: React.FC = () => {
         <Box>
           {/* Legend */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2.5, flexWrap: 'wrap' }}>
-            <Typography sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', mr: 0.5 }}>Condition:</Typography>
+            <Typography sx={{ fontSize: '0.75rem', color: 'rgba(15,48,31,0.5)', mr: 0.5 }}>Condition:</Typography>
             {[['Excellent/Good','#4caf50'], ['Fair/Average','#ff9800'], ['Poor/Bad','#f44336']].map(([l, c]) => (
               <Box key={l} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <FiberManualRecord sx={{ fontSize: 9, color: c }} />
-                <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)' }}>{l}</Typography>
+                <Typography sx={{ fontSize: '0.72rem', color: 'rgba(15,48,31,0.58)' }}>{l}</Typography>
               </Box>
             ))}
             <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <KeyboardArrowUp sx={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }} />
-              <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>Click {reportGroupLabel.toLowerCase()} header to collapse/expand</Typography>
+              <KeyboardArrowUp sx={{ fontSize: 14, color: 'rgba(15,48,31,0.4)' }} />
+              <Typography sx={{ fontSize: '0.72rem', color: 'rgba(15,48,31,0.4)' }}>Click {reportGroupLabel.toLowerCase()} header to collapse/expand</Typography>
             </Box>
           </Box>
 
@@ -1537,18 +1537,18 @@ const ReportsPage: React.FC = () => {
 
           {/* Grand total footer */}
           <Box sx={{ mt: 2, p: 2, borderRadius: 1, background: 'linear-gradient(90deg,rgba(0,135,81,0.3),rgba(0,135,81,0.15))', border: '1px solid rgba(0,255,136,0.25)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-            <Typography sx={{ fontWeight: 700, color: '#00ff88', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <Typography sx={{ fontWeight: 700, color: '#008751', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>
               Grand Total — {data.totalAssets} Assets across {groups.length} {groups.length === 1 ? reportGroupLabel : reportGroupLabelPlural}
             </Typography>
             <Box sx={{ display: 'flex', gap: 4 }}>
               <Box sx={{ textAlign: 'right' }}>
-                <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>Total Purchase Cost</Typography>
+                <Typography sx={{ fontSize: '0.65rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase' }}>Total Purchase Cost</Typography>
                 <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#4caf50' }}>
                   {formatCurrency(data.assets?.reduce((s, a) => s + (Number(a.purchaseCost) || 0), 0) || 0)}
                 </Typography>
               </Box>
               <Box sx={{ textAlign: 'right' }}>
-                <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>Total Market Value</Typography>
+                <Typography sx={{ fontSize: '0.65rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase' }}>Total Market Value</Typography>
                 <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#2196f3' }}>
                   {formatCurrency(data.assets?.reduce((s, a) => s + (Number(a.marketValue) || 0), 0) || 0)}
                 </Typography>
@@ -1576,16 +1576,16 @@ const ReportsPage: React.FC = () => {
                 {data.byType.map((row: any, i: number) => {
                   const pct = row.acquisitionCost > 0 ? ((row.depreciation / row.acquisitionCost) * 100).toFixed(1) : '0.0';
                   return (
-                    <TableRow key={row.name} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
+                    <TableRow key={row.name} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
                       <TD><Typography sx={{ fontSize: '0.78rem', fontWeight: 600 }}>{row.name}</Typography></TD>
-                      <TD align="right"><Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)' }}>{formatCurrency(row.acquisitionCost)}</Typography></TD>
+                      <TD align="right"><Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)' }}>{formatCurrency(row.acquisitionCost)}</Typography></TD>
                       <TD align="right"><Typography sx={{ fontSize: '0.78rem', color: '#4caf50', fontWeight: 600 }}>{formatCurrency(row.currentValue)}</Typography></TD>
                       <TD align="right"><Typography sx={{ fontSize: '0.78rem', color: '#ef5350', fontWeight: 600 }}>-{formatCurrency(row.depreciation)}</Typography></TD>
                       <TD align="center">
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
                           <LinearProgress variant="determinate" value={parseFloat(pct)}
                             sx={{ width: 60, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.1)', '& .MuiLinearProgress-bar': { backgroundColor: parseFloat(pct) > 50 ? '#f44336' : parseFloat(pct) > 25 ? '#ff9800' : '#4caf50' } }} />
-                          <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)' }}>{pct}%</Typography>
+                          <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.68)' }}>{pct}%</Typography>
                         </Box>
                       </TD>
                     </TableRow>
@@ -1608,9 +1608,9 @@ const ReportsPage: React.FC = () => {
               <TableHead><TableRow><TH>Action Type</TH><TH align="right">Count</TH></TableRow></TableHead>
               <TableBody>
                 {data.actionsByType.map((row: any, i: number) => (
-                  <TableRow key={row.action} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)' }}>
+                  <TableRow key={row.action} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)' }}>
                     <TD>{row.action}</TD>
-                    <TD align="right"><Chip label={row.count} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.2)', color: '#00ff88' }} /></TD>
+                    <TD align="right"><Chip label={row.count} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.2)', color: '#008751' }} /></TD>
                   </TableRow>
                 ))}
               </TableBody>
@@ -1624,7 +1624,7 @@ const ReportsPage: React.FC = () => {
                   <TableHead><TableRow>{['Type', 'Description', 'Severity', 'Recommendation'].map((h) => <TH key={h}>{h}</TH>)}</TableRow></TableHead>
                   <TableBody>
                     {data.flaggedAnomalies.map((a: any, i: number) => (
-                      <TableRow key={i} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)' }}>
+                      <TableRow key={i} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)' }}>
                         <TD>{a.type}</TD><TD>{a.description}</TD>
                         <TD align="center"><Chip label={a.severity} size="small" sx={{ backgroundColor: a.severity === 'high' ? 'rgba(244,67,54,0.2)' : a.severity === 'medium' ? 'rgba(255,152,0,0.2)' : 'rgba(76,175,80,0.2)', color: a.severity === 'high' ? '#ef5350' : a.severity === 'medium' ? '#ff9800' : '#4caf50' }} /></TD>
                         <TD>{a.recommendation}</TD>
@@ -1649,7 +1649,7 @@ const ReportsPage: React.FC = () => {
               <TableHead><TableRow><TH>Risk Level</TH><TH align="right">Asset Count</TH></TableRow></TableHead>
               <TableBody>
                 {data.byRiskLevel.map((row: any, i: number) => (
-                  <TableRow key={row.level} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)' }}>
+                  <TableRow key={row.level} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)' }}>
                     <TD><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: row.color }} />{row.level}</Box></TD>
                     <TD align="right">{row.count}</TD>
                   </TableRow>
@@ -1668,8 +1668,8 @@ const ReportsPage: React.FC = () => {
     if (!generatedReport || generatedReport.type !== 'asset_inventory') {
       return (
         <Box sx={{ textAlign: 'center', py: 6 }}>
-          <ShowChart sx={{ fontSize: 64, color: 'rgba(255,255,255,0.2)', mb: 2 }} />
-          <Typography sx={{ color: 'rgba(255,255,255,0.5)' }}>
+          <ShowChart sx={{ fontSize: 64, color: 'rgba(15,48,31,0.22)', mb: 2 }} />
+          <Typography sx={{ color: 'rgba(15,48,31,0.5)' }}>
             Market Value view is available for Asset Inventory reports.
           </Typography>
         </Box>
@@ -1699,7 +1699,7 @@ const ReportsPage: React.FC = () => {
     const miniHeadSx = {
       fontSize: '0.63rem', fontWeight: 700, textTransform: 'uppercase' as const,
       letterSpacing: 0.5, py: 0.6, px: 1.2,
-      color: 'rgba(255,255,255,0.7)',
+      color: 'rgba(15,48,31,0.68)',
       background: 'rgba(0,55,28,0.85)',
       borderBottom: '1px solid rgba(0,255,136,0.1)',
       whiteSpace: 'nowrap' as const,
@@ -1748,13 +1748,13 @@ const ReportsPage: React.FC = () => {
                 return (
                   <React.Fragment key={cat.name}>
                     <TableRow
-                      sx={{ backgroundColor: idx % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' }, cursor: 'pointer' }}
+                      sx={{ backgroundColor: idx % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' }, cursor: 'pointer' }}
                       onClick={() => setMvExpandedCats((prev) => { const n = new Set(prev); if (n.has(cat.name)) n.delete(cat.name); else n.add(cat.name); return n; })}
                     >
                       <TD>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Category sx={{ fontSize: 13, color: '#00ff88' }} />
-                          <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#fff' }}>{cat.name}</Typography>
+                          <Category sx={{ fontSize: 13, color: '#008751' }} />
+                          <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#143625' }}>{cat.name}</Typography>
                         </Box>
                       </TD>
                       <TD align="right">
@@ -1763,17 +1763,17 @@ const ReportsPage: React.FC = () => {
                         </Typography>
                       </TD>
                       <TD align="center">
-                        <Chip label={cat.count} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.25)', color: '#00ff88', fontSize: '0.68rem' }} />
+                        <Chip label={cat.count} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.25)', color: '#008751', fontSize: '0.68rem' }} />
                       </TD>
                       <TD align="center">
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
                           <LinearProgress variant="determinate" value={parseFloat(pct)}
                             sx={{ width: 55, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.1)', '& .MuiLinearProgress-bar': { backgroundColor: '#2196f3' } }} />
-                          <Typography sx={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', minWidth: 32 }}>{pct}%</Typography>
+                          <Typography sx={{ fontSize: '0.7rem', color: 'rgba(15,48,31,0.68)', minWidth: 32 }}>{pct}%</Typography>
                         </Box>
                       </TD>
                       <TD align="center">
-                        <IconButton size="small" sx={{ color: 'rgba(255,255,255,0.5)', p: 0.2 }}>
+                        <IconButton size="small" sx={{ color: 'rgba(15,48,31,0.5)', p: 0.2 }}>
                           {isExp ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" />}
                         </IconButton>
                       </TD>
@@ -1793,9 +1793,9 @@ const ReportsPage: React.FC = () => {
                                   background: 'rgba(0,75,40,0.5)', border: '1px solid rgba(0,255,136,0.12)', borderBottom: 'none',
                                 }}>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                                    <LocationOn sx={{ fontSize: 12, color: '#00ff88' }} />
-                                    <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.78rem' }}>{sg.state}</Typography>
-                                    <Chip label={sg.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.12)', color: '#00ff88', fontSize: '0.62rem', height: 16 }} />
+                                    <LocationOn sx={{ fontSize: 12, color: '#008751' }} />
+                                    <Typography sx={{ fontWeight: 700, color: '#143625', fontSize: '0.78rem' }}>{sg.state}</Typography>
+                                    <Chip label={sg.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.12)', color: '#008751', fontSize: '0.62rem', height: 16 }} />
                                   </Box>
                                   <Typography sx={{ fontWeight: 700, color: '#2196f3', fontSize: '0.75rem' }}>
                                     {sg.totalMV > 0 ? formatCurrency(sg.totalMV) : '—'}
@@ -1819,18 +1819,18 @@ const ReportsPage: React.FC = () => {
                                         .sort((a, b) => (Number(b.marketValue) || 0) - (Number(a.marketValue) || 0))
                                         .map((asset, ai) => (
                                           <TableRow key={asset.id || ai} sx={{ backgroundColor: ai % 2 === 0 ? 'rgba(0,22,10,0.5)' : 'rgba(0,38,18,0.3)', '&:last-child td': { borderBottom: 'none' } }}>
-                                            <TableCell sx={{ ...miniCellSx, fontFamily: 'monospace', color: '#00ff88' }}>
+                                            <TableCell sx={{ ...miniCellSx, fontFamily: 'monospace', color: '#008751' }}>
                                               {asset.assetId || asset.id || '—'}
                                             </TableCell>
                                             <TableCell sx={miniCellSx}>{asset.description || asset.name || '—'}</TableCell>
                                             <TableCell sx={{ ...miniCellSx, textAlign: 'right', fontWeight: 700, color: '#2196f3' }}>
-                                              {asset.marketValue ? formatCurrency(Number(asset.marketValue)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                                              {asset.marketValue ? formatCurrency(Number(asset.marketValue)) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                                             </TableCell>
                                             <TableCell sx={{ ...miniCellSx, textAlign: 'right', color: '#4caf50' }}>
-                                              {asset.purchaseCost ? formatCurrency(Number(asset.purchaseCost)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                                              {asset.purchaseCost ? formatCurrency(Number(asset.purchaseCost)) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                                             </TableCell>
                                             <TableCell sx={miniCellSx}>
-                                              {asset.condition || asset.assetCondition || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                                              {asset.condition || asset.assetCondition || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                                             </TableCell>
                                           </TableRow>
                                         ))}
@@ -1856,7 +1856,7 @@ const ReportsPage: React.FC = () => {
                   {formatCurrency(grandTotalMV)}
                 </TableCell>
                 <TableCell align="center" sx={{ py: 1, px: 1.5, borderBottom: 'none' }}>
-                  <Chip label={allAssets.length} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.2)', color: '#00ff88', fontWeight: 700 }} />
+                  <Chip label={allAssets.length} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.2)', color: '#008751', fontWeight: 700 }} />
                 </TableCell>
                 <TableCell colSpan={2} sx={{ borderBottom: 'none' }} />
               </TableRow>
@@ -1866,7 +1866,7 @@ const ReportsPage: React.FC = () => {
 
         {/* ── Detailed by Market Value ── */}
         <SectionHeading icon={<BarChart />} title="Detailed Assets by Market Value" count={data.totalAssets} />
-        <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)', mb: 2 }}>
+        <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.5)', mb: 2 }}>
           Assets grouped by category and sorted by highest market value within each category.
         </Typography>
 
@@ -1880,20 +1880,20 @@ const ReportsPage: React.FC = () => {
               border: '1px solid rgba(0,255,136,0.2)', borderBottom: 'none',
             }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Category sx={{ fontSize: 16, color: '#00ff88' }} />
-                <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.92rem', letterSpacing: 0.5 }}>
+                <Category sx={{ fontSize: 16, color: '#008751' }} />
+                <Typography sx={{ fontWeight: 700, color: '#143625', fontSize: '0.92rem', letterSpacing: 0.5 }}>
                   {cat.name.toUpperCase()}
                 </Typography>
                 <Chip label={`${cat.count} asset${cat.count !== 1 ? 's' : ''}`} size="small"
-                  sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#00ff88', fontSize: '0.68rem', height: 20 }} />
+                  sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#008751', fontSize: '0.68rem', height: 20 }} />
               </Box>
               <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
                 <Box sx={{ textAlign: 'right' }}>
-                  <Typography sx={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.4 }}>Purchase Cost</Typography>
+                  <Typography sx={{ fontSize: '0.6rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase', letterSpacing: 0.4 }}>Purchase Cost</Typography>
                   <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: '#4caf50' }}>{formatCurrency(cat.totalPC)}</Typography>
                 </Box>
                 <Box sx={{ textAlign: 'right' }}>
-                  <Typography sx={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.4 }}>Market Value</Typography>
+                  <Typography sx={{ fontSize: '0.6rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase', letterSpacing: 0.4 }}>Market Value</Typography>
                   <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#2196f3' }}>
                     {cat.totalMV > 0 ? formatCurrency(cat.totalMV) : '—'}
                   </Typography>
@@ -1930,13 +1930,13 @@ const ReportsPage: React.FC = () => {
                       const cs = conditionStyle(cond);
                       return (
                         <TableRow key={asset.id || ai} sx={{
-                          backgroundColor: ai % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)',
+                          backgroundColor: ai % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)',
                           '&:hover': { backgroundColor: 'rgba(0,135,81,0.12)' },
                           '&:last-child td': { borderBottom: 'none' },
                         }}>
                           <TD align="center" muted>{ai + 1}</TD>
                           <TD mono>
-                            <Typography sx={{ fontFamily: 'monospace', fontSize: '0.72rem', color: '#00ff88', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2, borderRadius: 0.5, border: '1px solid rgba(0,255,136,0.15)', display: 'inline-block', letterSpacing: 0.5 }}>
+                            <Typography sx={{ fontFamily: 'monospace', fontSize: '0.72rem', color: '#008751', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2, borderRadius: 0.5, border: '1px solid rgba(0,255,136,0.15)', display: 'inline-block', letterSpacing: 0.5 }}>
                               {asset.assetId || asset.id || '—'}
                             </Typography>
                           </TD>
@@ -1945,26 +1945,26 @@ const ReportsPage: React.FC = () => {
                               {asset.description || asset.name || '—'}
                             </Typography>
                           </TD>
-                          <TD>{asset.state || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
-                          <TD>{asset.location || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
-                          <TD>{asset.ministry || asset.ministryName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
-                          <TD>{asset.agency || asset.agencyName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
+                          <TD>{asset.state || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}</TD>
+                          <TD>{asset.location || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}</TD>
+                          <TD>{asset.ministry || asset.ministryName || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}</TD>
+                          <TD>{asset.agency || asset.agencyName || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}</TD>
                           <TD align="center">
                             {cond ? (
                               <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4, px: 0.8, py: 0.2, borderRadius: 0.8, backgroundColor: cs.bg, border: `1px solid ${cs.border}` }}>
                                 <FiberManualRecord sx={{ fontSize: 7, color: cs.color }} />
                                 <Typography sx={{ fontSize: '0.68rem', color: cs.color, fontWeight: 600, whiteSpace: 'nowrap' }}>{cond}</Typography>
                               </Box>
-                            ) : <Typography sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>—</Typography>}
+                            ) : <Typography sx={{ color: 'rgba(15,48,31,0.28)', fontSize: '0.75rem' }}>—</Typography>}
                           </TD>
                           <TD align="right">
                             <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50', whiteSpace: 'nowrap' }}>
-                              {asset.purchaseCost ? formatCurrency(Number(asset.purchaseCost)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                              {asset.purchaseCost ? formatCurrency(Number(asset.purchaseCost)) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                             </Typography>
                           </TD>
                           <TD align="right">
                             <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: '#2196f3', whiteSpace: 'nowrap' }}>
-                              {asset.marketValue ? formatCurrency(Number(asset.marketValue)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                              {asset.marketValue ? formatCurrency(Number(asset.marketValue)) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                             </Typography>
                           </TD>
                         </TableRow>
@@ -1999,13 +1999,13 @@ const ReportsPage: React.FC = () => {
           </Typography>
           <Box sx={{ display: 'flex', gap: 4 }}>
             <Box sx={{ textAlign: 'right' }}>
-              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>Total Purchase Cost</Typography>
+              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase' }}>Total Purchase Cost</Typography>
               <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#4caf50' }}>
                 {formatCurrency(categories.reduce((s, c) => s + c.totalPC, 0))}
               </Typography>
             </Box>
             <Box sx={{ textAlign: 'right' }}>
-              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>Total Market Value</Typography>
+              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase' }}>Total Market Value</Typography>
               <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#2196f3' }}>
                 {formatCurrency(grandTotalMV)}
               </Typography>
@@ -2021,8 +2021,8 @@ const ReportsPage: React.FC = () => {
     if (!generatedReport || generatedReport.type !== 'asset_inventory') {
       return (
         <Box sx={{ textAlign: 'center', py: 4 }}>
-          <PieChart sx={{ fontSize: 64, color: 'rgba(255,255,255,0.2)', mb: 2 }} />
-          <Typography sx={{ color: 'rgba(255,255,255,0.5)' }}>Breakdown view is available for Asset Inventory reports.</Typography>
+          <PieChart sx={{ fontSize: 64, color: 'rgba(15,48,31,0.22)', mb: 2 }} />
+          <Typography sx={{ color: 'rgba(15,48,31,0.5)' }}>Breakdown view is available for Asset Inventory reports.</Typography>
         </Box>
       );
     }
@@ -2037,14 +2037,14 @@ const ReportsPage: React.FC = () => {
               {data.byType.map((row: any, i: number) => {
                 const pct = data.totalValue > 0 ? ((row.value / data.totalValue) * 100).toFixed(1) : '0.0';
                 return (
-                  <TableRow key={row.name} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
+                  <TableRow key={row.name} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
                     <TD><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Category sx={{ fontSize: 13, color: 'rgba(0,255,136,0.6)' }} /><Typography sx={{ fontSize: '0.78rem', fontWeight: 600 }}>{row.name}</Typography></Box></TD>
-                    <TD align="center"><Chip label={row.count} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.2)', color: '#00ff88' }} /></TD>
+                    <TD align="center"><Chip label={row.count} size="small" sx={{ backgroundColor: 'rgba(0,135,81,0.2)', color: '#008751' }} /></TD>
                     <TD align="right"><Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50' }}>{formatCurrency(row.value)}</Typography></TD>
                     <TD align="center">
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
                         <LinearProgress variant="determinate" value={parseFloat(pct)} sx={{ width: 80, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.1)', '& .MuiLinearProgress-bar': { backgroundColor: '#008751' } }} />
-                        <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', minWidth: 36 }}>{pct}%</Typography>
+                        <Typography sx={{ fontSize: '0.72rem', color: 'rgba(15,48,31,0.68)', minWidth: 36 }}>{pct}%</Typography>
                       </Box>
                     </TD>
                   </TableRow>
@@ -2064,14 +2064,14 @@ const ReportsPage: React.FC = () => {
                   {data.byMinistry.map((row: any, i: number) => {
                     const pct = data.totalValue > 0 ? ((row.value / data.totalValue) * 100).toFixed(1) : '0.0';
                     return (
-                      <TableRow key={row.name} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
+                      <TableRow key={row.name} sx={{ backgroundColor: i % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)', '&:hover': { backgroundColor: 'rgba(0,135,81,0.1)' } }}>
                         <TD><Typography sx={{ fontSize: '0.78rem', fontWeight: 600 }}>{row.name}</Typography></TD>
                         <TD align="center">{row.count}</TD>
                         <TD align="right"><Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50' }}>{formatCurrency(row.value)}</Typography></TD>
                         <TD align="center">
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
                             <LinearProgress variant="determinate" value={parseFloat(pct)} sx={{ width: 80, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.1)', '& .MuiLinearProgress-bar': { backgroundColor: '#1565c0' } }} />
-                            <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', minWidth: 36 }}>{pct}%</Typography>
+                            <Typography sx={{ fontSize: '0.72rem', color: 'rgba(15,48,31,0.68)', minWidth: 36 }}>{pct}%</Typography>
                           </Box>
                         </TD>
                       </TableRow>
@@ -2092,19 +2092,19 @@ const ReportsPage: React.FC = () => {
       <Container maxWidth="xl">
         <Box sx={{ mb: 2 }}>
           <Button startIcon={<ArrowBack />} onClick={() => navigate(-1)}
-            sx={{ color: 'rgba(255,255,255,0.7)', '&:hover': { color: '#00ff88', backgroundColor: 'transparent' } }}>
+            sx={{ color: 'rgba(15,48,31,0.68)', '&:hover': { color: '#008751', backgroundColor: 'transparent' } }}>
             Back to Dashboard
           </Button>
         </Box>
 
         <Paper elevation={0} sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg,rgba(0,135,81,0.2),rgba(0,135,81,0.05))', border: '1px solid rgba(0,135,81,0.3)', borderLeft: '4px solid #008751' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Assessment sx={{ fontSize: 40, color: '#00ff88' }} />
+            <Assessment sx={{ fontSize: 40, color: '#008751' }} />
             <Box>
-              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                 Report Generation
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)' }}>
                 Assets grouped by {reportGroupLabel.toLowerCase()} in alphabetical order · All form fields included · Exportable to PDF, Excel, CSV
               </Typography>
             </Box>
@@ -2114,7 +2114,7 @@ const ReportsPage: React.FC = () => {
         {error && <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>{error}</Alert>}
         {renderReportTypeCards()}
         {renderFiltersPanel()}
-        {loading && <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress sx={{ color: '#00ff88' }} /></Box>}
+        {loading && <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress sx={{ color: '#008751' }} /></Box>}
 
         {!loading && generatedReport && (
           <Paper sx={{ p: 3 }}>
@@ -2122,8 +2122,8 @@ const ReportsPage: React.FC = () => {
             <Box sx={{ mb: 3, pb: 2, borderBottom: '2px solid rgba(0,135,81,0.3)' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Box>
-                  <Typography variant="h5" sx={{ color: '#00ff88', fontWeight: 700, mb: 0.5 }}>{generatedReport.title}</Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
+                  <Typography variant="h5" sx={{ color: '#008751', fontWeight: 700, mb: 0.5 }}>{generatedReport.title}</Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.5)', fontSize: '0.75rem' }}>
                     Generated: {generatedReport.generatedAt.toLocaleString()} &nbsp;|&nbsp; By: {generatedReport.generatedBy}
                     {generatedReport.ministryName && ` | ${generatedReport.ministryName}`}
                   </Typography>
@@ -2133,7 +2133,7 @@ const ReportsPage: React.FC = () => {
                     variant="outlined"
                     endIcon={<ArrowDropDown />}
                     onClick={(e) => setExportAnchorEl(e.currentTarget)}
-                    sx={{ color: '#fff', borderColor: 'rgba(255,255,255,0.3)', fontSize: '0.82rem', '&:hover': { borderColor: '#00ff88', color: '#00ff88', backgroundColor: 'rgba(0,255,136,0.07)' } }}
+                    sx={{ color: '#143625', borderColor: 'rgba(15,48,31,0.3)', fontSize: '0.82rem', '&:hover': { borderColor: '#008751', color: '#008751', backgroundColor: 'rgba(0,255,136,0.07)' } }}
                   >
                     Export
                   </Button>
@@ -2176,7 +2176,7 @@ const ReportsPage: React.FC = () => {
             {/* Insights */}
             {generatedReport.insights.length > 0 && (
               <Box sx={{ mb: 3 }}>
-                <Typography variant="h6" sx={{ color: '#FFFFFF', mb: 2 }}>Key Insights</Typography>
+                <Typography variant="h6" sx={{ color: '#143625', mb: 2 }}>Key Insights</Typography>
                 <Grid container spacing={2}>
                   {generatedReport.insights.map((insight, idx) => (
                     <Grid item xs={12} md={6} key={idx}>
@@ -2187,10 +2187,10 @@ const ReportsPage: React.FC = () => {
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                             {getInsightIcon(insight.type)}
-                            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#FFFFFF' }}>{insight.title}</Typography>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#143625' }}>{insight.title}</Typography>
                           </Box>
-                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', mb: 1 }}>{insight.description}</Typography>
-                          {insight.recommendation && <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' }}>Recommendation: {insight.recommendation}</Typography>}
+                          <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)', mb: 1 }}>{insight.description}</Typography>
+                          {insight.recommendation && <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.58)', fontStyle: 'italic' }}>Recommendation: {insight.recommendation}</Typography>}
                         </CardContent>
                       </Card>
                     </Grid>
@@ -2215,9 +2215,9 @@ const ReportsPage: React.FC = () => {
 
         {!loading && !generatedReport && (
           <Paper sx={{ p: 6, textAlign: 'center', background: 'linear-gradient(135deg,rgba(0,135,81,0.05),transparent)' }}>
-            <Description sx={{ fontSize: 80, color: 'rgba(255,255,255,0.2)', mb: 2 }} />
-            <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>No Report Generated Yet</Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+            <Description sx={{ fontSize: 80, color: 'rgba(15,48,31,0.22)', mb: 2 }} />
+            <Typography variant="h6" sx={{ color: 'rgba(15,48,31,0.68)', mb: 1 }}>No Report Generated Yet</Typography>
+            <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.5)' }}>
               Select a report type, configure filters, and click "Generate Report" to create a comprehensive analysis.
             </Typography>
           </Paper>

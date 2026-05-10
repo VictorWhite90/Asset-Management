@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -5,12 +7,22 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  background-color: #f8fbf8;
+}
+
+h1,
+h2,
+h3,
+h4,
+.MuiTypography-h1,
+.MuiTypography-h2,
+.MuiTypography-h3,
+.MuiTypography-h4,
+.MuiTypography-h5 {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
 }
 
 code {
@@ -29,16 +41,21 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(0, 135, 81, 0.08);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: rgba(0, 135, 81, 0.35);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: rgba(0, 96, 56, 0.55);
+}
+
+.light-glass-text,
+.light-glass-text .MuiTypography-root {
+  color: #143625;
 }
 
 /* Loading spinner styles */
@@ -55,8 +72,7 @@ code {
 }
 
 /*
- * Browser autofill (Chrome suggestion click) forces a blue/yellow background.
- * Match dark theme inputs (see src/theme.ts palette.background.paper / text.primary).
+ * Browser autofill — match light theme inputs (src/theme.ts).
  */
 input:-webkit-autofill,
 input:-webkit-autofill:enabled,
@@ -69,11 +85,10 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  -webkit-text-fill-color: #ffffff !important;
-  caret-color: #ffffff;
-  /* Large inset shadow paints over UA autofill background */
-  -webkit-box-shadow: 0 0 0 1000px #0d2818 inset !important;
-  box-shadow: 0 0 0 1000px #0d2818 inset !important;
+  -webkit-text-fill-color: rgba(0, 0, 0, 0.87) !important;
+  caret-color: #006038;
+  -webkit-box-shadow: 0 0 0 1000px #fafcfb inset !important;
+  box-shadow: 0 0 0 1000px #fafcfb inset !important;
   border-radius: inherit;
   transition: background-color 99999s ease-out 0s;
 }
@@ -81,8 +96,8 @@ select:-webkit-autofill:focus {
 input:autofill,
 textarea:autofill,
 select:autofill {
-  -webkit-text-fill-color: #ffffff !important;
-  caret-color: #ffffff;
-  -webkit-box-shadow: 0 0 0 1000px #0d2818 inset !important;
-  box-shadow: 0 0 0 1000px #0d2818 inset !important;
+  -webkit-text-fill-color: rgba(0, 0, 0, 0.87) !important;
+  caret-color: #006038;
+  -webkit-box-shadow: 0 0 0 1000px #fafcfb inset !important;
+  box-shadow: 0 0 0 1000px #fafcfb inset !important;
 }

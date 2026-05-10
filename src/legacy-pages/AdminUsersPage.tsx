@@ -40,7 +40,7 @@ import {
   PersonOff,
   Visibility,
   AccountBalance,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import { toast } from 'react-toastify';
 import {
   getAllUsers,
@@ -236,7 +236,7 @@ const AdminUsersPage = () => {
       <AppLayout>
         <Container component="main" maxWidth="xl">
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-            <CircularProgress sx={{ color: '#00ff88' }} />
+            <CircularProgress sx={{ color: '#008751' }} />
           </Box>
         </Container>
       </AppLayout>
@@ -253,9 +253,9 @@ const AdminUsersPage = () => {
             to="/dashboard"
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: '#006038',
               '&:hover': {
-                color: '#00ff88',
+                color: '#008751',
                 backgroundColor: 'transparent',
               },
             }}
@@ -276,12 +276,12 @@ const AdminUsersPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <AccountBalance sx={{ fontSize: 40, color: '#00ff88' }} />
+              <AccountBalance sx={{ fontSize: 40, color: '#008751' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                <Typography variant="h4" sx={{ color: '#0d331f', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {deploymentLabels.ministryAdminManagement}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5 }}>
+                <Typography variant="body2" sx={{ color: 'rgba(0, 0, 0, 0.65)', mt: 0.5 }}>
                   Manage {deploymentLabels.ministryAdminPlural.toLowerCase()} and their access
                 </Typography>
               </Box>
@@ -303,21 +303,21 @@ const AdminUsersPage = () => {
           <Grid item xs={12} sm={4}>
             <Card
               sx={{
-                background: 'linear-gradient(135deg, #008751 0%, #006038 100%)',
+                background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.18) 0%, rgba(0, 96, 56, 0.08) 100%)',
                 border: 'none',
               }}
             >
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Box>
-                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
+                    <Typography sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: '0.875rem' }}>
                       Total Verified
                     </Typography>
-                    <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
+                    <Typography variant="h3" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                       {stats.total}
                     </Typography>
                   </Box>
-                  <People sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
+                  <People sx={{ fontSize: 40, color: 'rgba(15, 48, 31, 0.5)' }} />
                 </Box>
               </CardContent>
             </Card>
@@ -325,21 +325,21 @@ const AdminUsersPage = () => {
           <Grid item xs={12} sm={4}>
             <Card
               sx={{
-                background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)',
+                background: 'linear-gradient(135deg, rgba(46, 125, 50, 0.18) 0%, rgba(27, 94, 32, 0.08) 100%)',
                 border: 'none',
               }}
             >
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Box>
-                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
+                    <Typography sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: '0.875rem' }}>
                       Active
                     </Typography>
-                    <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
+                    <Typography variant="h3" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                       {stats.active}
                     </Typography>
                   </Box>
-                  <CheckCircle sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
+                  <CheckCircle sx={{ fontSize: 40, color: 'rgba(15, 48, 31, 0.5)' }} />
                 </Box>
               </CardContent>
             </Card>
@@ -347,21 +347,21 @@ const AdminUsersPage = () => {
           <Grid item xs={12} sm={4}>
             <Card
               sx={{
-                background: 'linear-gradient(135deg, #c62828 0%, #8e0000 100%)',
+                background: 'linear-gradient(135deg, rgba(198, 40, 40, 0.16) 0%, rgba(142, 0, 0, 0.07) 100%)',
                 border: 'none',
               }}
             >
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Box>
-                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
+                    <Typography sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: '0.875rem' }}>
                       Disabled
                     </Typography>
-                    <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
+                    <Typography variant="h3" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                       {stats.disabled}
                     </Typography>
                   </Box>
-                  <PersonOff sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
+                  <PersonOff sx={{ fontSize: 40, color: 'rgba(15, 48, 31, 0.5)' }} />
                 </Box>
               </CardContent>
             </Card>
@@ -370,7 +370,7 @@ const AdminUsersPage = () => {
 
         {/* Filters */}
         <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
+          <Typography variant="h6" sx={{ color: '#006038', fontWeight: 600, mb: 2 }}>
             Filter {deploymentLabels.ministryAdminPlural}
           </Typography>
           <Grid container spacing={2}>
@@ -409,21 +409,21 @@ const AdminUsersPage = () => {
               background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.15) 0%, rgba(0, 135, 81, 0.05) 100%)',
             }}
           >
-            <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ color: '#006038', fontWeight: 600 }}>
               {deploymentLabels.ministryAdminPlural}
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.72)' }}>
               Showing {filteredUsers.length} of {users.length} {deploymentLabels.ministryAdminPlural.toLowerCase()}
             </Typography>
           </Box>
 
           {filteredUsers.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 5 }}>
-              <AccountBalance sx={{ fontSize: 60, color: 'rgba(255, 255, 255, 0.3)', mb: 2 }} />
-              <Typography variant="h6" sx={{ color: '#FFFFFF' }}>
+              <AccountBalance sx={{ fontSize: 60, color: 'rgba(0, 135, 81, 0.35)', mb: 2 }} />
+              <Typography variant="h6" sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
                 No {deploymentLabels.ministryAdminPlural.toLowerCase()} found
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)', mt: 1 }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.72)', mt: 1 }}>
                 Try adjusting your filters
               </Typography>
             </Box>
@@ -432,12 +432,12 @@ const AdminUsersPage = () => {
               <Table>
                 <TableHead>
                   <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Name</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Email</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Ministry</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Location</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Status</TableCell>
-                    <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600 }}>Name</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600 }}>Email</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600 }}>Ministry</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600 }}>Location</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600 }}>Status</TableCell>
+                    <TableCell align="right" sx={{ color: '#006038', fontWeight: 600 }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -449,12 +449,12 @@ const AdminUsersPage = () => {
                         borderBottom: '1px solid rgba(0, 135, 81, 0.1)',
                       }}
                     >
-                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 500 }}>
+                      <TableCell sx={{ color: 'rgba(0, 0, 0, 0.87)', fontWeight: 500 }}>
                         {user.name || 'N/A'}
                       </TableCell>
-                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{user.email}</TableCell>
-                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{user.agencyName}</TableCell>
-                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{user.location}</TableCell>
+                      <TableCell sx={{ color: 'rgba(0, 0, 0, 0.75)' }}>{user.email}</TableCell>
+                      <TableCell sx={{ color: 'rgba(0, 0, 0, 0.75)' }}>{user.agencyName}</TableCell>
+                      <TableCell sx={{ color: 'rgba(0, 0, 0, 0.75)' }}>{user.location}</TableCell>
                       <TableCell>{getStatusChip(user.accountStatus)}</TableCell>
                       <TableCell align="right">
                         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
@@ -463,8 +463,8 @@ const AdminUsersPage = () => {
                               size="small"
                               onClick={() => handleViewDetails(user)}
                               sx={{
-                                color: '#00ff88',
-                                '&:hover': { backgroundColor: 'rgba(0, 255, 136, 0.1)' },
+                                color: '#008751',
+                                '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.08)' },
                               }}
                             >
                               <Visibility />
@@ -516,12 +516,12 @@ const AdminUsersPage = () => {
           fullWidth
           PaperProps={{
             sx: {
-              backgroundColor: '#0d2818',
-              border: '1px solid rgba(0, 135, 81, 0.3)',
+              backgroundColor: '#ffffff',
+              border: '1px solid rgba(0, 135, 81, 0.15)',
             },
           }}
         >
-          <DialogTitle sx={{ color: '#00ff88', fontWeight: 600 }}>
+          <DialogTitle sx={{ color: '#006038', fontWeight: 600 }}>
             {deploymentLabels.ministryAdminShort} Details
           </DialogTitle>
           <DialogContent>
@@ -529,71 +529,71 @@ const AdminUsersPage = () => {
               <Box sx={{ pt: 1 }}>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)' }}>
                       Full Name
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
+                    <Typography variant="body1" sx={{ color: 'rgba(0, 0, 0, 0.87)', fontWeight: 500 }}>
                       {selectedUser.name || 'N/A'}
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)' }}>
                       Email
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#FFFFFF' }}>
+                    <Typography variant="body1" sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
                       {selectedUser.email}
                     </Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)' }}>
                       Position
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#FFFFFF' }}>
+                    <Typography variant="body1" sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
                       {selectedUser.position || 'N/A'}
                     </Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)' }}>
                       Staff ID
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#FFFFFF' }}>
+                    <Typography variant="body1" sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
                       {selectedUser.staffId || 'N/A'}
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)' }}>
                       NIN (National ID)
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#FFFFFF' }}>
+                    <Typography variant="body1" sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
                       {selectedUser.nin || 'N/A'}
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)' }}>
                       Ministry/Agency
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#FFFFFF' }}>
+                    <Typography variant="body1" sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
                       {selectedUser.agencyName}
                     </Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)' }}>
                       Ministry Type
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#FFFFFF' }}>
+                    <Typography variant="body1" sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
                       {selectedUser.ministryType || 'N/A'}
                     </Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)' }}>
                       Location
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#FFFFFF' }}>
+                    <Typography variant="body1" sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
                       {selectedUser.location}
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)' }}>
                       Account Status
                     </Typography>
                     <Box sx={{ mt: 0.5 }}>
@@ -601,10 +601,10 @@ const AdminUsersPage = () => {
                     </Box>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    <Typography variant="caption" sx={{ color: 'rgba(0, 0, 0, 0.55)' }}>
                       Registered
                     </Typography>
-                    <Typography variant="body1" sx={{ color: '#FFFFFF' }}>
+                    <Typography variant="body1" sx={{ color: 'rgba(0, 0, 0, 0.87)' }}>
                       {selectedUser.createdAt?.toDate().toLocaleDateString('en-GB', {
                         day: '2-digit',
                         month: 'short',
@@ -632,8 +632,8 @@ const AdminUsersPage = () => {
           onClose={() => !actionLoading && setDisableDialogOpen(false)}
           PaperProps={{
             sx: {
-              backgroundColor: '#0d2818',
-              border: '1px solid rgba(0, 135, 81, 0.3)',
+              backgroundColor: '#ffffff',
+              border: '1px solid rgba(0, 135, 81, 0.15)',
             },
           }}
         >
@@ -641,10 +641,10 @@ const AdminUsersPage = () => {
             Disable {deploymentLabels.ministryAdminShort}
           </DialogTitle>
           <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-              Are you sure you want to disable <strong style={{ color: '#FFFFFF' }}>{selectedUser?.name || selectedUser?.email}</strong>?
+            <Typography variant="body2" sx={{ color: 'rgba(0, 0, 0, 0.75)' }}>
+              Are you sure you want to disable <strong style={{ color: 'rgba(0, 0, 0, 0.92)' }}>{selectedUser?.name || selectedUser?.email}</strong>?
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.5)', mt: 1 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(0, 0, 0, 0.55)', mt: 1 }}>
               This will prevent them from logging in and managing their ministry.
             </Typography>
           </DialogContent>
@@ -652,7 +652,7 @@ const AdminUsersPage = () => {
             <Button
               onClick={() => setDisableDialogOpen(false)}
               disabled={actionLoading}
-              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+              sx={{ color: 'rgba(0, 0, 0, 0.65)' }}
             >
               Cancel
             </Button>
@@ -660,7 +660,7 @@ const AdminUsersPage = () => {
               onClick={confirmDisableUser}
               variant="contained"
               disabled={actionLoading}
-              startIcon={actionLoading ? <CircularProgress size={20} sx={{ color: '#FFFFFF' }} /> : <Block />}
+              startIcon={actionLoading ? <CircularProgress size={20} sx={{ color: '#143625' }} /> : <Block />}
               sx={{
                 backgroundColor: '#c62828',
                 '&:hover': { backgroundColor: '#8e0000' },
@@ -677,8 +677,8 @@ const AdminUsersPage = () => {
           onClose={() => !actionLoading && setEnableDialogOpen(false)}
           PaperProps={{
             sx: {
-              backgroundColor: '#0d2818',
-              border: '1px solid rgba(0, 135, 81, 0.3)',
+              backgroundColor: '#ffffff',
+              border: '1px solid rgba(0, 135, 81, 0.15)',
             },
           }}
         >
@@ -686,10 +686,10 @@ const AdminUsersPage = () => {
             Enable {deploymentLabels.ministryAdminShort}
           </DialogTitle>
           <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-              Are you sure you want to enable <strong style={{ color: '#FFFFFF' }}>{selectedUser?.name || selectedUser?.email}</strong>?
+            <Typography variant="body2" sx={{ color: 'rgba(0, 0, 0, 0.75)' }}>
+              Are you sure you want to enable <strong style={{ color: 'rgba(0, 0, 0, 0.92)' }}>{selectedUser?.name || selectedUser?.email}</strong>?
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.5)', mt: 1 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(0, 0, 0, 0.55)', mt: 1 }}>
               They will regain access to manage their ministry.
             </Typography>
           </DialogContent>
@@ -697,7 +697,7 @@ const AdminUsersPage = () => {
             <Button
               onClick={() => setEnableDialogOpen(false)}
               disabled={actionLoading}
-              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+              sx={{ color: 'rgba(0, 0, 0, 0.65)' }}
             >
               Cancel
             </Button>
@@ -705,7 +705,7 @@ const AdminUsersPage = () => {
               onClick={confirmEnableUser}
               variant="contained"
               disabled={actionLoading}
-              startIcon={actionLoading ? <CircularProgress size={20} sx={{ color: '#FFFFFF' }} /> : <LockOpen />}
+              startIcon={actionLoading ? <CircularProgress size={20} sx={{ color: '#143625' }} /> : <LockOpen />}
               sx={{
                 backgroundColor: '#2e7d32',
                 '&:hover': { backgroundColor: '#1b5e20' },

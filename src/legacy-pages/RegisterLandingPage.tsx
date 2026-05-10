@@ -18,7 +18,7 @@ import {
   Lock,
   GppGood,
   ArrowBack,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import { deploymentLabels } from '@/utils/deployment';
 
 const RegisterLandingPage: React.FC = () => {
@@ -55,7 +55,7 @@ const RegisterLandingPage: React.FC = () => {
       {/* Security Banner */}
       <Box
         sx={{
-          backgroundColor: '#0a0505',
+          backgroundColor: 'rgba(255, 255, 255, 0.72)',
           py: 0.5,
           borderBottom: '2px solid #008751',
           position: 'relative',
@@ -66,7 +66,7 @@ const RegisterLandingPage: React.FC = () => {
           <Typography
             variant="caption"
             sx={{
-              color: '#00ff88',
+              color: '#008751',
               fontFamily: '"Courier New", monospace',
               letterSpacing: 3,
               display: 'flex',
@@ -87,7 +87,7 @@ const RegisterLandingPage: React.FC = () => {
       {/* Header */}
       <Box
         sx={{
-          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backgroundColor: 'rgba(255, 255, 255, 0.66)',
           py: 1.5,
           borderBottom: '1px solid rgba(0, 135, 81, 0.2)',
           position: 'relative',
@@ -108,14 +108,14 @@ const RegisterLandingPage: React.FC = () => {
             >
               <Box sx={{ display: 'flex', borderRadius: 0.5, overflow: 'hidden' }}>
                 <Box sx={{ width: 10, height: 20, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 10, height: 20, backgroundColor: '#FFFFFF' }} />
+                <Box sx={{ width: 10, height: 20, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
                 <Box sx={{ width: 10, height: 20, backgroundColor: '#008751' }} />
               </Box>
               <Box>
-                <Typography variant="subtitle2" sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2 }}>
+                <Typography variant="subtitle2" sx={{ color: '#143625', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2 }}>
                   {deploymentLabels.jurisdiction.toUpperCase()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.65rem' }}>
+                <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)', fontSize: '0.65rem' }}>
                   Asset Management System
                 </Typography>
               </Box>
@@ -123,12 +123,12 @@ const RegisterLandingPage: React.FC = () => {
 
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
               <Chip
-                icon={<GppGood sx={{ fontSize: 12, color: '#00ff88 !important' }} />}
+                icon={<GppGood sx={{ fontSize: 12, color: '#008751 !important' }} />}
                 label="Secure Portal"
                 size="small"
                 sx={{
                   backgroundColor: 'rgba(0, 135, 81, 0.15)',
-                  color: '#00ff88',
+                  color: '#008751',
                   border: '1px solid rgba(0, 135, 81, 0.3)',
                   fontSize: '0.6rem',
                   height: 22,
@@ -156,9 +156,9 @@ const RegisterLandingPage: React.FC = () => {
               to="/"
               startIcon={<ArrowBack />}
               sx={{
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: 'rgba(15, 48, 31, 0.68)',
                 '&:hover': {
-                  color: '#00ff88',
+                  color: '#008751',
                   backgroundColor: 'transparent',
                 },
               }}
@@ -173,7 +173,7 @@ const RegisterLandingPage: React.FC = () => {
               component="h1"
               variant="h3"
               sx={{
-                color: '#FFFFFF',
+                color: '#143625',
                 fontWeight: 700,
                 letterSpacing: 1,
                 mb: 2,
@@ -184,11 +184,11 @@ const RegisterLandingPage: React.FC = () => {
             </Typography>
             <Typography
               variant="h6"
-              sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}
+              sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 1 }}
             >
               Choose the registration type that applies to you
             </Typography>
-            <Typography variant="body2" sx={{ color: '#00ff88' }}>
+            <Typography variant="body2" sx={{ color: '#008751' }}>
               {deploymentLabels.systemName}
             </Typography>
           </Box>
@@ -205,13 +205,13 @@ const RegisterLandingPage: React.FC = () => {
                   display: 'flex',
                   flexDirection: 'column',
                   p: { xs: 2.5, sm: 3, md: 4 },
-                  backgroundColor: 'rgba(13, 40, 24, 0.8)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.76)',
                   border: '1px solid rgba(0, 135, 81, 0.3)',
                   transition: 'all 0.3s ease',
                   cursor: 'pointer',
                   '&:hover': {
                     transform: 'translateY(-8px)',
-                    borderColor: '#00ff88',
+                    borderColor: '#008751',
                     boxShadow: '0 15px 40px rgba(0, 135, 81, 0.3)',
                   },
                 }}
@@ -233,7 +233,7 @@ const RegisterLandingPage: React.FC = () => {
                     boxShadow: '0 0 30px rgba(0, 135, 81, 0.3)',
                   }}
                 >
-                  <AdminPanelSettings sx={{ fontSize: 40, color: '#00ff88' }} />
+                  <AdminPanelSettings sx={{ fontSize: 40, color: '#008751' }} />
                 </Box>
 
                 {/* Title */}
@@ -242,7 +242,7 @@ const RegisterLandingPage: React.FC = () => {
                   variant="h5"
                   align="center"
                   sx={{
-                    color: '#00ff88',
+                    color: '#008751',
                     fontWeight: 700,
                     mb: 2,
                   }}
@@ -253,17 +253,17 @@ const RegisterLandingPage: React.FC = () => {
                 {/* Description */}
                 <Typography
                   variant="body2"
-                  sx={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center', mb: 3, lineHeight: 1.7 }}
+                  sx={{ color: 'rgba(15, 48, 31, 0.68)', textAlign: 'center', mb: 3, lineHeight: 1.7 }}
                 >
                   For official ministry representatives to create an admin account, register their ministry, and manage staff approvals.
                 </Typography>
 
                 {/* Requirements */}
                 <Box sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', p: 2, borderRadius: 2, mb: 3, border: '1px solid rgba(0, 135, 81, 0.2)' }}>
-                  <Typography variant="body2" fontWeight="bold" sx={{ color: '#FFFFFF', mb: 1 }}>
+                  <Typography variant="body2" fontWeight="bold" sx={{ color: '#143625', mb: 1 }}>
                     Requirements:
                   </Typography>
-                  <Box component="ul" sx={{ pl: 2, mb: 0, '& li': { color: 'rgba(255, 255, 255, 0.7)', mb: 0.5 } }}>
+                  <Box component="ul" sx={{ pl: 2, mb: 0, '& li': { color: 'rgba(15, 48, 31, 0.68)', mb: 0.5 } }}>
                     <li><Typography variant="body2">Valid email address</Typography></li>
                     <li><Typography variant="body2">Full name and password</Typography></li>
                     <li><Typography variant="body2">Email verification required</Typography></li>
@@ -273,13 +273,13 @@ const RegisterLandingPage: React.FC = () => {
                 {/* Status Info */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                   <VerifiedUser fontSize="small" sx={{ color: '#b8860b' }} />
-                  <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                  <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                     Two-step process: Account approval → Ministry registration
                   </Typography>
                 </Box>
 
                 {/* Who This Is For */}
-                <Typography variant="body2" sx={{ color: '#00ff88', fontWeight: 600, textAlign: 'center', mb: 3 }}>
+                <Typography variant="body2" sx={{ color: '#008751', fontWeight: 600, textAlign: 'center', mb: 3 }}>
                   Choose this if you're the head/representative of your ministry
                 </Typography>
 
@@ -308,13 +308,13 @@ const RegisterLandingPage: React.FC = () => {
                   display: 'flex',
                   flexDirection: 'column',
                   p: { xs: 2.5, sm: 3, md: 4 },
-                  backgroundColor: 'rgba(13, 40, 24, 0.8)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.76)',
                   border: '1px solid rgba(0, 135, 81, 0.3)',
                   transition: 'all 0.3s ease',
                   cursor: 'pointer',
                   '&:hover': {
                     transform: 'translateY(-8px)',
-                    borderColor: '#00ff88',
+                    borderColor: '#008751',
                     boxShadow: '0 15px 40px rgba(0, 135, 81, 0.3)',
                   },
                 }}
@@ -336,7 +336,7 @@ const RegisterLandingPage: React.FC = () => {
                     boxShadow: '0 0 30px rgba(0, 135, 81, 0.3)',
                   }}
                 >
-                  <PersonAdd sx={{ fontSize: 40, color: '#00ff88' }} />
+                  <PersonAdd sx={{ fontSize: 40, color: '#008751' }} />
                 </Box>
 
                 {/* Title */}
@@ -345,7 +345,7 @@ const RegisterLandingPage: React.FC = () => {
                   variant="h5"
                   align="center"
                   sx={{
-                    color: '#00ff88',
+                    color: '#008751',
                     fontWeight: 700,
                     mb: 2,
                   }}
@@ -356,17 +356,17 @@ const RegisterLandingPage: React.FC = () => {
                 {/* Description */}
                 <Typography
                   variant="body2"
-                  sx={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center', mb: 3, lineHeight: 1.7 }}
+                  sx={{ color: 'rgba(15, 48, 31, 0.68)', textAlign: 'center', mb: 3, lineHeight: 1.7 }}
                 >
                   For individual staff members to join an existing verified ministry as an Uploader (data submitter) or Approver (reviewer/head).
                 </Typography>
 
                 {/* Requirements */}
                 <Box sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)', p: 2, borderRadius: 2, mb: 3, border: '1px solid rgba(0, 135, 81, 0.2)' }}>
-                  <Typography variant="body2" fontWeight="bold" sx={{ color: '#FFFFFF', mb: 1 }}>
+                  <Typography variant="body2" fontWeight="bold" sx={{ color: '#143625', mb: 1 }}>
                     Requirements:
                   </Typography>
-                  <Box component="ul" sx={{ pl: 2, mb: 0, '& li': { color: 'rgba(255, 255, 255, 0.7)', mb: 0.5 } }}>
+                  <Box component="ul" sx={{ pl: 2, mb: 0, '& li': { color: 'rgba(15, 48, 31, 0.68)', mb: 0.5 } }}>
                     <li><Typography variant="body2">Your ministry must be <strong>verified</strong></Typography></li>
                     <li><Typography variant="body2">Work email address</Typography></li>
                     <li><Typography variant="body2">Select role: Uploader (6 max) or Approver (5 max)</Typography></li>
@@ -375,14 +375,14 @@ const RegisterLandingPage: React.FC = () => {
 
                 {/* Status Info */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                  <VerifiedUser fontSize="small" sx={{ color: '#00ff88' }} />
-                  <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                  <VerifiedUser fontSize="small" sx={{ color: '#008751' }} />
+                  <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                     Uploaders active immediately. Approvers need admin verification.
                   </Typography>
                 </Box>
 
                 {/* Who This Is For */}
-                <Typography variant="body2" sx={{ color: '#00ff88', fontWeight: 600, textAlign: 'center', mb: 3 }}>
+                <Typography variant="body2" sx={{ color: '#008751', fontWeight: 600, textAlign: 'center', mb: 3 }}>
                   Choose this if you're joining an existing ministry/agency
                 </Typography>
 
@@ -417,28 +417,28 @@ const RegisterLandingPage: React.FC = () => {
               borderLeft: '4px solid #008751',
             }}
           >
-            <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 700, mb: 2 }}>
+            <Typography variant="h6" sx={{ color: '#008751', fontWeight: 700, mb: 2 }}>
               Not sure which option to choose?
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 1 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.76)', mb: 1 }}>
               <strong>Choose "{deploymentLabels.ministryAdminTitle}"</strong> if your ministry is not yet registered, you're the official representative, or you'll manage staff approvals.
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
               <strong>Choose "Ministry Staff"</strong> if your ministry is already verified and you want to create a personal account to upload or approve assets.
             </Typography>
           </Paper>
 
           {/* Login Link */}
           <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+            <Typography variant="body1" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
               Already have an account?{' '}
               <Link
                 component={RouterLink}
                 to="/login"
                 sx={{
-                  color: '#00ff88',
+                  color: '#008751',
                   fontWeight: 600,
-                  '&:hover': { color: '#66ffaa' },
+                  '&:hover': { color: '#00a862' },
                 }}
               >
                 Sign In
@@ -451,7 +451,7 @@ const RegisterLandingPage: React.FC = () => {
       {/* Footer */}
       <Box
         sx={{
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'rgba(255, 255, 255, 0.68)',
           borderTop: '1px solid rgba(0, 135, 81, 0.2)',
           py: 2,
           position: 'relative',
@@ -463,10 +463,10 @@ const RegisterLandingPage: React.FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box sx={{ display: 'flex' }}>
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 12, height: 8, backgroundColor: '#FFFFFF' }} />
+                <Box sx={{ width: 12, height: 8, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
               </Box>
-              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+              <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                 {deploymentLabels.jurisdiction}
               </Typography>
             </Box>

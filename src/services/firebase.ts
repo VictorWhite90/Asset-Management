@@ -7,6 +7,9 @@ import { getStorage, connectStorageEmulator } from 'firebase/storage';
 
 const viteEnv = (import.meta as unknown as { env?: Record<string, string | undefined> }).env || {};
 
+/** GA4 IDs look like G-XXXXXXXX; omit or use a dummy in Vercel only if the form requires a value — invalid IDs skip Analytics. */
+const isValidMeasurementId = (id?: string) => Boolean(id && /^G-[A-Z0-9]+$/i.test(id.trim()));
+
 const env = {
   DEPLOYMENT_ID: process.env.NEXT_PUBLIC_DEPLOYMENT_ID || process.env.VITE_DEPLOYMENT_ID || viteEnv.VITE_DEPLOYMENT_ID,
   GOVERNMENT_LEVEL: process.env.NEXT_PUBLIC_GOVERNMENT_LEVEL || process.env.VITE_GOVERNMENT_LEVEL || viteEnv.VITE_GOVERNMENT_LEVEL,
@@ -36,6 +39,7 @@ export const deploymentConfig = {
   name: env.DEPLOYMENT_NAME || 'Nigeria Government Asset Management System',
 };
 
+const measurementId = env.FIREBASE_MEASUREMENT_ID?.trim();
 const firebaseConfig = {
   apiKey: env.FIREBASE_API_KEY,
   authDomain: env.FIREBASE_AUTH_DOMAIN,
@@ -43,7 +47,7 @@ const firebaseConfig = {
   storageBucket: env.FIREBASE_STORAGE_BUCKET,
   messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID,
   appId: env.FIREBASE_APP_ID,
-  measurementId: env.FIREBASE_MEASUREMENT_ID,
+  ...(isValidMeasurementId(measurementId) ? { measurementId } : {}),
 };
 
 const requiredEnvVars: Array<keyof typeof env> = [
@@ -69,7 +73,7 @@ export const db = getFirestore(app);
 export const functions = getFunctions(app);
 export const storage = getStorage(app);
 export const analytics: Promise<Analytics | null> =
-  typeof window !== 'undefined' && Boolean(env.FIREBASE_MEASUREMENT_ID)
+  typeof window !== 'undefined' && isValidMeasurementId(env.FIREBASE_MEASUREMENT_ID)
     ? isSupported()
         .then((supported) => (supported ? getAnalytics(app) : null))
         .catch((error) => {

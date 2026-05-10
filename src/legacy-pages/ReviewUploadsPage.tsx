@@ -35,7 +35,7 @@ import {
   KeyboardArrowDown,
   KeyboardArrowUp,
   FiberManualRecord,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import { Tabs, Tab } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
@@ -131,7 +131,7 @@ const dataCellSx = {
 function renderExtraFieldCell(asset: Asset, key: string): React.ReactNode {
   const v = (asset as Record<string, unknown>)[key];
   if (v == null || v === '') {
-    return <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>;
+    return <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>;
   }
   if (typeof v === 'number') return String(v);
   return String(v);
@@ -168,16 +168,16 @@ const StateGroup: React.FC<{
         cursor: 'pointer', userSelect: 'none',
       }} onClick={() => setCollapsed(!collapsed)}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <LocationOn sx={{ fontSize: 18, color: '#00ff88' }} />
-          <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.95rem', letterSpacing: 0.5 }}>
+          <LocationOn sx={{ fontSize: 18, color: '#008751' }} />
+          <Typography sx={{ fontWeight: 700, color: '#143625', fontSize: '0.95rem', letterSpacing: 0.5 }}>
             {state.toUpperCase()}
           </Typography>
           <Chip label={`${assets.length} asset${assets.length !== 1 ? 's' : ''}`} size="small"
-            sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#00ff88', fontSize: '0.68rem', height: 20 }} />
+            sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#008751', fontSize: '0.68rem', height: 20 }} />
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
           <Box sx={{ textAlign: 'right' }}>
-            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
               Total Purchase Cost
             </Typography>
             <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#4caf50' }}>
@@ -186,7 +186,7 @@ const StateGroup: React.FC<{
           </Box>
           {stateMktTotal > 0 && (
             <Box sx={{ textAlign: 'right' }}>
-              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <Typography sx={{ fontSize: '0.65rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 Current Value
               </Typography>
               <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#2196f3' }}>
@@ -194,7 +194,7 @@ const StateGroup: React.FC<{
               </Typography>
             </Box>
           )}
-          <IconButton size="small" sx={{ color: 'rgba(255,255,255,0.6)', p: 0.3 }}>
+          <IconButton size="small" sx={{ color: 'rgba(15,48,31,0.58)', p: 0.3 }}>
             {collapsed ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowUp fontSize="small" />}
           </IconButton>
         </Box>
@@ -240,7 +240,7 @@ const StateGroup: React.FC<{
               {assets.map((asset: Asset, i: number) => {
                 const condition = asset.condition || asset.assetCondition || asset.currentCondition || asset.conditionStatus || null;
                 const cs = getConditionStyle(condition);
-                const rowBg = i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)';
+                const rowBg = i % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)';
                 const currentValue = calculateCurrentValue(asset);
 
                 return (
@@ -252,7 +252,7 @@ const StateGroup: React.FC<{
                     <TableCell align="center" sx={{ ...dataCellSx, color: 'rgba(255,255,255,0.35)' }}>{serial + i + 1}</TableCell>
                     <TableCell sx={{ ...dataCellSx, fontFamily: 'monospace' }}>
                       <Typography sx={{ fontFamily: 'monospace', fontSize: '0.72rem',
-                        color: '#00ff88', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2,
+                        color: '#008751', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2,
                         borderRadius: 0.5, border: '1px solid rgba(0,255,136,0.15)',
                         display: 'inline-block', letterSpacing: 0.5, whiteSpace: 'nowrap' }}>
                         {asset.assetId || asset.id || '—'}
@@ -260,7 +260,7 @@ const StateGroup: React.FC<{
                     </TableCell>
                     <TableCell sx={dataCellSx}>
                       <Typography sx={{
-                        fontSize: '0.74rem', color: '#00ff88', fontFamily: 'monospace', letterSpacing: 0.5, fontWeight: 600,
+                        fontSize: '0.74rem', color: '#008751', fontFamily: 'monospace', letterSpacing: 0.5, fontWeight: 600,
                         background: 'rgba(0,255,136,0.1)', px: 0.8, py: 0.3, borderRadius: 0.5,
                         border: '1px solid rgba(0,255,136,0.2)', display: 'inline-block',
                       }}>
@@ -280,48 +280,48 @@ const StateGroup: React.FC<{
                     </TableCell>
                     <TableCell sx={dataCellSx}>
                       <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>
-                        {asset.state || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.state || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell sx={dataCellSx}>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.location || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.location || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell sx={dataCellSx}>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.ministry || asset.ministryName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.ministry || asset.ministryName || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell sx={dataCellSx}>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.agency || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.agency || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell sx={dataCellSx}>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.department || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={dataCellSx}>
-                      <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>
-                        {asset.agencyName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.department || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell sx={dataCellSx}>
                       <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>
-                        {asset.ministryType || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.agencyName || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>
+                        {asset.ministryType || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell align="center" sx={dataCellSx}>{formatPurchasedDate(asset)}</TableCell>
                     <TableCell align="right" sx={dataCellSx}>
                       <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50', whiteSpace: 'nowrap' }}>
-                        {asset.purchaseCost ? formatCurrency(asset.purchaseCost) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.purchaseCost ? formatCurrency(asset.purchaseCost) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={dataCellSx}>
                       <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#81c784', whiteSpace: 'nowrap' }}>
-                        {asset.marketValue && asset.marketValue > 0 ? formatCurrency(asset.marketValue) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.marketValue && asset.marketValue > 0 ? formatCurrency(asset.marketValue) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={dataCellSx}>
@@ -340,12 +340,12 @@ const StateGroup: React.FC<{
                           </Typography>
                         </Box>
                       ) : (
-                        <Typography sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>—</Typography>
+                        <Typography sx={{ color: 'rgba(15,48,31,0.28)', fontSize: '0.75rem' }}>—</Typography>
                       )}
                     </TableCell>
                     <TableCell sx={dataCellSx}>
                       <Typography sx={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.35, maxWidth: 260 }}>
-                        {asset.remarks || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.remarks || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     {extraKeys.map((key) => (
@@ -448,16 +448,16 @@ const HistoryStateGroup: React.FC<{
         cursor: 'pointer', userSelect: 'none',
       }} onClick={() => setCollapsed(!collapsed)}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <LocationOn sx={{ fontSize: 18, color: '#00ff88' }} />
-          <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.95rem', letterSpacing: 0.5 }}>
+          <LocationOn sx={{ fontSize: 18, color: '#008751' }} />
+          <Typography sx={{ fontWeight: 700, color: '#143625', fontSize: '0.95rem', letterSpacing: 0.5 }}>
             {state.toUpperCase()}
           </Typography>
           <Chip label={`${assets.length} asset${assets.length !== 1 ? 's' : ''}`} size="small"
-            sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#00ff88', fontSize: '0.68rem', height: 20 }} />
+            sx={{ backgroundColor: 'rgba(0,255,136,0.15)', color: '#008751', fontSize: '0.68rem', height: 20 }} />
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
           <Box sx={{ textAlign: 'right' }}>
-            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
               Total Purchase Cost
             </Typography>
             <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#4caf50' }}>
@@ -465,14 +465,14 @@ const HistoryStateGroup: React.FC<{
             </Typography>
           </Box>
           <Box sx={{ textAlign: 'right' }}>
-            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(15,48,31,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
               Current Value
             </Typography>
             <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#2196f3' }}>
               {formatCurrency(stateMktTotal)}
             </Typography>
           </Box>
-          <IconButton size="small" sx={{ color: 'rgba(255,255,255,0.6)', p: 0.3 }}>
+          <IconButton size="small" sx={{ color: 'rgba(15,48,31,0.58)', p: 0.3 }}>
             {collapsed ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowUp fontSize="small" />}
           </IconButton>
         </Box>
@@ -520,7 +520,7 @@ const HistoryStateGroup: React.FC<{
                 const condition = asset.condition || asset.assetCondition || asset.currentCondition || asset.conditionStatus || null;
                 const cs = getConditionStyle(condition);
                 const st = getStatusStyle(asset.status);
-                const rowBg = i % 2 === 0 ? 'rgba(0,40,20,0.4)' : 'rgba(0,20,10,0.3)';
+                const rowBg = i % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(255,255,255,0.42)';
                 const currentValue = calculateCurrentValue(asset);
 
                 return (
@@ -532,7 +532,7 @@ const HistoryStateGroup: React.FC<{
                     <TableCell align="center" sx={{ ...dataCellSx, color: 'rgba(255,255,255,0.35)' }}>{serial + i + 1}</TableCell>
                     <TableCell sx={{ ...dataCellSx, fontFamily: 'monospace' }}>
                       <Typography sx={{ fontFamily: 'monospace', fontSize: '0.72rem',
-                        color: '#00ff88', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2,
+                        color: '#008751', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2,
                         borderRadius: 0.5, border: '1px solid rgba(0,255,136,0.15)',
                         display: 'inline-block', letterSpacing: 0.5, whiteSpace: 'nowrap' }}>
                         {asset.assetId || asset.id || '—'}
@@ -540,7 +540,7 @@ const HistoryStateGroup: React.FC<{
                     </TableCell>
                     <TableCell sx={dataCellSx}>
                       <Typography sx={{
-                        fontSize: '0.74rem', color: '#00ff88', fontFamily: 'monospace', letterSpacing: 0.5, fontWeight: 600,
+                        fontSize: '0.74rem', color: '#008751', fontFamily: 'monospace', letterSpacing: 0.5, fontWeight: 600,
                         background: 'rgba(0,255,136,0.1)', px: 0.8, py: 0.3, borderRadius: 0.5,
                         border: '1px solid rgba(0,255,136,0.2)', display: 'inline-block',
                       }}>
@@ -560,48 +560,48 @@ const HistoryStateGroup: React.FC<{
                     </TableCell>
                     <TableCell sx={dataCellSx}>
                       <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>
-                        {asset.state || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.state || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell sx={dataCellSx}>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.location || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.location || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell sx={dataCellSx}>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.ministry || asset.ministryName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.ministry || asset.ministryName || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell sx={dataCellSx}>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.agency || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.agency || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell sx={dataCellSx}>
-                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3 }}>
-                        {asset.department || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={dataCellSx}>
-                      <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>
-                        {asset.agencyName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(15,48,31,0.76)', lineHeight: 1.3 }}>
+                        {asset.department || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell sx={dataCellSx}>
                       <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>
-                        {asset.ministryType || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.agencyName || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={dataCellSx}>
+                      <Typography sx={{ fontSize: '0.76rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>
+                        {asset.ministryType || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell align="center" sx={dataCellSx}>{formatPurchasedDate(asset)}</TableCell>
                     <TableCell align="right" sx={dataCellSx}>
                       <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50', whiteSpace: 'nowrap' }}>
-                        {asset.purchaseCost ? formatCurrency(asset.purchaseCost) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.purchaseCost ? formatCurrency(asset.purchaseCost) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={dataCellSx}>
                       <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#81c784', whiteSpace: 'nowrap' }}>
-                        {asset.marketValue && asset.marketValue > 0 ? formatCurrency(asset.marketValue) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.marketValue && asset.marketValue > 0 ? formatCurrency(asset.marketValue) : <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={dataCellSx}>
@@ -620,12 +620,12 @@ const HistoryStateGroup: React.FC<{
                           </Typography>
                         </Box>
                       ) : (
-                        <Typography sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>—</Typography>
+                        <Typography sx={{ color: 'rgba(15,48,31,0.28)', fontSize: '0.75rem' }}>—</Typography>
                       )}
                     </TableCell>
                     <TableCell sx={dataCellSx}>
                       <Typography sx={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.35, maxWidth: 260 }}>
-                        {asset.remarks || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        {asset.remarks || <span style={{ color: 'rgba(15,48,31,0.28)' }}>—</span>}
                       </Typography>
                     </TableCell>
                     {extraKeys.map((key) => (
@@ -943,7 +943,7 @@ const ReviewUploadsPage = () => {
 
   // Condition styling
   const getConditionStyle = (condition?: string | null) => {
-    if (!condition) return { color: 'rgba(255,255,255,0.3)', bg: 'transparent', border: 'transparent' };
+    if (!condition) return { color: 'rgba(15,48,31,0.3)', bg: 'transparent', border: 'transparent' };
     const l = condition.toLowerCase();
     if (l.includes('excellent') || l.includes('good'))
       return { color: '#4caf50', bg: 'rgba(76,175,80,0.15)', border: 'rgba(76,175,80,0.3)' };
@@ -966,7 +966,7 @@ const ReviewUploadsPage = () => {
             alignItems="center"
             minHeight="60vh"
           >
-            <CircularProgress sx={{ color: '#00ff88' }} />
+            <CircularProgress sx={{ color: '#008751' }} />
           </Box>
         </Container>
       </AppLayout>
@@ -983,9 +983,9 @@ const ReviewUploadsPage = () => {
             to="/dashboard"
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(15, 48, 31, 0.68)',
               '&:hover': {
-                color: '#00ff88',
+                color: '#008751',
                 backgroundColor: 'transparent',
               },
             }}
@@ -1006,10 +1006,10 @@ const ReviewUploadsPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ minWidth: 0, flex: 1 }}>
-              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' } }}>
+              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' } }}>
                 Review Pending Uploads
               </Typography>
-              <Typography variant="subtitle1" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 1, fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+              <Typography variant="subtitle1" sx={{ color: 'rgba(15, 48, 31, 0.68)', mt: 1, fontSize: { xs: '0.8rem', sm: '1rem' } }}>
                 Review and approve asset submissions from your ministry/agency
               </Typography>
             </Box>
@@ -1044,16 +1044,16 @@ const ReviewUploadsPage = () => {
               '& .MuiAlert-icon': { color: '#ed6c02' },
             }}
           >
-            <Typography variant="h6" gutterBottom sx={{ color: '#FFFFFF' }}>
+            <Typography variant="h6" gutterBottom sx={{ color: '#143625' }}>
               Account Pending Verification
             </Typography>
-            <Typography variant="body2" paragraph sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <Typography variant="body2" paragraph sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
               Your approver account is awaiting verification by your ministry administrator.
             </Typography>
-            <Typography variant="body2" paragraph sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <Typography variant="body2" paragraph sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
               <strong>Registered:</strong> {userData.createdAt?.toDate().toLocaleDateString('en-GB')}
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
               You will be notified via email once your account is approved. After approval, you will be able to review and approve asset uploads from {userData.agencyName} ({userData.location}).
             </Typography>
           </Alert>
@@ -1070,18 +1070,18 @@ const ReviewUploadsPage = () => {
               '& .MuiAlert-icon': { color: '#d32f2f' },
             }}
           >
-            <Typography variant="h6" gutterBottom sx={{ color: '#FFFFFF' }}>
+            <Typography variant="h6" gutterBottom sx={{ color: '#143625' }}>
               Account Verification Rejected
             </Typography>
-            <Typography variant="body2" paragraph sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <Typography variant="body2" paragraph sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
               Your approver account was rejected by your ministry administrator.
             </Typography>
             {userData.rejectionReason && (
-              <Typography variant="body2" paragraph sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+              <Typography variant="body2" paragraph sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
                 <strong>Reason:</strong> {userData.rejectionReason}
               </Typography>
             )}
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
               Please contact the system administrator for more information.
             </Typography>
           </Alert>
@@ -1106,9 +1106,9 @@ const ReviewUploadsPage = () => {
               }}
               sx={{
                 mb: 2,
-                '& .MuiTab-root': { color: 'rgba(255,255,255,0.6)' },
-                '& .Mui-selected': { color: '#00ff88' },
-                '& .MuiTabs-indicator': { backgroundColor: '#00ff88' },
+                '& .MuiTab-root': { color: 'rgba(15,48,31,0.58)' },
+                '& .Mui-selected': { color: '#008751' },
+                '& .MuiTabs-indicator': { backgroundColor: '#008751' },
               }}
             >
               <Tab icon={<Schedule sx={{ fontSize: 18 }} />} iconPosition="start" label={`Pending (${assets.length})`} />
@@ -1133,10 +1133,10 @@ const ReviewUploadsPage = () => {
             >
               <Schedule sx={{ fontSize: { xs: 30, sm: 40 }, color: '#ff9800' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   {assets.length}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                   asset(s) awaiting your approval
                 </Typography>
               </Box>
@@ -1145,11 +1145,11 @@ const ReviewUploadsPage = () => {
             {/* Assets Table - Grouped by State */}
             {assets.length === 0 ? (
               <Paper elevation={0} sx={{ p: 5, textAlign: 'center' }}>
-                <CheckCircle sx={{ fontSize: 60, color: '#00ff88', mb: 2 }} />
-                <Typography variant="h6" sx={{ color: '#FFFFFF' }}>
+                <CheckCircle sx={{ fontSize: 60, color: '#008751', mb: 2 }} />
+                <Typography variant="h6" sx={{ color: '#143625' }}>
                   No pending uploads to review
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)', mt: 1 }}>
+                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)', mt: 1 }}>
                   {userData?.agencyName && userData?.location
                     ? `All uploads from ${userData.agencyName} (${userData.location}) have been reviewed`
                     : 'All uploads from your agency have been reviewed'}
@@ -1187,9 +1187,9 @@ const ReviewUploadsPage = () => {
               <>
                 {allAssets.filter(a => a.status !== 'pending').length === 0 ? (
                   <Paper elevation={0} sx={{ p: 5, textAlign: 'center' }}>
-                    <History sx={{ fontSize: 60, color: 'rgba(255,255,255,0.3)', mb: 2 }} />
-                    <Typography variant="h6" sx={{ color: '#FFFFFF' }}>No processed assets yet</Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', mt: 1 }}>
+                    <History sx={{ fontSize: 60, color: 'rgba(15,48,31,0.3)', mb: 2 }} />
+                    <Typography variant="h6" sx={{ color: '#143625' }}>No processed assets yet</Typography>
+                    <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.58)', mt: 1 }}>
                       Assets you approve or reject will appear here
                     </Typography>
                   </Paper>
@@ -1228,8 +1228,8 @@ const ReviewUploadsPage = () => {
           fullWidth
           PaperProps={{
             sx: {
-              backgroundColor: '#0d2818',
-              border: '1px solid rgba(0, 135, 81, 0.3)',
+              backgroundColor: '#ffffff',
+              border: '1px solid rgba(0, 135, 81, 0.2)',
             },
           }}
         >
@@ -1237,7 +1237,7 @@ const ReviewUploadsPage = () => {
             Reject Asset Upload
           </DialogTitle>
           <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(0, 0, 0, 0.65)', mb: 2 }}>
               Please provide a reason for rejecting this asset. The uploader will see this message.
             </Typography>
             {selectedAsset && (
@@ -1250,10 +1250,10 @@ const ReviewUploadsPage = () => {
                   borderRadius: 1,
                 }}
               >
-                <Typography variant="body2" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                <Typography variant="body2" sx={{ color: '#008751', fontWeight: 600 }}>
                   Asset ID: {selectedAsset.assetId}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
                   {selectedAsset.description}
                 </Typography>
               </Box>
@@ -1273,7 +1273,7 @@ const ReviewUploadsPage = () => {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <Button
               onClick={() => setRejectDialogOpen(false)}
-              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+              sx={{ color: 'rgba(15, 48, 31, 0.68)' }}
             >
               Cancel
             </Button>

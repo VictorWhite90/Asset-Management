@@ -34,7 +34,7 @@ import {
   Person,
   Business,
   Badge,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import { toast } from 'react-toastify';
 import { registerMinistryAdmin } from '@/services/auth.service';
 import { MinistryAdminRegistrationData } from '@/types/user.types';
@@ -200,26 +200,25 @@ const RegisterMinistryAdminPage = () => {
     setShowConfirmPassword((prev) => !prev);
   };
 
-  // Dark theme input styles
   const inputStyles = {
     '& .MuiOutlinedInput-root': {
-      color: '#FFFFFF',
-      backgroundColor: 'transparent',
-      '& fieldset': { borderColor: 'rgba(0, 135, 81, 0.3)' },
-      '&:hover fieldset': { borderColor: 'rgba(0, 135, 81, 0.5)' },
+      color: 'rgba(0, 0, 0, 0.87)',
+      backgroundColor: '#fafcfb',
+      '& fieldset': { borderColor: 'rgba(0, 135, 81, 0.25)' },
+      '&:hover fieldset': { borderColor: 'rgba(0, 135, 81, 0.4)' },
       '&.Mui-focused fieldset': { borderColor: '#008751' },
     },
-    '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.6)' },
-    '& .MuiInputLabel-root.Mui-focused': { color: '#00ff88' },
-    '& .MuiFormHelperText-root': { color: 'rgba(255, 255, 255, 0.5)' },
-    '& .MuiFormHelperText-root.Mui-error': { color: '#ef5350' },
-    '& .MuiSelect-icon': { color: 'rgba(255, 255, 255, 0.6)' },
+    '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.72)' },
+    '& .MuiInputLabel-root.Mui-focused': { color: '#006038' },
+    '& .MuiFormHelperText-root': { color: 'rgba(0, 0, 0, 0.55)' },
+    '& .MuiFormHelperText-root.Mui-error': { color: '#c62828' },
+    '& .MuiSelect-icon': { color: 'rgba(0, 0, 0, 0.54)' },
     '& input': {
-      color: '#ffffff',
+      color: 'rgba(0, 0, 0, 0.87)',
       '&:-webkit-autofill': {
-        WebkitBoxShadow: '0 0 0 100px rgba(0, 135, 81, 0.15) inset !important',
-        WebkitTextFillColor: '#ffffff !important',
-        caretColor: '#ffffff',
+        WebkitBoxShadow: '0 0 0 100px #fafcfb inset !important',
+        WebkitTextFillColor: 'rgba(0, 0, 0, 0.87) !important',
+        caretColor: '#006038',
         borderRadius: '12px',
         transition: 'background-color 5000s ease-in-out 0s',
       },
@@ -229,15 +228,15 @@ const RegisterMinistryAdminPage = () => {
   const menuProps = {
     PaperProps: {
       sx: {
-        backgroundColor: '#0d2818',
-        border: '1px solid rgba(0, 135, 81, 0.3)',
+        backgroundColor: '#ffffff',
+        border: '1px solid rgba(0, 135, 81, 0.2)',
         maxHeight: 300,
         '& .MuiMenuItem-root': {
-          color: '#FFFFFF',
-          '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.2)' },
+          color: 'rgba(0, 0, 0, 0.87)',
+          '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.08)' },
           '&.Mui-selected': {
-            backgroundColor: 'rgba(0, 135, 81, 0.3)',
-            '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.4)' },
+            backgroundColor: 'rgba(0, 135, 81, 0.12)',
+            '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.16)' },
           },
         },
       },
@@ -251,7 +250,7 @@ const RegisterMinistryAdminPage = () => {
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
-        background: 'linear-gradient(180deg, #0a1a0d 0%, #0d2818 50%, #0a1a0d 100%)',
+        background: 'linear-gradient(180deg, #ffffff 0%, #f7fbf9 50%, #ffffff 100%)',
       }}
     >
       {/* Presidential Seal Watermark */}
@@ -276,7 +275,7 @@ const RegisterMinistryAdminPage = () => {
       {/* Security Banner */}
       <Box
         sx={{
-          backgroundColor: '#0a0505',
+          backgroundColor: 'rgba(255, 255, 255, 0.72)',
           py: 0.5,
           borderBottom: '2px solid #008751',
           position: 'relative',
@@ -287,7 +286,7 @@ const RegisterMinistryAdminPage = () => {
           <Typography
             variant="caption"
             sx={{
-              color: '#00ff88',
+              color: '#008751',
               fontFamily: '"Courier New", monospace',
               letterSpacing: 3,
               display: 'flex',
@@ -308,7 +307,7 @@ const RegisterMinistryAdminPage = () => {
       {/* Header */}
       <Box
         sx={{
-          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backgroundColor: 'rgba(255, 255, 255, 0.66)',
           py: 1.5,
           borderBottom: '1px solid rgba(0, 135, 81, 0.2)',
           position: 'relative',
@@ -329,14 +328,14 @@ const RegisterMinistryAdminPage = () => {
             >
               <Box sx={{ display: 'flex', borderRadius: 0.5, overflow: 'hidden' }}>
                 <Box sx={{ width: 10, height: 20, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 10, height: 20, backgroundColor: '#FFFFFF' }} />
+                <Box sx={{ width: 10, height: 20, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
                 <Box sx={{ width: 10, height: 20, backgroundColor: '#008751' }} />
               </Box>
               <Box>
-                <Typography variant="subtitle2" sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2 }}>
+                <Typography variant="subtitle2" sx={{ color: '#143625', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2 }}>
                   {deploymentLabels.jurisdiction.toUpperCase()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.65rem' }}>
+                <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)', fontSize: '0.65rem' }}>
                   Asset Management System
                 </Typography>
               </Box>
@@ -344,12 +343,12 @@ const RegisterMinistryAdminPage = () => {
 
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
               <Chip
-                icon={<GppGood sx={{ fontSize: 12, color: '#00ff88 !important' }} />}
+                icon={<GppGood sx={{ fontSize: 12, color: '#008751 !important' }} />}
                 label="Secure Portal"
                 size="small"
                 sx={{
                   backgroundColor: 'rgba(0, 135, 81, 0.15)',
-                  color: '#00ff88',
+                  color: '#008751',
                   border: '1px solid rgba(0, 135, 81, 0.3)',
                   fontSize: '0.6rem',
                   height: 22,
@@ -379,9 +378,9 @@ const RegisterMinistryAdminPage = () => {
               to="/register"
               startIcon={<ArrowBack />}
               sx={{
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: 'rgba(15, 48, 31, 0.68)',
                 '&:hover': {
-                  color: '#00ff88',
+                  color: '#008751',
                   backgroundColor: 'transparent',
                 },
               }}
@@ -417,20 +416,20 @@ const RegisterMinistryAdminPage = () => {
                   boxShadow: '0 0 30px rgba(0, 135, 81, 0.3)',
                 }}
               >
-                <AdminPanelSettings sx={{ fontSize: 35, color: '#00ff88' }} />
+                <AdminPanelSettings sx={{ fontSize: 35, color: '#008751' }} />
               </Box>
 
               <Typography
                 component="h1"
                 variant="h5"
-                sx={{ color: '#FFFFFF', fontWeight: 700, mb: 1 }}
+                sx={{ color: '#143625', fontWeight: 700, mb: 1 }}
               >
                 {deploymentLabels.ministryAdminTitle} Registration
               </Typography>
 
               <Typography
                 variant="body2"
-                sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}
+                sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 2 }}
               >
                 Complete your registration in two simple steps
               </Typography>
@@ -441,15 +440,15 @@ const RegisterMinistryAdminPage = () => {
                 alternativeLabel
                 sx={{
                   '& .MuiStepLabel-label': {
-                    color: 'rgba(255, 255, 255, 0.5)',
+                    color: 'rgba(15, 48, 31, 0.5)',
                     fontSize: '0.75rem',
-                    '&.Mui-active': { color: '#00ff88', fontWeight: 600 },
-                    '&.Mui-completed': { color: '#00ff88' },
+                    '&.Mui-active': { color: '#008751', fontWeight: 600 },
+                    '&.Mui-completed': { color: '#008751' },
                   },
                   '& .MuiStepIcon-root': {
                     color: 'rgba(0, 135, 81, 0.3)',
                     '&.Mui-active': { color: '#008751' },
-                    '&.Mui-completed': { color: '#00ff88' },
+                    '&.Mui-completed': { color: '#008751' },
                   },
                   '& .MuiStepConnector-line': {
                     borderColor: 'rgba(0, 135, 81, 0.3)',
@@ -458,7 +457,7 @@ const RegisterMinistryAdminPage = () => {
                     borderColor: '#008751',
                   },
                   '& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line': {
-                    borderColor: '#00ff88',
+                    borderColor: '#008751',
                   },
                 }}
               >
@@ -501,8 +500,8 @@ const RegisterMinistryAdminPage = () => {
               >
                 <Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                    <Person sx={{ color: '#00ff88' }} />
-                    <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                    <Person sx={{ color: '#008751' }} />
+                    <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
                       Personal Information
                     </Typography>
                   </Box>
@@ -602,7 +601,7 @@ const RegisterMinistryAdminPage = () => {
                                 aria-label="toggle password visibility"
                                 onClick={togglePasswordVisibility}
                                 edge="end"
-                                sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                                sx={{ color: 'rgba(15, 48, 31, 0.68)' }}
                               >
                                 {showPassword ? <VisibilityOff /> : <Visibility />}
                               </IconButton>
@@ -631,7 +630,7 @@ const RegisterMinistryAdminPage = () => {
                                 aria-label="toggle confirm password visibility"
                                 onClick={toggleConfirmPasswordVisibility}
                                 edge="end"
-                                sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                                sx={{ color: 'rgba(15, 48, 31, 0.68)' }}
                               >
                                 {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                               </IconButton>
@@ -650,7 +649,7 @@ const RegisterMinistryAdminPage = () => {
                       mt: 2,
                       backgroundColor: 'rgba(0, 135, 81, 0.1)',
                       border: '1px solid rgba(0, 135, 81, 0.3)',
-                      '& .MuiAlert-icon': { color: '#00ff88' },
+                      '& .MuiAlert-icon': { color: '#008751' },
                     }}
                   >
                     Password must be at least 8 characters and contain uppercase, lowercase, and numbers
@@ -688,8 +687,8 @@ const RegisterMinistryAdminPage = () => {
               >
                 <Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                    <Business sx={{ color: '#00ff88' }} />
-                    <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+                    <Business sx={{ color: '#008751' }} />
+                    <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
                       {deploymentLabels.ministryInformationTitle}
                     </Typography>
                   </Box>
@@ -757,7 +756,7 @@ const RegisterMinistryAdminPage = () => {
                           sx={{
                             backgroundColor: 'rgba(0, 135, 81, 0.1)',
                             border: '1px solid rgba(0, 135, 81, 0.3)',
-                            '& .MuiAlert-icon': { color: '#00ff88' },
+                            '& .MuiAlert-icon': { color: '#008751' },
                           }}
                         >
                           <Typography variant="body2">
@@ -798,15 +797,15 @@ const RegisterMinistryAdminPage = () => {
                   {/* Info Box */}
                   <Alert
                     severity="info"
-                    icon={<Badge sx={{ color: '#00ff88' }} />}
+                    icon={<Badge sx={{ color: '#008751' }} />}
                     sx={{
                       mt: 3,
                       backgroundColor: 'rgba(0, 135, 81, 0.1)',
                       border: '1px solid rgba(0, 135, 81, 0.3)',
-                      '& .MuiAlert-message': { color: 'rgba(255, 255, 255, 0.8)' },
+                      '& .MuiAlert-message': { color: 'rgba(15, 48, 31, 0.76)' },
                     }}
                   >
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#00ff88', mb: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#008751', mb: 1 }}>
                       What happens next:
                     </Typography>
                     <Box component="ol" sx={{ pl: 2, mb: 0, '& li': { mb: 0.5, fontSize: '0.85rem' } }}>
@@ -828,9 +827,9 @@ const RegisterMinistryAdminPage = () => {
                         py: 1.5,
                         fontWeight: 600,
                         borderColor: 'rgba(0, 135, 81, 0.5)',
-                        color: '#FFFFFF',
+                        color: '#143625',
                         '&:hover': {
-                          borderColor: '#00ff88',
+                          borderColor: '#008751',
                           backgroundColor: 'rgba(0, 135, 81, 0.1)',
                         },
                       }}
@@ -863,9 +862,9 @@ const RegisterMinistryAdminPage = () => {
                   component={RouterLink}
                   to="/login"
                   sx={{
-                    color: '#00ff88',
+                    color: '#008751',
                     textDecoration: 'none',
-                    '&:hover': { color: '#66ffaa' },
+                    '&:hover': { color: '#00a862' },
                   }}
                 >
                   Already have an account? Sign In
@@ -879,7 +878,7 @@ const RegisterMinistryAdminPage = () => {
       {/* Footer */}
       <Box
         sx={{
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'rgba(255, 255, 255, 0.68)',
           borderTop: '1px solid rgba(0, 135, 81, 0.2)',
           py: 2,
           position: 'relative',
@@ -891,10 +890,10 @@ const RegisterMinistryAdminPage = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box sx={{ display: 'flex' }}>
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 12, height: 8, backgroundColor: '#FFFFFF' }} />
+                <Box sx={{ width: 12, height: 8, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
               </Box>
-              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+              <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
                 {deploymentLabels.jurisdiction}
               </Typography>
             </Box>

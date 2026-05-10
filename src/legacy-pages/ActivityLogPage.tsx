@@ -38,7 +38,7 @@ import {
   CloudUpload,
   History,
   FilterList,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserAuditLogs, formatAction } from '@/services/auditLog.service';
@@ -138,7 +138,7 @@ const ActivityLogPage = () => {
     if (action.includes('upload')) return '#42a5f5';
     if (action.includes('edit')) return '#ffa726';
     if (action.includes('login')) return '#ab47bc';
-    return '#00ff88';
+    return '#008751';
   };
 
   const formatTimestamp = (timestamp: any) => {
@@ -178,7 +178,7 @@ const ActivityLogPage = () => {
       <AppLayout>
         <Container component="main" maxWidth="lg">
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-            <CircularProgress sx={{ color: '#00ff88' }} />
+            <CircularProgress sx={{ color: '#008751' }} />
           </Box>
         </Container>
       </AppLayout>
@@ -195,9 +195,9 @@ const ActivityLogPage = () => {
             to="/dashboard"
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(15, 48, 31, 0.68)',
               '&:hover': {
-                color: '#00ff88',
+                color: '#008751',
                 backgroundColor: 'transparent',
               },
             }}
@@ -218,12 +218,12 @@ const ActivityLogPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <History sx={{ fontSize: 40, color: '#00ff88' }} />
+              <History sx={{ fontSize: 40, color: '#008751' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   Activity History
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
                   Track your actions and system interactions
                 </Typography>
               </Box>
@@ -232,7 +232,7 @@ const ActivityLogPage = () => {
               label={`${filteredLogs.length} ${filteredLogs.length === 1 ? 'Activity' : 'Activities'}`}
               sx={{
                 backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                color: '#00ff88',
+                color: '#008751',
                 border: '1px solid rgba(0, 135, 81, 0.4)',
                 fontWeight: 600,
               }}
@@ -257,21 +257,21 @@ const ActivityLogPage = () => {
         {/* Filters */}
         <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <FilterList sx={{ color: '#00ff88' }} />
-            <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+            <FilterList sx={{ color: '#008751' }} />
+            <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
               Filters
             </Typography>
           </Box>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={4}>
               <FormControl fullWidth size="small">
-                <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>Action Type</InputLabel>
+                <InputLabel sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>Action Type</InputLabel>
                 <Select
                   value={actionFilter}
                   label="Action Type"
                   onChange={(e) => setActionFilter(e.target.value)}
                   sx={{
-                    color: '#FFFFFF',
+                    color: '#143625',
                     '& .MuiOutlinedInput-notchedOutline': {
                       borderColor: 'rgba(0, 135, 81, 0.3)',
                     },
@@ -281,19 +281,19 @@ const ActivityLogPage = () => {
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                       borderColor: '#008751',
                     },
-                    '& .MuiSvgIcon-root': { color: 'rgba(255, 255, 255, 0.6)' },
+                    '& .MuiSvgIcon-root': { color: 'rgba(15, 48, 31, 0.58)' },
                   }}
                   MenuProps={{
                     PaperProps: {
                       sx: {
-                        backgroundColor: '#0d2818',
-                        border: '1px solid rgba(0, 135, 81, 0.3)',
+                        backgroundColor: '#ffffff',
+                        border: '1px solid rgba(0, 135, 81, 0.15)',
                         '& .MuiMenuItem-root': {
-                          color: '#FFFFFF',
-                          '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.2)' },
+                          color: 'rgba(0, 0, 0, 0.87)',
+                          '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.08)' },
                           '&.Mui-selected': {
-                            backgroundColor: 'rgba(0, 135, 81, 0.3)',
-                            '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.4)' },
+                            backgroundColor: 'rgba(0, 135, 81, 0.12)',
+                            '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.16)' },
                           },
                         },
                       },
@@ -319,13 +319,13 @@ const ActivityLogPage = () => {
                 InputLabelProps={{ shrink: true }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    color: '#FFFFFF',
+                    color: '#143625',
                     '& fieldset': { borderColor: 'rgba(0, 135, 81, 0.3)' },
                     '&:hover fieldset': { borderColor: 'rgba(0, 135, 81, 0.5)' },
                     '&.Mui-focused fieldset': { borderColor: '#008751' },
                   },
-                  '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.6)' },
-                  '& .MuiInputLabel-root.Mui-focused': { color: '#00ff88' },
+                  '& .MuiInputLabel-root': { color: 'rgba(15, 48, 31, 0.58)' },
+                  '& .MuiInputLabel-root.Mui-focused': { color: '#008751' },
                   '& input::-webkit-calendar-picker-indicator': { filter: 'invert(1)' },
                 }}
               />
@@ -341,13 +341,13 @@ const ActivityLogPage = () => {
                 InputLabelProps={{ shrink: true }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    color: '#FFFFFF',
+                    color: '#143625',
                     '& fieldset': { borderColor: 'rgba(0, 135, 81, 0.3)' },
                     '&:hover fieldset': { borderColor: 'rgba(0, 135, 81, 0.5)' },
                     '&.Mui-focused fieldset': { borderColor: '#008751' },
                   },
-                  '& .MuiInputLabel-root': { color: 'rgba(255, 255, 255, 0.6)' },
-                  '& .MuiInputLabel-root.Mui-focused': { color: '#00ff88' },
+                  '& .MuiInputLabel-root': { color: 'rgba(15, 48, 31, 0.58)' },
+                  '& .MuiInputLabel-root.Mui-focused': { color: '#008751' },
                   '& input::-webkit-calendar-picker-indicator': { filter: 'invert(1)' },
                 }}
               />
@@ -360,9 +360,9 @@ const ActivityLogPage = () => {
                   onClick={handleClearFilters}
                   sx={{
                     borderColor: 'rgba(0, 255, 136, 0.5)',
-                    color: '#00ff88',
+                    color: '#008751',
                     '&:hover': {
-                      borderColor: '#00ff88',
+                      borderColor: '#008751',
                       backgroundColor: 'rgba(0, 255, 136, 0.1)',
                     },
                   }}
@@ -379,7 +379,7 @@ const ActivityLogPage = () => {
           {filteredLogs.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 5 }}>
               <History sx={{ fontSize: 60, color: 'rgba(0, 135, 81, 0.3)', mb: 2 }} />
-              <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+              <Typography variant="h6" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
                 No activity found
               </Typography>
               {(actionFilter !== 'all' || dateFromFilter || dateToFilter) && (
@@ -387,7 +387,7 @@ const ActivityLogPage = () => {
                   onClick={handleClearFilters}
                   sx={{
                     mt: 2,
-                    color: '#00ff88',
+                    color: '#008751',
                     '&:hover': { backgroundColor: 'rgba(0, 255, 136, 0.1)' },
                   }}
                 >
@@ -403,7 +403,7 @@ const ActivityLogPage = () => {
                     sx={{
                       maxWidth: '180px',
                       pt: 2,
-                      color: 'rgba(255, 255, 255, 0.5)',
+                      color: 'rgba(15, 48, 31, 0.5)',
                     }}
                   >
                     <Typography variant="caption">{formatTimestamp(log.timestamp)}</Typography>
@@ -442,7 +442,7 @@ const ActivityLogPage = () => {
                             mb: 1,
                           }}
                         >
-                          <Typography variant="h6" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                          <Typography variant="h6" sx={{ color: '#143625', fontWeight: 600 }}>
                             {formatAction(log.action)}
                           </Typography>
                           <Chip
@@ -450,7 +450,7 @@ const ActivityLogPage = () => {
                             size="small"
                             sx={{
                               backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                              color: '#00ff88',
+                              color: '#008751',
                               border: '1px solid rgba(0, 135, 81, 0.4)',
                               fontSize: '0.7rem',
                             }}
@@ -458,7 +458,7 @@ const ActivityLogPage = () => {
                         </Box>
                         <Typography
                           variant="body2"
-                          sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}
+                          sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 1 }}
                         >
                           {log.details}
                         </Typography>
@@ -470,8 +470,8 @@ const ActivityLogPage = () => {
                                 size="small"
                                 sx={{
                                   backgroundColor: 'transparent',
-                                  color: 'rgba(255, 255, 255, 0.6)',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  color: 'rgba(15, 48, 31, 0.58)',
+                                  border: '1px solid rgba(15, 48, 31, 0.22)',
                                   fontSize: '0.7rem',
                                 }}
                               />
@@ -482,7 +482,7 @@ const ActivityLogPage = () => {
                                 size="small"
                                 sx={{
                                   backgroundColor: 'rgba(0, 135, 81, 0.15)',
-                                  color: '#00ff88',
+                                  color: '#008751',
                                   border: '1px solid rgba(0, 135, 81, 0.3)',
                                   fontSize: '0.7rem',
                                 }}

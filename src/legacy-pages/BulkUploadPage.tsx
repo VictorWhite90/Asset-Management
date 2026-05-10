@@ -26,7 +26,7 @@ import {
   CheckCircle,
   Error as ErrorIcon,
   CloudUpload,
-} from '@mui/icons-material';
+} from '@/components/icons';
 import * as XLSX from 'xlsx';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
@@ -372,9 +372,9 @@ const BulkUploadPage = () => {
             to="/dashboard"
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: 'rgba(15, 48, 31, 0.68)',
               '&:hover': {
-                color: '#00ff88',
+                color: '#008751',
                 backgroundColor: 'transparent',
               },
             }}
@@ -394,12 +394,12 @@ const BulkUploadPage = () => {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <CloudUpload sx={{ fontSize: 40, color: '#00ff88' }} />
+            <CloudUpload sx={{ fontSize: 40, color: '#008751' }} />
             <Box>
-              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+              <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                 Bulk Upload Assets
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5 }}>
+              <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', mt: 0.5 }}>
                 Upload multiple assets at once using an Excel file. Download the template to get started.
               </Typography>
             </Box>
@@ -438,7 +438,7 @@ const BulkUploadPage = () => {
               </Button>
             </label>
             {file && (
-              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
                 Selected: {file.name} ({Math.round(file.size / 1024)} KB)
               </Typography>
             )}
@@ -448,7 +448,7 @@ const BulkUploadPage = () => {
         {/* Upload Progress */}
         {uploading && (
           <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="body2" sx={{ color: '#00ff88', mb: 1 }}>
+            <Typography variant="body2" sx={{ color: '#008751', mb: 1 }}>
               Uploading assets... {Math.round(uploadProgress)}%
             </Typography>
             <LinearProgress
@@ -459,7 +459,7 @@ const BulkUploadPage = () => {
                 borderRadius: 4,
                 backgroundColor: 'rgba(0, 135, 81, 0.2)',
                 '& .MuiLinearProgress-bar': {
-                  backgroundColor: '#00ff88',
+                  backgroundColor: '#008751',
                 },
               }}
             />
@@ -495,7 +495,7 @@ const BulkUploadPage = () => {
                 gap: 2,
               }}
             >
-              <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
+              <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
                 Preview ({validRowCount} valid, {rows.length - validRowCount} errors)
               </Typography>
               <Button
@@ -525,15 +525,15 @@ const BulkUploadPage = () => {
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Row</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Status</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Description</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Category</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Location</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Purchase Date</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Cost</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Errors</TableCell>
-                    <TableCell sx={{ color: '#00ff88', fontWeight: 600, backgroundColor: '#0d2818' }}>Actions</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600, backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>Row</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600, backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>Status</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600, backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>Description</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600, backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>Category</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600, backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>Location</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600, backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>Purchase Date</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600, backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>Cost</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600, backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>Errors</TableCell>
+                    <TableCell sx={{ color: '#006038', fontWeight: 600, backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -551,13 +551,13 @@ const BulkUploadPage = () => {
                         borderBottom: '1px solid rgba(0, 135, 81, 0.1)',
                       }}
                     >
-                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{row.rowNumber}</TableCell>
+                      <TableCell sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>{row.rowNumber}</TableCell>
                       <TableCell>
                         {row.status === 'pending' && (
                           <Chip
                             label="Pending"
                             size="small"
-                            sx={{ backgroundColor: 'rgba(0, 135, 81, 0.2)', color: 'rgba(255, 255, 255, 0.8)' }}
+                            sx={{ backgroundColor: 'rgba(0, 135, 81, 0.2)', color: 'rgba(15, 48, 31, 0.76)' }}
                           />
                         )}
                         {row.status === 'uploading' && (
@@ -584,21 +584,21 @@ const BulkUploadPage = () => {
                           />
                         )}
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF' }}>{row.description}</TableCell>
+                      <TableCell sx={{ color: '#143625' }}>{row.description}</TableCell>
                       <TableCell>
                         <Chip
                           label={row.category}
                           size="small"
                           sx={{
                             backgroundColor: 'rgba(0, 135, 81, 0.1)',
-                            color: 'rgba(255, 255, 255, 0.8)',
+                            color: 'rgba(15, 48, 31, 0.76)',
                             border: '1px solid rgba(0, 135, 81, 0.3)',
                           }}
                         />
                       </TableCell>
-                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{row.location}</TableCell>
-                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{row.purchaseDate}</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 600 }}>₦{row.purchaseCost.toLocaleString()}</TableCell>
+                      <TableCell sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>{row.location}</TableCell>
+                      <TableCell sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>{row.purchaseDate}</TableCell>
+                      <TableCell sx={{ color: '#143625', fontWeight: 600 }}>₦{row.purchaseCost.toLocaleString()}</TableCell>
                       <TableCell>
                         {row.errors.length > 0 && (
                           <Typography variant="caption" sx={{ color: '#f44336' }}>

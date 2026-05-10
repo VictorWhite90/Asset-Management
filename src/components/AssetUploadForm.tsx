@@ -311,14 +311,25 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
   const years = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => 1900 + i).reverse();
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <Box
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      sx={{
+        width: '100%',
+        '& .MuiInputAdornment-root .MuiTypography-root': {
+          color: 'rgba(20, 54, 37, 0.68)',
+          fontWeight: 700,
+        },
+      }}
+    >
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
 
-      <Grid container spacing={2}>
+      <Grid container spacing={2.5}>
         {/* Asset ID (Optional) */}
         <Grid item xs={12} sm={6}>
           <TextField
@@ -570,7 +581,19 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
         {categoryDetails && categoryDetails.requiredFields?.length > 0 && (
           <>
             <Grid item xs={12}>
-              <Typography variant="subtitle2" color="primary" sx={{ mt: 1 }}>
+              <Typography
+                variant="subtitle2"
+                color="primary"
+                sx={{
+                  mt: 1,
+                  px: 1.5,
+                  py: 1,
+                  borderRadius: 1,
+                  backgroundColor: 'rgba(0, 135, 81, 0.08)',
+                  border: '1px solid rgba(0, 135, 81, 0.18)',
+                  fontWeight: 800,
+                }}
+              >
                 Category-Specific Information
               </Typography>
             </Grid>
@@ -782,7 +805,13 @@ const AssetUploadForm: React.FC<AssetUploadFormProps> = ({ onSuccess }) => {
             variant="contained"
             size="large"
             disabled={loading || loadingCategory}
-            sx={{ mt: 2 }}
+            sx={{
+              mt: 2,
+              py: 1.35,
+              fontWeight: 800,
+              letterSpacing: 1,
+              boxShadow: '0 12px 28px rgba(0, 135, 81, 0.22)',
+            }}
           >
             {loading ? 'Uploading...' : 'Upload Asset'}
           </Button>
