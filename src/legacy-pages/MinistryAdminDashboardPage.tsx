@@ -46,7 +46,7 @@ import {
   Warning,
   ContentCopy,
   VpnKey,
-} from '@/components/icons';
+} from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -356,7 +356,7 @@ const MinistryAdminDashboardPage = () => {
       case 'agency-approver':
         return { bg: 'rgba(76, 175, 80, 0.15)', color: '#4caf50', border: 'rgba(76, 175, 80, 0.3)' };
       default:
-        return { bg: 'rgba(0, 135, 81, 0.1)', color: 'rgba(15, 48, 31, 0.76)', border: 'rgba(0, 135, 81, 0.3)' };
+        return { bg: 'rgba(0, 135, 81, 0.1)', color: 'rgba(255, 255, 255, 0.8)', border: 'rgba(0, 135, 81, 0.3)' };
     }
   };
 
@@ -378,7 +378,7 @@ const MinistryAdminDashboardPage = () => {
       <AppLayout>
         <Container>
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-            <CircularProgress sx={{ color: '#008751' }} />
+            <CircularProgress sx={{ color: '#00ff88' }} />
           </Box>
         </Container>
       </AppLayout>
@@ -394,8 +394,8 @@ const MinistryAdminDashboardPage = () => {
             to="/dashboard"
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(15, 48, 31, 0.68)',
-              '&:hover': { color: '#008751', backgroundColor: 'transparent' },
+              color: 'rgba(255, 255, 255, 0.7)',
+              '&:hover': { color: '#00ff88', backgroundColor: 'transparent' },
             }}
           >
             Back to Dashboard
@@ -413,12 +413,12 @@ const MinistryAdminDashboardPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Business sx={{ fontSize: { xs: 28, sm: 40 }, color: '#008751' }} />
+              <Business sx={{ fontSize: { xs: 28, sm: 40 }, color: '#00ff88' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.1rem', sm: '1.5rem', md: '2rem' } }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.1rem', sm: '1.5rem', md: '2rem' } }}>
                   {ministry?.name || 'Ministry Command Hub'}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', mt: 0.5, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                   {deploymentLabels.ministryAdminTitle} Dashboard
                 </Typography>
               </Box>
@@ -430,8 +430,8 @@ const MinistryAdminDashboardPage = () => {
               disabled={loading || actionLoading}
               sx={{
                 borderColor: 'rgba(0, 135, 81, 0.5)',
-                color: '#008751',
-                '&:hover': { borderColor: '#008751', backgroundColor: 'rgba(0, 135, 81, 0.1)' },
+                color: '#00ff88',
+                '&:hover': { borderColor: '#00ff88', backgroundColor: 'rgba(0, 135, 81, 0.1)' },
               }}
             >
               Refresh
@@ -452,13 +452,13 @@ const MinistryAdminDashboardPage = () => {
             sx={{
               borderBottom: '1px solid rgba(0, 135, 81, 0.3)',
               '& .MuiTab-root': {
-                color: 'rgba(15, 48, 31, 0.58)',
+                color: 'rgba(255, 255, 255, 0.6)',
                 fontSize: { xs: '0.7rem', sm: '0.875rem' },
                 minWidth: { xs: 'auto', sm: 90 },
                 px: { xs: 1, sm: 2 },
-                '&.Mui-selected': { color: '#008751' },
+                '&.Mui-selected': { color: '#00ff88' },
               },
-              '& .MuiTabs-indicator': { backgroundColor: '#008751' },
+              '& .MuiTabs-indicator': { backgroundColor: '#00ff88' },
             }}
           >
             <Tab icon={<DashboardIcon />} iconPosition="start" label="Overview" />
@@ -470,54 +470,54 @@ const MinistryAdminDashboardPage = () => {
           <TabPanel value={tabValue} index={0}>
             <Grid container spacing={3} sx={{ mb: 4 }}>
               <Grid item xs={12} sm={6} md={4}>
-                <Card sx={{ background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.18) 0%, rgba(0, 96, 56, 0.08) 100%)' }}>
+                <Card sx={{ background: 'linear-gradient(135deg, #008751 0%, #006038 100%)' }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Box>
-                        <Typography sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: '0.875rem' }}>
+                        <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                           Approved Assets
                         </Typography>
-                        <Typography variant="h3" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
+                        <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                           {allAssets.length}
                         </Typography>
                       </Box>
-                      <Inventory sx={{ fontSize: 40, color: 'rgba(15, 48, 31, 0.5)' }} />
+                      <Inventory sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
                     </Box>
                   </CardContent>
                 </Card>
               </Grid>
 
               <Grid item xs={12} sm={6} md={4}>
-                <Card sx={{ background: 'linear-gradient(135deg, rgba(46, 125, 50, 0.18) 0%, rgba(27, 94, 32, 0.08) 100%)' }}>
+                <Card sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)' }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Box>
-                        <Typography sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: '0.875rem' }}>
+                        <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                           Total Value (approved)
                         </Typography>
-                        <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>
+                        <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>
                           {formatCurrency(calculateTotalValue(allAssets))}
                         </Typography>
                       </Box>
-                      <AttachMoney sx={{ fontSize: 40, color: 'rgba(15, 48, 31, 0.5)' }} />
+                      <AttachMoney sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
                     </Box>
                   </CardContent>
                 </Card>
               </Grid>
 
               <Grid item xs={12} sm={6} md={4}>
-                <Card sx={{ background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.16) 0%, rgba(21, 101, 192, 0.07) 100%)' }}>
+                <Card sx={{ background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)' }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Box>
-                        <Typography sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: '0.875rem' }}>
+                        <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                           Active Staff
                         </Typography>
-                        <Typography variant="h3" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
+                        <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                           {allStaff.length}
                         </Typography>
                       </Box>
-                      <VerifiedUser sx={{ fontSize: 40, color: 'rgba(15, 48, 31, 0.5)' }} />
+                      <VerifiedUser sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.5)' }} />
                     </Box>
                   </CardContent>
                 </Card>
@@ -533,36 +533,36 @@ const MinistryAdminDashboardPage = () => {
                 border: '1px solid rgba(0, 135, 81, 0.2)',
               }}
             >
-              <Typography variant="h6" sx={{ color: '#008751', mb: 2, fontWeight: 600 }}>
+              <Typography variant="h6" sx={{ color: '#00ff88', mb: 2, fontWeight: 600 }}>
                 {deploymentLabels.ministryInformationTitle}
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
-                  <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                     Ministry Type
                   </Typography>
-                  <Typography variant="body1" sx={{ color: '#143625', fontWeight: 500 }}>
+                  <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
                     {ministry?.ministryType || 'N/A'}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                     Location
                   </Typography>
-                  <Typography variant="body1" sx={{ color: '#143625', fontWeight: 500 }}>
+                  <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
                     {ministry?.location || 'N/A'}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                     Official Email
                   </Typography>
-                  <Typography variant="body1" sx={{ color: '#143625', fontWeight: 500 }}>
+                  <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 500 }}>
                     {ministry?.officialEmail || 'N/A'}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                     Status
                   </Typography>
                   <Chip
@@ -578,7 +578,7 @@ const MinistryAdminDashboardPage = () => {
               </Grid>
             </Paper>
 
-            <Typography variant="h6" sx={{ color: '#008751', mb: 2, fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ color: '#00ff88', mb: 2, fontWeight: 600 }}>
               Quick Actions
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -591,8 +591,8 @@ const MinistryAdminDashboardPage = () => {
                   sx={{
                     py: 1.5,
                     borderColor: 'rgba(0, 135, 81, 0.5)',
-                    color: '#143625',
-                    '&:hover': { borderColor: '#008751', backgroundColor: 'rgba(0, 135, 81, 0.1)' },
+                    color: '#FFFFFF',
+                    '&:hover': { borderColor: '#00ff88', backgroundColor: 'rgba(0, 135, 81, 0.1)' },
                   }}
                 >
                   Manage Staff ({pendingUsers.length} pending)
@@ -607,8 +607,8 @@ const MinistryAdminDashboardPage = () => {
                   sx={{
                     py: 1.5,
                     borderColor: 'rgba(0, 135, 81, 0.5)',
-                    color: '#143625',
-                    '&:hover': { borderColor: '#008751', backgroundColor: 'rgba(0, 135, 81, 0.1)' },
+                    color: '#FFFFFF',
+                    '&:hover': { borderColor: '#00ff88', backgroundColor: 'rgba(0, 135, 81, 0.1)' },
                   }}
                 >
                   View Assets
@@ -623,7 +623,7 @@ const MinistryAdminDashboardPage = () => {
                 sx={{
                   backgroundColor: 'rgba(33, 150, 243, 0.1)',
                   border: '1px solid rgba(33, 150, 243, 0.3)',
-                  '& .MuiAlert-message': { color: 'rgba(15, 48, 31, 0.9)' },
+                  '& .MuiAlert-message': { color: 'rgba(255, 255, 255, 0.9)' },
                 }}
               >
                 You have {pendingUsers.length} pending staff registration{pendingUsers.length > 1 ? 's' : ''} awaiting approval
@@ -639,10 +639,10 @@ const MinistryAdminDashboardPage = () => {
               sx={{
                 mb: 2,
                 '& .MuiTab-root': {
-                  color: 'rgba(15, 48, 31, 0.58)',
-                  '&.Mui-selected': { color: '#008751' },
+                  color: 'rgba(255, 255, 255, 0.6)',
+                  '&.Mui-selected': { color: '#00ff88' },
                 },
-                '& .MuiTabs-indicator': { backgroundColor: '#008751' },
+                '& .MuiTabs-indicator': { backgroundColor: '#00ff88' },
               }}
             >
               <Tab label={`Pending (${pendingUsers.length})`} />
@@ -653,8 +653,8 @@ const MinistryAdminDashboardPage = () => {
             <TabPanel value={staffTabValue} index={0}>
               {pendingUsers.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 5 }}>
-                  <CheckCircle sx={{ fontSize: 60, color: '#008751', mb: 2 }} />
-                  <Typography variant="h6" sx={{ color: '#143625' }}>
+                  <CheckCircle sx={{ fontSize: 60, color: '#00ff88', mb: 2 }} />
+                  <Typography variant="h6" sx={{ color: '#FFFFFF' }}>
                     No pending staff registrations
                   </Typography>
                 </Box>
@@ -663,10 +663,10 @@ const MinistryAdminDashboardPage = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                        <TableCell sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Role</TableCell>
-                        <TableCell sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
-                        <TableCell sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Registered</TableCell>
-                        <TableCell align="right" sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Actions</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Role</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Registered</TableCell>
+                        <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -677,8 +677,8 @@ const MinistryAdminDashboardPage = () => {
                             <TableCell>
                               <Chip label={getRoleLabel(user.role)} size="small" sx={{ ...roleStyle }} />
                             </TableCell>
-                            <TableCell sx={{ color: '#143625', fontSize: { xs: '0.75rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
-                            <TableCell sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
+                            <TableCell sx={{ color: '#FFFFFF', fontSize: { xs: '0.75rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
+                            <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
                               {user.createdAt ? format(user.createdAt.toDate(), 'MMM dd, yyyy') : 'N/A'}
                             </TableCell>
                             <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
@@ -715,8 +715,8 @@ const MinistryAdminDashboardPage = () => {
             <TabPanel value={staffTabValue} index={1}>
               {allStaff.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 5 }}>
-                  <People sx={{ fontSize: 60, color: 'rgba(15, 48, 31, 0.3)', mb: 2 }} />
-                  <Typography variant="h6" sx={{ color: '#143625' }}>
+                  <People sx={{ fontSize: 60, color: 'rgba(255, 255, 255, 0.3)', mb: 2 }} />
+                  <Typography variant="h6" sx={{ color: '#FFFFFF' }}>
                     No active staff members yet
                   </Typography>
                 </Box>
@@ -725,10 +725,10 @@ const MinistryAdminDashboardPage = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                        <TableCell sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Role</TableCell>
-                        <TableCell sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
-                        <TableCell sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', md: 'table-cell' } }}>Joined</TableCell>
-                        <TableCell align="right" sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Actions</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Role</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', md: 'table-cell' } }}>Joined</TableCell>
+                        <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -739,8 +739,8 @@ const MinistryAdminDashboardPage = () => {
                             <TableCell>
                               <Chip label={getRoleLabel(user.role)} size="small" sx={{ ...roleStyle }} />
                             </TableCell>
-                            <TableCell sx={{ color: '#143625', fontSize: { xs: '0.75rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
-                            <TableCell sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', md: 'table-cell' } }}>
+                            <TableCell sx={{ color: '#FFFFFF', fontSize: { xs: '0.75rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
+                            <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', md: 'table-cell' } }}>
                               {user.verifiedAt ? format(user.verifiedAt.toDate(), 'MMM dd, yyyy') : 'N/A'}
                             </TableCell>
                             <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
@@ -791,8 +791,8 @@ const MinistryAdminDashboardPage = () => {
             <TabPanel value={staffTabValue} index={2}>
               {disabledStaff.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 5 }}>
-                  <PersonOff sx={{ fontSize: 60, color: 'rgba(15, 48, 31, 0.3)', mb: 2 }} />
-                  <Typography variant="h6" sx={{ color: '#143625' }}>
+                  <PersonOff sx={{ fontSize: 60, color: 'rgba(255, 255, 255, 0.3)', mb: 2 }} />
+                  <Typography variant="h6" sx={{ color: '#FFFFFF' }}>
                     No disabled staff members
                   </Typography>
                 </Box>
@@ -801,10 +801,10 @@ const MinistryAdminDashboardPage = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                        <TableCell sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Role</TableCell>
-                        <TableCell sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
-                        <TableCell sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Disabled On</TableCell>
-                        <TableCell align="right" sx={{ color: '#008751', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Actions</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Role</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
+                        <TableCell sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Disabled On</TableCell>
+                        <TableCell align="right" sx={{ color: '#00ff88', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -815,8 +815,8 @@ const MinistryAdminDashboardPage = () => {
                             <TableCell>
                               <Chip label={getRoleLabel(user.role)} size="small" sx={{ ...roleStyle, opacity: 0.6 }} />
                             </TableCell>
-                            <TableCell sx={{ color: '#143625', fontSize: { xs: '0.75rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
-                            <TableCell sx={{ color: 'rgba(15, 48, 31, 0.58)', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
+                            <TableCell sx={{ color: '#FFFFFF', fontSize: { xs: '0.75rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
+                            <TableCell sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
                               {(user as any).disabledAt ? format((user as any).disabledAt.toDate(), 'MMM dd, yyyy') : 'N/A'}
                             </TableCell>
                             <TableCell align="right">
@@ -853,18 +853,18 @@ const MinistryAdminDashboardPage = () => {
               <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.08)' }}>
-                      <TableCell sx={{ color: '#143625', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Description</TableCell>
-                      <TableCell sx={{ color: '#143625', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Category</TableCell>
-                      <TableCell sx={{ color: '#143625', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Value</TableCell>
-                      <TableCell sx={{ color: '#143625', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Status</TableCell>
+                    <TableRow sx={{ backgroundColor: '#0d2818' }}>
+                      <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Description</TableCell>
+                      <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' }, display: { xs: 'none', sm: 'table-cell' } }}>Category</TableCell>
+                      <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Value</TableCell>
+                      <TableCell sx={{ color: '#fff', fontWeight: 'bold', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>Status</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {allAssets.map((asset) => (
                       <TableRow key={asset.id} hover>
                         <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                          <Typography variant="caption" sx={{ color: '#008751', display: 'block', fontWeight: 'bold' }}>{asset.assetId}</Typography>
+                          <Typography variant="caption" sx={{ color: '#00ff88', display: 'block', fontWeight: 'bold' }}>{asset.assetId}</Typography>
                           {asset.description}
                         </TableCell>
                         <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{asset.category}</TableCell>
@@ -895,13 +895,13 @@ const MinistryAdminDashboardPage = () => {
         <Dialog
           open={rejectDialogOpen}
           onClose={() => setRejectDialogOpen(false)}
-          PaperProps={{ sx: { backgroundColor: '#ffffff', border: '1px solid rgba(0, 135, 81, 0.2)' } }}
+          PaperProps={{ sx: { backgroundColor: '#0d2818', border: '1px solid rgba(0, 135, 81, 0.3)' } }}
         >
           <DialogTitle sx={{ color: '#f44336', fontWeight: 600 }}>
             Reject User Registration
           </DialogTitle>
           <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 2 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
               Rejecting: <strong>{selectedUser?.email}</strong>
             </Typography>
             <TextField
@@ -928,9 +928,9 @@ const MinistryAdminDashboardPage = () => {
           onClose={handleCloseUuidDialog}
           maxWidth="sm"
           fullWidth
-          PaperProps={{ sx: { backgroundColor: '#ffffff', border: '2px solid rgba(0, 135, 81, 0.35)' } }}
+          PaperProps={{ sx: { backgroundColor: '#0d2818', border: '2px solid rgba(0, 255, 136, 0.5)' } }}
         >
-          <DialogTitle sx={{ color: '#008751', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <DialogTitle sx={{ color: '#00ff88', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
             <VpnKey />
             Staff Approved Successfully
           </DialogTitle>
@@ -947,7 +947,7 @@ const MinistryAdminDashboardPage = () => {
             </Box>
 
             <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 1 }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}>
                 Staff Display ID:
               </Typography>
               <Paper
@@ -963,7 +963,7 @@ const MinistryAdminDashboardPage = () => {
                 <Typography
                   variant="h6"
                   sx={{
-                    color: '#008751',
+                    color: '#00ff88',
                     fontFamily: 'monospace',
                     fontWeight: 700,
                     letterSpacing: 1,
@@ -976,7 +976,7 @@ const MinistryAdminDashboardPage = () => {
                   <IconButton
                     onClick={handleCopyUuid}
                     sx={{
-                      color: '#008751',
+                      color: '#00ff88',
                       '&:hover': { backgroundColor: 'rgba(0, 255, 136, 0.1)' },
                     }}
                   >
@@ -997,7 +997,7 @@ const MinistryAdminDashboardPage = () => {
               <Typography variant="body2" sx={{ fontWeight: 700, mb: 1, color: '#ff9800' }}>
                 ⚠️ Critical: Staff Must Log Out and Log Back In
               </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.76)', lineHeight: 1.6 }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', lineHeight: 1.6 }}>
                 The staff member's permissions have been activated. However, <strong>they must log out completely and log back in</strong> to get the updated permissions. 
                 <br />
                 <br />
@@ -1012,7 +1012,7 @@ const MinistryAdminDashboardPage = () => {
             </Alert>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCopyUuid} startIcon={<ContentCopy />} sx={{ color: '#008751' }}>
+            <Button onClick={handleCopyUuid} startIcon={<ContentCopy />} sx={{ color: '#00ff88' }}>
               Copy UUID
             </Button>
             <Button onClick={handleCloseUuidDialog} variant="contained" sx={{ backgroundColor: '#008751' }}>
@@ -1025,13 +1025,13 @@ const MinistryAdminDashboardPage = () => {
         <Dialog
           open={removeDialogOpen}
           onClose={() => setRemoveDialogOpen(false)}
-          PaperProps={{ sx: { backgroundColor: '#ffffff', border: '1px solid rgba(0, 135, 81, 0.2)' } }}
+          PaperProps={{ sx: { backgroundColor: '#0d2818', border: '1px solid rgba(0, 135, 81, 0.3)' } }}
         >
           <DialogTitle sx={{ color: '#f44336', fontWeight: 600 }}>
             Remove Staff from Ministry
           </DialogTitle>
           <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 2 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
               Remove <strong>{selectedUser?.email}</strong> from this ministry?
             </Typography>
             <TextField
@@ -1055,19 +1055,19 @@ const MinistryAdminDashboardPage = () => {
         <Dialog
           open={changeRoleDialogOpen}
           onClose={() => setChangeRoleDialogOpen(false)}
-          PaperProps={{ sx: { backgroundColor: '#ffffff', border: '1px solid rgba(0, 135, 81, 0.2)' } }}
+          PaperProps={{ sx: { backgroundColor: '#0d2818', border: '1px solid rgba(0, 135, 81, 0.3)' } }}
         >
           <DialogTitle sx={{ color: '#2196f3', fontWeight: 600 }}>
             Change Staff Role
           </DialogTitle>
           <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 2 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
               Change role for <strong>{selectedUser?.email}</strong>
             </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
               Current Role: <strong>{getRoleLabel(selectedUser?.role || '')}</strong>
             </Typography>
-            <Typography variant="body2" sx={{ color: '#008751', mt: 1 }}>
+            <Typography variant="body2" sx={{ color: '#00ff88', mt: 1 }}>
               New Role: <strong>{selectedUser?.role === 'agency' ? 'Approver' : 'Uploader'}</strong>
             </Typography>
           </DialogContent>
@@ -1083,13 +1083,13 @@ const MinistryAdminDashboardPage = () => {
         <Dialog
           open={disableDialogOpen}
           onClose={() => setDisableDialogOpen(false)}
-          PaperProps={{ sx: { backgroundColor: '#ffffff', border: '1px solid rgba(0, 135, 81, 0.2)' } }}
+          PaperProps={{ sx: { backgroundColor: '#0d2818', border: '1px solid rgba(0, 135, 81, 0.3)' } }}
         >
           <DialogTitle sx={{ color: '#ff9800', fontWeight: 600 }}>
             Disable Staff Account
           </DialogTitle>
           <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 2 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
               Disable <strong>{selectedUser?.email}</strong>'s account? They will no longer be able to access the system.
             </Typography>
             <TextField

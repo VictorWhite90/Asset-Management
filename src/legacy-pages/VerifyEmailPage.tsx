@@ -9,7 +9,7 @@ import {
   Alert,
   Chip,
 } from '@mui/material';
-import { Email, CheckCircle, Lock, GppGood } from '@/components/icons';
+import { Email, CheckCircle, Lock, GppGood } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { resendVerificationEmail, syncEmailVerificationStatus } from '@/services/auth.service';
@@ -99,7 +99,7 @@ const VerifyEmailPage: React.FC = () => {
       {/* Security Banner */}
       <Box
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.72)',
+          backgroundColor: '#0a0505',
           py: 0.5,
           borderBottom: '2px solid #008751',
           position: 'relative',
@@ -110,7 +110,7 @@ const VerifyEmailPage: React.FC = () => {
           <Typography
             variant="caption"
             sx={{
-              color: '#008751',
+              color: '#00ff88',
               fontFamily: '"Courier New", monospace',
               letterSpacing: 3,
               display: 'flex',
@@ -131,7 +131,7 @@ const VerifyEmailPage: React.FC = () => {
       {/* Header */}
       <Box
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.66)',
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
           py: 1.5,
           borderBottom: '1px solid rgba(0, 135, 81, 0.2)',
           position: 'relative',
@@ -152,14 +152,14 @@ const VerifyEmailPage: React.FC = () => {
             >
               <Box sx={{ display: 'flex', borderRadius: 0.5, overflow: 'hidden' }}>
                 <Box sx={{ width: 10, height: 20, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 10, height: 20, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
+                <Box sx={{ width: 10, height: 20, backgroundColor: '#FFFFFF' }} />
                 <Box sx={{ width: 10, height: 20, backgroundColor: '#008751' }} />
               </Box>
               <Box>
-                <Typography variant="subtitle2" sx={{ color: '#143625', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2 }}>
+                <Typography variant="subtitle2" sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2 }}>
                   {deploymentLabels.jurisdiction.toUpperCase()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)', fontSize: '0.65rem' }}>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.65rem' }}>
                   Asset Management System
                 </Typography>
               </Box>
@@ -167,12 +167,12 @@ const VerifyEmailPage: React.FC = () => {
 
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
               <Chip
-                icon={<GppGood sx={{ fontSize: 12, color: '#008751 !important' }} />}
+                icon={<GppGood sx={{ fontSize: 12, color: '#00ff88 !important' }} />}
                 label="Secure Portal"
                 size="small"
                 sx={{
                   backgroundColor: 'rgba(0, 135, 81, 0.15)',
-                  color: '#008751',
+                  color: '#00ff88',
                   border: '1px solid rgba(0, 135, 81, 0.3)',
                   fontSize: '0.6rem',
                   height: 22,
@@ -223,9 +223,9 @@ const VerifyEmailPage: React.FC = () => {
               }}
             >
               {emailSent ? (
-                <CheckCircle sx={{ fontSize: 40, color: '#008751' }} />
+                <CheckCircle sx={{ fontSize: 40, color: '#00ff88' }} />
               ) : (
-                <Email sx={{ fontSize: 40, color: '#008751' }} />
+                <Email sx={{ fontSize: 40, color: '#00ff88' }} />
               )}
             </Box>
 
@@ -233,7 +233,7 @@ const VerifyEmailPage: React.FC = () => {
               component="h1"
               variant="h5"
               align="center"
-              sx={{ color: '#143625', fontWeight: 700, mb: 2 }}
+              sx={{ color: '#FFFFFF', fontWeight: 700, mb: 2 }}
             >
               Verify Your Email
             </Typography>
@@ -241,7 +241,7 @@ const VerifyEmailPage: React.FC = () => {
             <Typography
               variant="body1"
               align="center"
-              sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 1 }}
+              sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}
             >
               We've sent a verification email to:
             </Typography>
@@ -249,7 +249,7 @@ const VerifyEmailPage: React.FC = () => {
             <Typography
               variant="body1"
               align="center"
-              sx={{ color: '#008751', fontWeight: 600, mb: 3 }}
+              sx={{ color: '#00ff88', fontWeight: 600, mb: 3 }}
             >
               {currentUser?.email}
             </Typography>
@@ -261,7 +261,7 @@ const VerifyEmailPage: React.FC = () => {
                   mb: 2,
                   backgroundColor: 'rgba(0, 135, 81, 0.15)',
                   border: '1px solid rgba(0, 135, 81, 0.3)',
-                  '& .MuiAlert-icon': { color: '#008751' },
+                  '& .MuiAlert-icon': { color: '#00ff88' },
                 }}
               >
                 Verification email sent! Please check your inbox and spam folder.
@@ -274,7 +274,7 @@ const VerifyEmailPage: React.FC = () => {
                 mb: 3,
                 backgroundColor: 'rgba(0, 135, 81, 0.1)',
                 border: '1px solid rgba(0, 135, 81, 0.3)',
-                '& .MuiAlert-icon': { color: '#008751' },
+                '& .MuiAlert-icon': { color: '#00ff88' },
               }}
             >
               Click the verification link in the email to activate your account.
@@ -291,10 +291,10 @@ const VerifyEmailPage: React.FC = () => {
                 borderLeft: '3px solid #008751',
               }}
             >
-              <Typography variant="body2" sx={{ color: '#008751', fontWeight: 600, mb: 1 }}>
+              <Typography variant="body2" sx={{ color: '#00ff88', fontWeight: 600, mb: 1 }}>
                 Steps to verify:
               </Typography>
-              <Box component="ol" sx={{ pl: 2, mb: 0, '& li': { color: 'rgba(15, 48, 31, 0.68)', mb: 0.5 } }}>
+              <Box component="ol" sx={{ pl: 2, mb: 0, '& li': { color: 'rgba(255, 255, 255, 0.7)', mb: 0.5 } }}>
                 <li><Typography variant="body2">Open your email inbox</Typography></li>
                 <li><Typography variant="body2">Find the email from Nigeria Asset Management</Typography></li>
                 <li><Typography variant="body2">Click the verification link</Typography></li>
@@ -334,7 +334,7 @@ const VerifyEmailPage: React.FC = () => {
               variant="text"
               onClick={handleSignOut}
               sx={{
-                color: 'rgba(15, 48, 31, 0.58)',
+                color: 'rgba(255, 255, 255, 0.6)',
                 '&:hover': {
                   color: '#ff6666',
                   backgroundColor: 'rgba(255, 102, 102, 0.1)',
@@ -350,7 +350,7 @@ const VerifyEmailPage: React.FC = () => {
       {/* Footer */}
       <Box
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.68)',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           borderTop: '1px solid rgba(0, 135, 81, 0.2)',
           py: 2,
           position: 'relative',
@@ -362,10 +362,10 @@ const VerifyEmailPage: React.FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box sx={{ display: 'flex' }}>
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 12, height: 8, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
+                <Box sx={{ width: 12, height: 8, backgroundColor: '#FFFFFF' }} />
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
               </Box>
-              <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                 {deploymentLabels.jurisdiction}
               </Typography>
             </Box>

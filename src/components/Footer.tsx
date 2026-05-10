@@ -19,9 +19,8 @@ const Footer = () => {
         py: 2,
         px: 2,
         mt: 'auto',
-        backgroundColor: 'rgba(255, 255, 255, 0.72)',
-        borderTop: '1px solid rgba(0, 135, 81, 0.15)',
-        backdropFilter: 'blur(16px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        borderTop: '1px solid rgba(0, 135, 81, 0.2)',
       }}
     >
       <Container maxWidth="xl">
@@ -38,26 +37,26 @@ const Footer = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Box sx={{ display: 'flex' }}>
               <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
-              <Box sx={{ width: 12, height: 8, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
+              <Box sx={{ width: 12, height: 8, backgroundColor: '#FFFFFF' }} />
               <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
             </Box>
-            <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.68)' }}>
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
               {deploymentLabels.jurisdiction}
             </Typography>
           </Box>
 
           {/* Center - Copyright */}
-          <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)', textAlign: 'center' }}>
+          <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', textAlign: 'center' }}>
             &copy; {currentYear} {deploymentLabels.systemName}. All rights reserved.
           </Typography>
 
           {/* Right - Links & Classification */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Link href="#" sx={{ color: 'rgba(0, 0, 0, 0.55)', textDecoration: 'none', fontSize: '0.75rem', '&:hover': { color: '#008751' } }}>
+              <Link href="#" sx={{ color: 'rgba(255, 255, 255, 0.5)', textDecoration: 'none', fontSize: '0.75rem', '&:hover': { color: '#00ff88' } }}>
                 Privacy Policy
               </Link>
-              <Link href="#" sx={{ color: 'rgba(0, 0, 0, 0.55)', textDecoration: 'none', fontSize: '0.75rem', '&:hover': { color: '#008751' } }}>
+              <Link href="#" sx={{ color: 'rgba(255, 255, 255, 0.5)', textDecoration: 'none', fontSize: '0.75rem', '&:hover': { color: '#00ff88' } }}>
                 Terms of Service
               </Link>
             </Box>

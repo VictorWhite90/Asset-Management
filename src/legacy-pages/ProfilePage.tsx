@@ -25,7 +25,7 @@ import {
   CheckCircle,
   Cancel,
   Verified,
-} from '@/components/icons';
+} from '@mui/icons-material';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserAuditSummary } from '@/services/auditLog.service';
 import { AuditLogSummary } from '@/types/auditLog.types';
@@ -74,7 +74,7 @@ const ProfilePage = () => {
       <AppLayout>
         <Container component="main" maxWidth="lg">
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-            <CircularProgress sx={{ color: '#008751' }} />
+            <CircularProgress sx={{ color: '#00ff88' }} />
           </Box>
         </Container>
       </AppLayout>
@@ -91,9 +91,9 @@ const ProfilePage = () => {
             to="/dashboard"
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(15, 48, 31, 0.68)',
+              color: 'rgba(255, 255, 255, 0.7)',
               '&:hover': {
-                color: '#008751',
+                color: '#00ff88',
                 backgroundColor: 'transparent',
               },
             }}
@@ -121,14 +121,14 @@ const ProfilePage = () => {
                   margin: '0 auto 16px',
                   bgcolor: '#008751',
                   fontSize: '3rem',
-                  border: '3px solid #008751',
+                  border: '3px solid #00ff88',
                   boxShadow: '0 0 20px rgba(0, 135, 81, 0.4)',
                 }}
               >
                 {(userData.name || userData.agencyName || 'U').charAt(0).toUpperCase()}
               </Avatar>
 
-              <Typography variant="h5" sx={{ color: '#143625', fontWeight: 700, mb: 1 }}>
+              <Typography variant="h5" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 1 }}>
                 {userData.name || userData.agencyName}
               </Typography>
 
@@ -137,7 +137,7 @@ const ProfilePage = () => {
                 sx={{
                   mb: 2,
                   backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                  color: '#008751',
+                  color: '#00ff88',
                   border: '1px solid rgba(0, 135, 81, 0.4)',
                   fontWeight: 600,
                 }}
@@ -146,8 +146,8 @@ const ProfilePage = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mb: 1 }}>
                 {currentUser.emailVerified ? (
                   <>
-                    <CheckCircle sx={{ color: '#008751', fontSize: 18 }} />
-                    <Typography variant="body2" sx={{ color: '#008751' }}>
+                    <CheckCircle sx={{ color: '#00ff88', fontSize: 18 }} />
+                    <Typography variant="body2" sx={{ color: '#00ff88' }}>
                       Email Verified
                     </Typography>
                   </>
@@ -188,7 +188,7 @@ const ProfilePage = () => {
           {/* Account Information */}
           <Grid item xs={12} md={8}>
             <Paper elevation={0} sx={{ p: 3, mb: 3 }}>
-              <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600, mb: 2 }}>
+              <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
                 Account Information
               </Typography>
 
@@ -202,12 +202,12 @@ const ProfilePage = () => {
                   >
                     <CardContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Email sx={{ mr: 1, color: '#008751' }} />
-                        <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>
+                        <Email sx={{ mr: 1, color: '#00ff88' }} />
+                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
                           Email Address
                         </Typography>
                       </Box>
-                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
                         {currentUser.email}
                       </Typography>
                     </CardContent>
@@ -223,12 +223,12 @@ const ProfilePage = () => {
                   >
                     <CardContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Business sx={{ mr: 1, color: '#008751' }} />
-                        <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>
+                        <Business sx={{ mr: 1, color: '#00ff88' }} />
+                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
                           Agency/Ministry
                         </Typography>
                       </Box>
-                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
                         {userData.agencyName || deploymentLabels.administrationFallback}
                       </Typography>
                     </CardContent>
@@ -244,12 +244,12 @@ const ProfilePage = () => {
                   >
                     <CardContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <LocationOn sx={{ mr: 1, color: '#008751' }} />
-                        <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>
+                        <LocationOn sx={{ mr: 1, color: '#00ff88' }} />
+                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
                           Location
                         </Typography>
                       </Box>
-                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
                         {userData.location || 'N/A'}
                       </Typography>
                     </CardContent>
@@ -265,12 +265,12 @@ const ProfilePage = () => {
                   >
                     <CardContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Person sx={{ mr: 1, color: '#008751' }} />
-                        <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>
+                        <Person sx={{ mr: 1, color: '#00ff88' }} />
+                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
                           Ministry Type
                         </Typography>
                       </Box>
-                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
                         {userData.ministryType || 'N/A'}
                       </Typography>
                     </CardContent>
@@ -286,12 +286,12 @@ const ProfilePage = () => {
                   >
                     <CardContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Verified sx={{ mr: 1, color: '#008751' }} />
-                        <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>
+                        <Verified sx={{ mr: 1, color: '#00ff88' }} />
+                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
                           Account Created
                         </Typography>
                       </Box>
-                      <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
+                      <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
                         {currentUser.metadata.creationTime
                           ? new Date(currentUser.metadata.creationTime).toLocaleDateString('en-NG', {
                               year: 'numeric',
@@ -308,23 +308,23 @@ const ProfilePage = () => {
 
             {/* Activity Summary */}
             <Paper elevation={0} sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600, mb: 2 }}>
+              <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600, mb: 2 }}>
                 Activity Summary
               </Typography>
 
               {loadingSummary ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                  <CircularProgress sx={{ color: '#008751' }} size={40} />
+                  <CircularProgress sx={{ color: '#00ff88' }} size={40} />
                 </Box>
               ) : summary ? (
                 <Grid container spacing={2}>
                   <Grid item xs={6} sm={3}>
-                    <Card sx={{ background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.18) 0%, rgba(0, 96, 56, 0.08) 100%)', border: 'none' }}>
+                    <Card sx={{ background: 'linear-gradient(135deg, #008751 0%, #006038 100%)', border: 'none' }}>
                       <CardContent sx={{ textAlign: 'center' }}>
-                        <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                        <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                           {summary.totalActions}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.76)' }}>
+                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                           Total Actions
                         </Typography>
                       </CardContent>
@@ -333,12 +333,12 @@ const ProfilePage = () => {
 
                   {userData.role === 'agency' && (
                     <Grid item xs={6} sm={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.16) 0%, rgba(21, 101, 192, 0.07) 100%)', border: 'none' }}>
+                      <Card sx={{ background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)', border: 'none' }}>
                         <CardContent sx={{ textAlign: 'center' }}>
-                          <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                          <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                             {summary.assetUploads}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.76)' }}>
+                          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                             Uploads
                           </Typography>
                         </CardContent>
@@ -349,12 +349,12 @@ const ProfilePage = () => {
                   {userData.role === 'agency-approver' && (
                     <>
                       <Grid item xs={6} sm={3}>
-                        <Card sx={{ background: 'linear-gradient(135deg, rgba(46, 125, 50, 0.18) 0%, rgba(27, 94, 32, 0.08) 100%)', border: 'none' }}>
+                        <Card sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', border: 'none' }}>
                           <CardContent sx={{ textAlign: 'center' }}>
-                            <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                            <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                               {summary.assetApprovals}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.76)' }}>
+                            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                               Approvals
                             </Typography>
                           </CardContent>
@@ -362,12 +362,12 @@ const ProfilePage = () => {
                       </Grid>
 
                       <Grid item xs={6} sm={3}>
-                        <Card sx={{ background: 'linear-gradient(135deg, rgba(198, 40, 40, 0.16) 0%, rgba(142, 0, 0, 0.07) 100%)', border: 'none' }}>
+                        <Card sx={{ background: 'linear-gradient(135deg, #c62828 0%, #8e0000 100%)', border: 'none' }}>
                           <CardContent sx={{ textAlign: 'center' }}>
-                            <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                            <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                               {summary.assetRejections}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.76)' }}>
+                            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                               Rejections
                             </Typography>
                           </CardContent>
@@ -384,10 +384,10 @@ const ProfilePage = () => {
                       }}
                     >
                       <CardContent>
-                        <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)' }}>
+                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
                           Last Login
                         </Typography>
-                        <Typography variant="body1" sx={{ color: '#143625', fontWeight: 600 }}>
+                        <Typography variant="body1" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
                           {summary.lastLoginAt
                             ? new Date(summary.lastLoginAt).toLocaleDateString('en-NG', {
                                 year: 'numeric',
@@ -403,7 +403,7 @@ const ProfilePage = () => {
                   </Grid>
                 </Grid>
               ) : (
-                <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.58)', py: 2 }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', py: 2 }}>
                   No activity summary available
                 </Typography>
               )}

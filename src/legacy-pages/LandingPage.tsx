@@ -18,7 +18,7 @@ import {
   Visibility,
   GppGood,
   AdminPanelSettings,
-} from '@/components/icons';
+} from '@mui/icons-material';
 import { deploymentLabels, isStateDeployment } from '@/utils/deployment';
 
 const LandingPage = () => {
@@ -26,7 +26,7 @@ const LandingPage = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(180deg, #ffffff 0%, #f5faf8 35%, #ffffff 70%, #eef5f0 100%)',
+        background: 'linear-gradient(180deg, #0a1a0d 0%, #0d2818 30%, #0a1a0d 70%, #050d07 100%)',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
@@ -55,19 +55,18 @@ const LandingPage = () => {
       {/* Classification Banner */}
       <Box
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.78)',
+          backgroundColor: '#1a0a0a',
           py: 0.75,
           borderBottom: '2px solid #008751',
           position: 'relative',
           zIndex: 10,
-          backdropFilter: 'blur(16px)',
         }}
       >
         <Container maxWidth="lg">
           <Typography
             variant="caption"
             sx={{
-              color: '#008751',
+              color: '#00ff88',
               fontFamily: '"Courier New", monospace',
               letterSpacing: 3,
               display: 'flex',
@@ -88,7 +87,7 @@ const LandingPage = () => {
       {/* Header Bar */}
       <Box
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.66)',
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
           py: 1.5,
           borderBottom: '1px solid rgba(0, 135, 81, 0.2)',
         }}
@@ -100,14 +99,14 @@ const LandingPage = () => {
               {/* Nigerian Flag */}
               <Box sx={{ display: 'flex', borderRadius: 0.5, overflow: 'hidden', boxShadow: '0 0 10px rgba(0,135,81,0.3)' }}>
                 <Box sx={{ width: 12, height: 24, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 12, height: 24, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
+                <Box sx={{ width: 12, height: 24, backgroundColor: '#FFFFFF' }} />
                 <Box sx={{ width: 12, height: 24, backgroundColor: '#008751' }} />
               </Box>
               <Box>
-                <Typography variant="subtitle2" sx={{ color: '#143625', fontWeight: 700, letterSpacing: 1, lineHeight: 1.2 }}>
+                <Typography variant="subtitle2" sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: 1, lineHeight: 1.2 }}>
                   {deploymentLabels.jurisdiction.toUpperCase()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)', letterSpacing: 0.5 }}>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5 }}>
                   Asset Management System
                 </Typography>
               </Box>
@@ -116,24 +115,24 @@ const LandingPage = () => {
             {/* Trust Badges */}
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
               <Chip
-                icon={<GppGood sx={{ fontSize: 14, color: '#008751 !important' }} />}
+                icon={<GppGood sx={{ fontSize: 14, color: '#00ff88 !important' }} />}
                 label="NDPR Compliant"
                 size="small"
                 sx={{
                   backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                  color: '#008751',
+                  color: '#00ff88',
                   border: '1px solid rgba(0, 135, 81, 0.4)',
                   fontSize: '0.65rem',
                   height: 24,
                 }}
               />
               <Chip
-                icon={<Lock sx={{ fontSize: 14, color: '#008751 !important' }} />}
+                icon={<Lock sx={{ fontSize: 14, color: '#00ff88 !important' }} />}
                 label="256-bit Encrypted"
                 size="small"
                 sx={{
                   backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                  color: '#008751',
+                  color: '#00ff88',
                   border: '1px solid rgba(0, 135, 81, 0.4)',
                   fontSize: '0.65rem',
                   height: 24,
@@ -173,14 +172,14 @@ const LandingPage = () => {
               },
             }}
           >
-            <AccountBalance sx={{ fontSize: 70, color: '#008751' }} />
+            <AccountBalance sx={{ fontSize: 70, color: '#00ff88' }} />
           </Box>
 
           {/* Main Title */}
           <Typography
             variant="h2"
             sx={{
-              color: '#ffffff',
+              color: '#FFFFFF',
               fontWeight: 800,
               letterSpacing: 2,
               mb: 1,
@@ -195,7 +194,7 @@ const LandingPage = () => {
           <Typography
             variant="h6"
             sx={{
-              color: 'rgba(15, 48, 31, 0.68)',
+              color: 'rgba(255, 255, 255, 0.7)',
               fontWeight: 400,
               fontStyle: 'italic',
               letterSpacing: 1,
@@ -213,7 +212,7 @@ const LandingPage = () => {
                 key={idx}
                 component="span"
                 sx={{
-                  color: '#008751',
+                  color: '#00ff88',
                   fontWeight: 600,
                   letterSpacing: 2,
                   textTransform: 'uppercase',
@@ -233,7 +232,7 @@ const LandingPage = () => {
           <Typography
             variant="body1"
             sx={{
-              color: 'rgba(15, 48, 31, 0.72)',
+              color: 'rgba(255, 255, 255, 0.75)',
               maxWidth: 700,
               mx: 'auto',
               lineHeight: 1.9,
@@ -260,25 +259,25 @@ const LandingPage = () => {
                 sx={{
                   p: 3,
                   textAlign: 'left',
-                  backgroundColor: 'rgba(255, 255, 255, 0.64)',
+                  backgroundColor: 'rgba(0, 20, 10, 0.6)',
                   border: '1px solid rgba(0, 135, 81, 0.3)',
                   borderRadius: 2,
                   transition: 'all 0.3s ease',
                   cursor: 'default',
                   height: '100%',
                   '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.82)',
-                    borderColor: '#008751',
+                    backgroundColor: 'rgba(0, 135, 81, 0.15)',
+                    borderColor: '#00ff88',
                     transform: 'translateY(-8px)',
                     boxShadow: '0 15px 40px rgba(0, 135, 81, 0.3)',
                   },
                 }}
               >
-                <Box sx={{ color: '#008751', mb: 2 }}>{feature.icon}</Box>
-                <Typography variant="subtitle1" sx={{ color: '#143625', fontWeight: 700, mb: 1, letterSpacing: 0.5 }}>
+                <Box sx={{ color: '#00ff88', mb: 2 }}>{feature.icon}</Box>
+                <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 700, mb: 1, letterSpacing: 0.5 }}>
                   {feature.title}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.62)', lineHeight: 1.6 }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.65)', lineHeight: 1.6 }}>
                   {feature.desc}
                 </Typography>
               </Paper>
@@ -300,7 +299,7 @@ const LandingPage = () => {
               fontSize: '1.1rem',
               fontWeight: 700,
               backgroundColor: '#008751',
-              color: '#143625',
+              color: '#FFFFFF',
               borderRadius: 1.5,
               textTransform: 'uppercase',
               letterSpacing: 2,
@@ -326,14 +325,14 @@ const LandingPage = () => {
               py: 2,
               fontSize: '1.1rem',
               fontWeight: 700,
-              color: '#008751',
+              color: '#00ff88',
               border: '2px solid #008751',
               borderRadius: 1.5,
               textTransform: 'uppercase',
               letterSpacing: 2,
               '&:hover': {
                 backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                borderColor: '#008751',
+                borderColor: '#00ff88',
                 transform: 'translateY(-2px)',
               },
             }}
@@ -346,12 +345,11 @@ const LandingPage = () => {
       {/* Footer */}
       <Box
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.72)',
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
           borderTop: '1px solid rgba(0, 135, 81, 0.3)',
           py: 3,
           position: 'relative',
           zIndex: 10,
-          backdropFilter: 'blur(16px)',
         }}
       >
         <Container maxWidth="lg">
@@ -360,16 +358,16 @@ const LandingPage = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ display: 'flex' }}>
                 <Box sx={{ width: 16, height: 10, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 16, height: 10, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
+                <Box sx={{ width: 16, height: 10, backgroundColor: '#FFFFFF' }} />
                 <Box sx={{ width: 16, height: 10, backgroundColor: '#008751' }} />
               </Box>
-              <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.68)', fontWeight: 500 }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 500 }}>
                 {deploymentLabels.jurisdiction}
               </Typography>
             </Box>
 
             {/* Center - Copyright */}
-            <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.5)', textAlign: 'center' }}>
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', textAlign: 'center' }}>
               &copy; {new Date().getFullYear()} Nigeria Government Asset Management System. All rights reserved.
             </Typography>
 
@@ -379,7 +377,7 @@ const LandingPage = () => {
                 component={Link}
                 to="/privacy"
                 variant="caption"
-                sx={{ color: 'rgba(15, 48, 31, 0.58)', textDecoration: 'none', '&:hover': { color: '#008751' } }}
+                sx={{ color: 'rgba(255, 255, 255, 0.6)', textDecoration: 'none', '&:hover': { color: '#00ff88' } }}
               >
                 Privacy Policy
               </Typography>
@@ -387,7 +385,7 @@ const LandingPage = () => {
                 component={Link}
                 to="/terms"
                 variant="caption"
-                sx={{ color: 'rgba(15, 48, 31, 0.58)', textDecoration: 'none', '&:hover': { color: '#008751' } }}
+                sx={{ color: 'rgba(255, 255, 255, 0.6)', textDecoration: 'none', '&:hover': { color: '#00ff88' } }}
               >
                 Terms of Service
               </Typography>
@@ -412,7 +410,7 @@ const LandingPage = () => {
               variant="caption"
               sx={{
                 display: 'block',
-                color: 'rgba(15, 48, 31, 0.4)',
+                color: 'rgba(255, 255, 255, 0.4)',
                 mt: 1,
                 fontSize: '0.6rem',
               }}

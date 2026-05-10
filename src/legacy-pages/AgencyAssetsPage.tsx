@@ -32,14 +32,13 @@ import {
   Download,
   Search,
   Clear,
-} from '@/components/icons';
+} from '@mui/icons-material';
 import * as XLSX from 'xlsx';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAgencyAssets } from '@/services/asset.service';
 import { Asset } from '@/types/asset.types';
 import { ASSET_CATEGORIES } from '@/utils/constants';
-import { deploymentLabels } from '@/utils/deployment';
 import AppLayout from '@/components/AppLayout';
 
 const AgencyAssetsPage = () => {
@@ -198,47 +197,6 @@ const AgencyAssetsPage = () => {
     return `${String(date.day).padStart(2, '0')}/${String(date.month).padStart(2, '0')}/${date.year}`;
   };
 
-  const getStatusChip = (status?: string) => {
-    switch (status) {
-      case 'approved':
-        return {
-          label: 'Approved',
-          color: '#1b7f3a',
-          bg: 'rgba(27, 127, 58, 0.12)',
-          border: 'rgba(27, 127, 58, 0.28)',
-        };
-      case 'rejected':
-        return {
-          label: 'Rejected',
-          color: '#b42318',
-          bg: 'rgba(180, 35, 24, 0.12)',
-          border: 'rgba(180, 35, 24, 0.26)',
-        };
-      case 'pending_ministry_review':
-        return {
-          label: 'Pending Ministry Review',
-          color: '#8a5a00',
-          bg: 'rgba(184, 134, 11, 0.13)',
-          border: 'rgba(184, 134, 11, 0.28)',
-        };
-      case 'submitted_to_federal':
-        return {
-          label: deploymentLabels.submittedToTopAdmin,
-          color: '#006b5f',
-          bg: 'rgba(0, 107, 95, 0.12)',
-          border: 'rgba(0, 107, 95, 0.28)',
-        };
-      case 'pending':
-      default:
-        return {
-          label: 'Pending',
-          color: '#8a5a00',
-          bg: 'rgba(184, 134, 11, 0.13)',
-          border: 'rgba(184, 134, 11, 0.28)',
-        };
-    }
-  };
-
   const totalPurchaseCost = filteredAssets.reduce((sum, asset) => sum + asset.purchaseCost, 0);
   const totalMarketValue = filteredAssets.reduce(
     (sum, asset) => sum + (asset.marketValue || 0),
@@ -255,7 +213,7 @@ const AgencyAssetsPage = () => {
       <AppLayout>
         <Container component="main" maxWidth="lg">
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-            <CircularProgress sx={{ color: '#008751' }} />
+            <CircularProgress sx={{ color: '#00ff88' }} />
           </Box>
         </Container>
       </AppLayout>
@@ -272,9 +230,9 @@ const AgencyAssetsPage = () => {
             to="/dashboard"
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(15, 48, 31, 0.68)',
+              color: 'rgba(255, 255, 255, 0.7)',
               '&:hover': {
-                color: '#008751',
+                color: '#00ff88',
                 backgroundColor: 'transparent',
               },
             }}
@@ -286,7 +244,7 @@ const AgencyAssetsPage = () => {
         <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 } }}>
           {/* Page Title */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-            <Typography component="h1" variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' } }}>
+            <Typography component="h1" variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' } }}>
               My Assets
             </Typography>
             <Button
@@ -315,14 +273,14 @@ const AgencyAssetsPage = () => {
                 p: { xs: 1.5, sm: 2 },
                 flex: 1,
                 minWidth: { xs: '100%', sm: 150 },
-                background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.18) 0%, rgba(0, 96, 56, 0.08) 100%)',
+                background: 'linear-gradient(135deg, #008751 0%, #006038 100%)',
                 border: 'none',
               }}
             >
-              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.76)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                 Total Assets
               </Typography>
-              <Typography variant="h5" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
+              <Typography variant="h5" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                 {filteredAssets.length}
               </Typography>
             </Paper>
@@ -336,10 +294,10 @@ const AgencyAssetsPage = () => {
                 border: '1px solid rgba(0, 135, 81, 0.3)',
               }}
             >
-              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                 Purchase Cost
               </Typography>
-              <Typography variant="h5" sx={{ color: '#008751', fontWeight: 700, fontSize: { xs: '1rem', sm: '1.5rem' }, wordBreak: 'break-word' }}>
+              <Typography variant="h5" sx={{ color: '#00ff88', fontWeight: 700, fontSize: { xs: '1rem', sm: '1.5rem' }, wordBreak: 'break-word' }}>
                 {formatCurrency(totalPurchaseCost)}
               </Typography>
             </Paper>
@@ -353,7 +311,7 @@ const AgencyAssetsPage = () => {
                 border: '1px solid rgba(0, 135, 81, 0.3)',
               }}
             >
-              <Typography variant="body2" sx={{ color: 'rgba(15,48,31,0.68)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                 Market Value
               </Typography>
               <Typography variant="h5" sx={{ color: '#4caf50', fontWeight: 700, fontSize: { xs: '1rem', sm: '1.5rem' }, wordBreak: 'break-word' }}>
@@ -373,13 +331,13 @@ const AgencyAssetsPage = () => {
               allowScrollButtonsMobile
               sx={{
                 '& .MuiTab-root': {
-                  color: 'rgba(15,48,31,0.58)',
-                  '&.Mui-selected': { color: '#008751' },
+                  color: 'rgba(255,255,255,0.6)',
+                  '&.Mui-selected': { color: '#00ff88' },
                   fontSize: { xs: '0.75rem', sm: '0.875rem' },
                   minWidth: { xs: 'auto', sm: 90 },
                   px: { xs: 1.5, sm: 2 },
                 },
-                '& .MuiTabs-indicator': { backgroundColor: '#008751' },
+                '& .MuiTabs-indicator': { backgroundColor: '#00ff88' },
               }}
             >
               <Tab label={`All (${assets.length})`} value="all" />
@@ -401,13 +359,13 @@ const AgencyAssetsPage = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Search sx={{ color: 'rgba(15,48,31,0.5)', fontSize: { xs: 18, sm: 24 } }} />
+                    <Search sx={{ color: 'rgba(255,255,255,0.5)', fontSize: { xs: 18, sm: 24 } }} />
                   </InputAdornment>
                 ),
                 endAdornment: searchQuery && (
                   <InputAdornment position="end">
                     <IconButton size="small" onClick={() => setSearchQuery('')}>
-                      <Clear sx={{ color: 'rgba(15,48,31,0.5)', fontSize: 18 }} />
+                      <Clear sx={{ color: 'rgba(255,255,255,0.5)', fontSize: 18 }} />
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -469,8 +427,8 @@ const AgencyAssetsPage = () => {
                   size="small"
                   sx={{
                     backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                    color: '#008751',
-                    '& .MuiChip-deleteIcon': { color: '#008751' },
+                    color: '#00ff88',
+                    '& .MuiChip-deleteIcon': { color: '#00ff88' },
                   }}
                 />
               )}
@@ -481,8 +439,8 @@ const AgencyAssetsPage = () => {
                   size="small"
                   sx={{
                     backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                    color: '#008751',
-                    '& .MuiChip-deleteIcon': { color: '#008751' },
+                    color: '#00ff88',
+                    '& .MuiChip-deleteIcon': { color: '#00ff88' },
                   }}
                 />
               )}
@@ -493,8 +451,8 @@ const AgencyAssetsPage = () => {
                   size="small"
                   sx={{
                     backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                    color: '#008751',
-                    '& .MuiChip-deleteIcon': { color: '#008751' },
+                    color: '#00ff88',
+                    '& .MuiChip-deleteIcon': { color: '#00ff88' },
                   }}
                 />
               )}
@@ -505,8 +463,8 @@ const AgencyAssetsPage = () => {
                   size="small"
                   sx={{
                     backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                    color: '#008751',
-                    '& .MuiChip-deleteIcon': { color: '#008751' },
+                    color: '#00ff88',
+                    '& .MuiChip-deleteIcon': { color: '#00ff88' },
                   }}
                 />
               )}
@@ -516,11 +474,11 @@ const AgencyAssetsPage = () => {
           {/* Assets Table */}
           {filteredAssets.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 5 }}>
-              <Typography variant="h6" sx={{ color: 'rgba(15,48,31,0.58)' }}>
+              <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.6)' }}>
                 No assets found
               </Typography>
               {(searchQuery || categoryFilter !== 'All' || dateFromFilter || dateToFilter) && (
-                <Button onClick={handleClearFilters} sx={{ mt: 2, color: '#008751' }}>
+                <Button onClick={handleClearFilters} sx={{ mt: 2, color: '#00ff88' }}>
                   Clear Filters
                 </Button>
               )}
@@ -531,21 +489,19 @@ const AgencyAssetsPage = () => {
                 <Table size="small" sx={{ minWidth: 900 }}>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Asset ID</TableCell>
-                      <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Description</TableCell>
-                      <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Category</TableCell>
-                      <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Location</TableCell>
-                      <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Purchase Date</TableCell>
-                      <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Upload Date</TableCell>
-                      <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Status</TableCell>
-                      <TableCell sx={{ color: '#008751', fontWeight: 600 }} align="right">Purchase Cost</TableCell>
-                      <TableCell sx={{ color: '#008751', fontWeight: 600 }} align="right">Market Value</TableCell>
+                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Asset ID</TableCell>
+                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Category</TableCell>
+                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Location</TableCell>
+                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Purchase Date</TableCell>
+                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Upload Date</TableCell>
+                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Status</TableCell>
+                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }} align="right">Purchase Cost</TableCell>
+                      <TableCell sx={{ color: '#00ff88', fontWeight: 600 }} align="right">Market Value</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {paginatedAssets.map((asset) => {
-                      const statusChip = getStatusChip(asset.status);
-                      return (
+                    {paginatedAssets.map((asset) => (
                       <TableRow
                         key={asset.id}
                         hover
@@ -555,22 +511,22 @@ const AgencyAssetsPage = () => {
                           '&:hover': { backgroundColor: 'rgba(0, 135, 81, 0.1)' },
                         }}
                       >
-                        <TableCell sx={{ color: '#143625' }}>{asset.assetId}</TableCell>
-                        <TableCell sx={{ color: '#143625' }}>{asset.description}</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF' }}>{asset.assetId}</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF' }}>{asset.description}</TableCell>
                         <TableCell>
                           <Chip
                             label={asset.category}
                             size="small"
                             sx={{
                               backgroundColor: 'rgba(0, 135, 81, 0.2)',
-                              color: '#008751',
+                              color: '#00ff88',
                               border: '1px solid rgba(0, 135, 81, 0.4)',
                             }}
                           />
                         </TableCell>
-                        <TableCell sx={{ color: 'rgba(15,48,31,0.68)' }}>{asset.location}</TableCell>
-                        <TableCell sx={{ color: 'rgba(15,48,31,0.68)' }}>{formatDate(asset.purchasedDate)}</TableCell>
-                        <TableCell sx={{ color: 'rgba(15,48,31,0.68)' }}>
+                        <TableCell sx={{ color: 'rgba(255,255,255,0.7)' }}>{asset.location}</TableCell>
+                        <TableCell sx={{ color: 'rgba(255,255,255,0.7)' }}>{formatDate(asset.purchasedDate)}</TableCell>
+                        <TableCell sx={{ color: 'rgba(255,255,255,0.7)' }}>
                           {asset.uploadTimestamp?.toDate?.()
                             ? new Date(asset.uploadTimestamp.toDate()).toLocaleDateString()
                             : '-'}
@@ -578,25 +534,38 @@ const AgencyAssetsPage = () => {
                         <TableCell>
                           <Tooltip title={asset.status === 'rejected' ? `Reason: ${asset.rejectionReason}` : ''}>
                             <Chip
-                              label={statusChip.label}
+                              label={asset.status?.toUpperCase() || 'PENDING'}
                               size="small"
                               sx={{
-                                backgroundColor: statusChip.bg,
-                                color: statusChip.color,
+                                backgroundColor:
+                                  asset.status === 'approved'
+                                    ? 'rgba(46, 125, 50, 0.3)'
+                                    : asset.status === 'rejected'
+                                    ? 'rgba(198, 40, 40, 0.3)'
+                                    : 'rgba(184, 134, 11, 0.3)',
+                                color:
+                                  asset.status === 'approved'
+                                    ? '#4caf50'
+                                    : asset.status === 'rejected'
+                                    ? '#ef5350'
+                                    : '#ffc107',
                                 border: '1px solid',
-                                borderColor: statusChip.border,
-                                fontWeight: 700,
-                                textTransform: 'none',
+                                borderColor:
+                                  asset.status === 'approved'
+                                    ? 'rgba(46, 125, 50, 0.5)'
+                                    : asset.status === 'rejected'
+                                    ? 'rgba(198, 40, 40, 0.5)'
+                                    : 'rgba(184, 134, 11, 0.5)',
                               }}
                             />
                           </Tooltip>
                         </TableCell>
-                        <TableCell sx={{ color: '#143625' }} align="right">{formatCurrency(asset.purchaseCost)}</TableCell>
-                        <TableCell sx={{ color: 'rgba(15,48,31,0.68)' }} align="right">
+                        <TableCell sx={{ color: '#FFFFFF' }} align="right">{formatCurrency(asset.purchaseCost)}</TableCell>
+                        <TableCell sx={{ color: 'rgba(255,255,255,0.7)' }} align="right">
                           {asset.marketValue ? formatCurrency(asset.marketValue) : '-'}
                         </TableCell>
                       </TableRow>
-                    )})}
+                    ))}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -611,8 +580,8 @@ const AgencyAssetsPage = () => {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 sx={{
-                  color: 'rgba(15,48,31,0.68)',
-                  '& .MuiTablePagination-selectIcon': { color: 'rgba(15,48,31,0.5)' },
+                  color: 'rgba(255,255,255,0.7)',
+                  '& .MuiTablePagination-selectIcon': { color: 'rgba(255,255,255,0.5)' },
                 }}
               />
             </>

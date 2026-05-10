@@ -32,7 +32,7 @@ import {
   Refresh,
   HourglassEmpty,
   VerifiedUser,
-} from '@/components/icons';
+} from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts/AuthContext';
 import { getPendingApprovers, approveApprover, rejectApprover } from '@/services/auth.service';
@@ -148,7 +148,7 @@ const AdminVerificationsPage = () => {
             alignItems="center"
             minHeight="60vh"
           >
-            <CircularProgress sx={{ color: '#008751' }} />
+            <CircularProgress sx={{ color: '#00ff88' }} />
           </Box>
         </Container>
       </AppLayout>
@@ -165,9 +165,9 @@ const AdminVerificationsPage = () => {
             to="/dashboard"
             startIcon={<ArrowBack />}
             sx={{
-              color: 'rgba(15, 48, 31, 0.68)',
+              color: 'rgba(255, 255, 255, 0.7)',
               '&:hover': {
-                color: '#008751',
+                color: '#00ff88',
                 backgroundColor: 'transparent',
               },
             }}
@@ -188,12 +188,12 @@ const AdminVerificationsPage = () => {
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <VerifiedUser sx={{ fontSize: 40, color: '#008751' }} />
+              <VerifiedUser sx={{ fontSize: 40, color: '#00ff88' }} />
               <Box>
-                <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                   Pending Approver Verifications
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', mt: 0.5 }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5 }}>
                   Review and verify agency approver account registrations
                 </Typography>
               </Box>
@@ -219,24 +219,24 @@ const AdminVerificationsPage = () => {
         <Card
           sx={{
             mb: 3,
-            background: 'linear-gradient(135deg, rgba(237, 108, 2, 0.16) 0%, rgba(197, 90, 2, 0.07) 100%)',
+            background: 'linear-gradient(135deg, #ed6c02 0%, #c55a02 100%)',
             border: 'none',
           }}
         >
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Box>
-                <Typography sx={{ color: 'rgba(15, 48, 31, 0.76)', fontSize: '0.875rem' }}>
+                <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.875rem' }}>
                   Pending Verifications
                 </Typography>
-                <Typography variant="h3" sx={{ color: '#143625', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
+                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2.5rem' } }}>
                   {pendingApprovers.length}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', mt: 1 }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 1 }}>
                   approver account(s) awaiting verification
                 </Typography>
               </Box>
-              <HourglassEmpty sx={{ fontSize: 60, color: 'rgba(15, 48, 31, 0.5)' }} />
+              <HourglassEmpty sx={{ fontSize: 60, color: 'rgba(255, 255, 255, 0.5)' }} />
             </Box>
           </CardContent>
         </Card>
@@ -250,18 +250,18 @@ const AdminVerificationsPage = () => {
               background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.15) 0%, rgba(0, 135, 81, 0.05) 100%)',
             }}
           >
-            <Typography variant="h6" sx={{ color: '#008751', fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 600 }}>
               Pending Approvers
             </Typography>
           </Box>
 
           {pendingApprovers.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 5 }}>
-              <CheckCircle sx={{ fontSize: 60, color: '#008751', mb: 2 }} />
-              <Typography variant="h6" sx={{ color: '#143625' }}>
+              <CheckCircle sx={{ fontSize: 60, color: '#00ff88', mb: 2 }} />
+              <Typography variant="h6" sx={{ color: '#FFFFFF' }}>
                 No pending approver verifications
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.58)', mt: 1 }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)', mt: 1 }}>
                 All approver registrations have been processed
               </Typography>
             </Box>
@@ -270,11 +270,11 @@ const AdminVerificationsPage = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow sx={{ backgroundColor: 'rgba(0, 135, 81, 0.1)' }}>
-                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Email</TableCell>
-                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Agency</TableCell>
-                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Ministry Type</TableCell>
-                    <TableCell sx={{ color: '#008751', fontWeight: 600 }}>Registered</TableCell>
-                    <TableCell align="center" sx={{ color: '#008751', fontWeight: 600 }}>Actions</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Email</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Agency</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Ministry Type</TableCell>
+                    <TableCell sx={{ color: '#00ff88', fontWeight: 600 }}>Registered</TableCell>
+                    <TableCell align="center" sx={{ color: '#00ff88', fontWeight: 600 }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -286,20 +286,20 @@ const AdminVerificationsPage = () => {
                         borderBottom: '1px solid rgba(0, 135, 81, 0.1)',
                       }}
                     >
-                      <TableCell sx={{ color: '#143625' }}>{approver.email}</TableCell>
-                      <TableCell sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>{approver.agencyName}</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF' }}>{approver.email}</TableCell>
+                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>{approver.agencyName}</TableCell>
                       <TableCell>
                         <Chip
                           label={approver.ministryType}
                           size="small"
                           sx={{
                             backgroundColor: 'rgba(0, 135, 81, 0.1)',
-                            color: 'rgba(15, 48, 31, 0.76)',
+                            color: 'rgba(255, 255, 255, 0.8)',
                             border: '1px solid rgba(0, 135, 81, 0.3)',
                           }}
                         />
                       </TableCell>
-                      <TableCell sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
+                      <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                         {formatDate(approver.createdAt)}
                       </TableCell>
                       <TableCell align="center">
@@ -350,8 +350,8 @@ const AdminVerificationsPage = () => {
           fullWidth
           PaperProps={{
             sx: {
-              backgroundColor: '#ffffff',
-              border: '1px solid rgba(0, 135, 81, 0.15)',
+              backgroundColor: '#0d2818',
+              border: '1px solid rgba(0, 135, 81, 0.3)',
             },
           }}
         >
@@ -359,7 +359,7 @@ const AdminVerificationsPage = () => {
             Reject Approver Account
           </DialogTitle>
           <DialogContent>
-            <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 2 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
               Please provide a reason for rejecting this approver account. The user will see this message.
             </Typography>
             <TextField
@@ -383,16 +383,16 @@ const AdminVerificationsPage = () => {
                   borderRadius: 1,
                 }}
               >
-                <Typography variant="caption" sx={{ color: '#008751' }}>
+                <Typography variant="caption" sx={{ color: '#00ff88' }}>
                   Approver Details
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#143625' }}>
+                <Typography variant="body2" sx={{ color: '#FFFFFF' }}>
                   <strong>Email:</strong> {selectedApprover.email}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                   <strong>Agency:</strong> {selectedApprover.agencyName}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(15, 48, 31, 0.76)' }}>
+                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                   <strong>Ministry:</strong> {selectedApprover.ministryType}
                 </Typography>
               </Box>
@@ -401,7 +401,7 @@ const AdminVerificationsPage = () => {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <Button
               onClick={() => setRejectDialogOpen(false)}
-              sx={{ color: 'rgba(15, 48, 31, 0.68)' }}
+              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
             >
               Cancel
             </Button>

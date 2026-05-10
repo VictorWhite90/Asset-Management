@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Button, Container, Typography } from '@mui/material';
-import { ErrorOutline } from '@/components/icons';
+import { ErrorOutline } from '@mui/icons-material';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -46,17 +46,17 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
             }}
           >
             <ErrorOutline sx={{ fontSize: 64, color: '#f44336' }} />
-            <Typography variant="h4" sx={{ color: '#143625', fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
               Something went wrong
             </Typography>
-            <Typography variant="body1" sx={{ color: 'rgba(15,48,31,0.68)', maxWidth: 400 }}>
+            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', maxWidth: 400 }}>
               An unexpected error occurred. Please try refreshing the page or return to the homepage.
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <Button
                 variant="outlined"
                 onClick={() => window.location.reload()}
-                sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#008751' }}
+                sx={{ borderColor: 'rgba(0,135,81,0.5)', color: '#00ff88' }}
               >
                 Refresh Page
               </Button>

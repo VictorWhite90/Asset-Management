@@ -14,7 +14,7 @@ import {
   Alert,
   Chip,
 } from '@mui/material';
-import { LockReset, CheckCircle, Lock, GppGood, ArrowBack } from '@/components/icons';
+import { LockReset, CheckCircle, Lock, GppGood, ArrowBack } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { resetPassword } from '@/services/auth.service';
 import { SUCCESS_MESSAGES } from '@/utils/constants';
@@ -93,7 +93,7 @@ const ForgotPasswordPage: React.FC = () => {
       {/* Security Banner */}
       <Box
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.72)',
+          backgroundColor: '#0a0505',
           py: 0.5,
           borderBottom: '2px solid #008751',
           position: 'relative',
@@ -104,7 +104,7 @@ const ForgotPasswordPage: React.FC = () => {
           <Typography
             variant="caption"
             sx={{
-              color: '#008751',
+              color: '#00ff88',
               fontFamily: '"Courier New", monospace',
               letterSpacing: 3,
               display: 'flex',
@@ -125,7 +125,7 @@ const ForgotPasswordPage: React.FC = () => {
       {/* Header */}
       <Box
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.66)',
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
           py: 1.5,
           borderBottom: '1px solid rgba(0, 135, 81, 0.2)',
           position: 'relative',
@@ -146,14 +146,14 @@ const ForgotPasswordPage: React.FC = () => {
             >
               <Box sx={{ display: 'flex', borderRadius: 0.5, overflow: 'hidden' }}>
                 <Box sx={{ width: 10, height: 20, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 10, height: 20, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
+                <Box sx={{ width: 10, height: 20, backgroundColor: '#FFFFFF' }} />
                 <Box sx={{ width: 10, height: 20, backgroundColor: '#008751' }} />
               </Box>
               <Box>
-                <Typography variant="subtitle2" sx={{ color: '#143625', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2 }}>
+                <Typography variant="subtitle2" sx={{ color: '#FFFFFF', fontWeight: 700, letterSpacing: 0.5, lineHeight: 1.2 }}>
                   {deploymentLabels.jurisdiction.toUpperCase()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(15,48,31,0.58)', fontSize: '0.65rem' }}>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.65rem' }}>
                   Asset Management System
                 </Typography>
               </Box>
@@ -161,12 +161,12 @@ const ForgotPasswordPage: React.FC = () => {
 
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
               <Chip
-                icon={<GppGood sx={{ fontSize: 12, color: '#008751 !important' }} />}
+                icon={<GppGood sx={{ fontSize: 12, color: '#00ff88 !important' }} />}
                 label="Secure Portal"
                 size="small"
                 sx={{
                   backgroundColor: 'rgba(0, 135, 81, 0.15)',
-                  color: '#008751',
+                  color: '#00ff88',
                   border: '1px solid rgba(0, 135, 81, 0.3)',
                   fontSize: '0.6rem',
                   height: 22,
@@ -196,9 +196,9 @@ const ForgotPasswordPage: React.FC = () => {
               to="/login"
               startIcon={<ArrowBack />}
               sx={{
-                color: 'rgba(15, 48, 31, 0.68)',
+                color: 'rgba(255, 255, 255, 0.7)',
                 '&:hover': {
-                  color: '#008751',
+                  color: '#00ff88',
                   backgroundColor: 'transparent',
                 },
               }}
@@ -235,9 +235,9 @@ const ForgotPasswordPage: React.FC = () => {
               }}
             >
               {emailSent ? (
-                <CheckCircle sx={{ fontSize: 40, color: '#008751' }} />
+                <CheckCircle sx={{ fontSize: 40, color: '#00ff88' }} />
               ) : (
-                <LockReset sx={{ fontSize: 40, color: '#008751' }} />
+                <LockReset sx={{ fontSize: 40, color: '#00ff88' }} />
               )}
             </Box>
 
@@ -245,7 +245,7 @@ const ForgotPasswordPage: React.FC = () => {
               component="h1"
               variant="h5"
               align="center"
-              sx={{ color: '#143625', fontWeight: 700, mb: 2 }}
+              sx={{ color: '#FFFFFF', fontWeight: 700, mb: 2 }}
             >
               {emailSent ? 'Check Your Email' : 'Reset Password'}
             </Typography>
@@ -256,7 +256,7 @@ const ForgotPasswordPage: React.FC = () => {
                 <Typography
                   variant="body1"
                   align="center"
-                  sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 1 }}
+                  sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}
                 >
                   Password reset instructions have been sent to:
                 </Typography>
@@ -264,7 +264,7 @@ const ForgotPasswordPage: React.FC = () => {
                 <Typography
                   variant="body1"
                   align="center"
-                  sx={{ color: '#008751', fontWeight: 600, mb: 3 }}
+                  sx={{ color: '#00ff88', fontWeight: 600, mb: 3 }}
                 >
                   {getValues('email')}
                 </Typography>
@@ -275,7 +275,7 @@ const ForgotPasswordPage: React.FC = () => {
                     mb: 3,
                     backgroundColor: 'rgba(0, 135, 81, 0.15)',
                     border: '1px solid rgba(0, 135, 81, 0.3)',
-                    '& .MuiAlert-icon': { color: '#008751' },
+                    '& .MuiAlert-icon': { color: '#00ff88' },
                   }}
                 >
                   Please check your inbox and follow the instructions to reset your password.
@@ -284,7 +284,7 @@ const ForgotPasswordPage: React.FC = () => {
                 <Typography
                   variant="body2"
                   align="center"
-                  sx={{ color: 'rgba(15, 48, 31, 0.58)', mb: 3 }}
+                  sx={{ color: 'rgba(255, 255, 255, 0.6)', mb: 3 }}
                 >
                   Didn't receive the email? Check your spam folder or try again.
                 </Typography>
@@ -303,9 +303,9 @@ const ForgotPasswordPage: React.FC = () => {
                     component={RouterLink}
                     to="/login"
                     sx={{
-                      color: '#008751',
+                      color: '#00ff88',
                       textDecoration: 'none',
-                      '&:hover': { color: '#00a862' },
+                      '&:hover': { color: '#66ffaa' },
                     }}
                   >
                     Back to Sign In
@@ -318,7 +318,7 @@ const ForgotPasswordPage: React.FC = () => {
                 <Typography
                   variant="body2"
                   align="center"
-                  sx={{ color: 'rgba(15, 48, 31, 0.68)', mb: 3 }}
+                  sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 3 }}
                 >
                   Enter your email address and we'll send you instructions to reset your password
                 </Typography>
@@ -350,27 +350,27 @@ const ForgotPasswordPage: React.FC = () => {
                     helperText={errors.email?.message}
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
                         backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(0, 135, 81, 0.12)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
                         borderRadius: '12px',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         '& fieldset': {
-                          borderColor: 'rgba(0, 135, 81, 0.18)',
+                          borderColor: 'rgba(255, 255, 255, 0.15)',
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         },
                         '&:hover': {
-                          backgroundColor: 'rgba(0, 135, 81, 0.08)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
                           '& fieldset': {
                             borderColor: 'rgba(0, 255, 136, 0.4)',
                           },
                         },
                         '&.Mui-focused': {
-                          backgroundColor: 'rgba(0, 135, 81, 0.08)',
-                          borderColor: '#008751',
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          borderColor: '#00ff88',
                           boxShadow: '0 0 0 3px rgba(0, 255, 136, 0.1)',
                           '& fieldset': {
-                            borderColor: '#008751',
+                            borderColor: '#00ff88',
                             borderWidth: '2px',
                           },
                         },
@@ -381,11 +381,11 @@ const ForgotPasswordPage: React.FC = () => {
                         },
                       },
                       '& .MuiInputLabel-root': {
-                        color: 'rgba(15, 48, 31, 0.68)',
+                        color: 'rgba(255, 255, 255, 0.7)',
                         fontSize: '0.95rem',
                         fontWeight: 500,
                         '&.Mui-focused': {
-                          color: '#008751',
+                          color: '#00ff88',
                         },
                         '&.Mui-error': {
                           color: '#ff4444',
@@ -396,14 +396,14 @@ const ForgotPasswordPage: React.FC = () => {
                         fontSize: '0.95rem',
                         padding: '14px 16px',
                         '&::placeholder': {
-                          color: 'rgba(15, 48, 31, 0.4)',
+                          color: 'rgba(255, 255, 255, 0.4)',
                           opacity: 1,
                         },
                         // Override autofill styles
                         '&:-webkit-autofill': {
                           WebkitBoxShadow: '0 0 0 100px rgba(0, 135, 81, 0.15) inset !important',
-                          WebkitTextFillColor: '#143625 !important',
-                          caretColor: '#006038',
+                          WebkitTextFillColor: '#ffffff !important',
+                          caretColor: '#ffffff',
                           borderRadius: '12px',
                           transition: 'background-color 5000s ease-in-out 0s',
                         },
@@ -447,9 +447,9 @@ const ForgotPasswordPage: React.FC = () => {
                       component={RouterLink}
                       to="/login"
                       sx={{
-                        color: '#008751',
+                        color: '#00ff88',
                         textDecoration: 'none',
-                        '&:hover': { color: '#00a862' },
+                        '&:hover': { color: '#66ffaa' },
                       }}
                     >
                       Remember your password? Sign In
@@ -465,7 +465,7 @@ const ForgotPasswordPage: React.FC = () => {
       {/* Footer */}
       <Box
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.68)',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           borderTop: '1px solid rgba(0, 135, 81, 0.2)',
           py: 2,
           position: 'relative',
@@ -477,10 +477,10 @@ const ForgotPasswordPage: React.FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box sx={{ display: 'flex' }}>
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
-                <Box sx={{ width: 12, height: 8, backgroundColor: '#ffffff', borderLeft: '1px solid rgba(0,0,0,0.06)', borderRight: '1px solid rgba(0,0,0,0.06)' }} />
+                <Box sx={{ width: 12, height: 8, backgroundColor: '#FFFFFF' }} />
                 <Box sx={{ width: 12, height: 8, backgroundColor: '#008751' }} />
               </Box>
-              <Typography variant="caption" sx={{ color: 'rgba(15, 48, 31, 0.58)' }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                 {deploymentLabels.jurisdiction}
               </Typography>
             </Box>
