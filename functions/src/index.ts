@@ -14,6 +14,7 @@ import {
 import { defineSecret, defineString } from "firebase-functions/params";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
+import nodemailer from "nodemailer";
 import {
   generateStaffDisplayId,
   findUserByDisplayId,
@@ -40,9 +41,10 @@ const callableOptions = { cors: true, invoker: "public" as const };
 const DEFAULT_APP_URL = "https://asset-management-rivers-state.vercel.app";
 const appUrlParam = defineString("APP_URL", { default: DEFAULT_APP_URL });
 const fromEmailParam = defineString("FROM_EMAIL", {
-  default: "Rivers State Asset Management System <onboarding@resend.dev>",
+  default: "Rivers State Asset Management System",
 });
-const resendApiKey = defineSecret("RESEND_API_KEY");
+const gmailUser = defineSecret("GMAIL_SMTP_USER");
+const gmailAppPassword = defineSecret("GMAIL_SMTP_APP_PASSWORD");
 const VERIFICATION_EMAIL_COOLDOWN_MS = 60 * 1000;
 
 // Types
@@ -251,41 +253,39 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-async function sendResendEmail(data: {
+async function sendSmtpEmail(data: {
   to: string;
   subject: string;
   html: string;
   text: string;
 }): Promise<void> {
-  const apiKey = resendApiKey.value();
-  if (!apiKey) {
+  const user = gmailUser.value();
+  const pass = gmailAppPassword.value();
+  if (!user || !pass) {
     throw new HttpsError(
       "failed-precondition",
-      "Email provider is not configured. Set the RESEND_API_KEY secret.",
+      "Email provider is not configured. Set GMAIL_SMTP_USER and GMAIL_SMTP_APP_PASSWORD secrets.",
     );
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user,
+      pass,
     },
-    body: JSON.stringify({
-      from: fromEmailParam.value(),
-      to: [data.to],
+  });
+
+  try {
+    await transporter.sendMail({
+      from: `"${fromEmailParam.value()}" <${user}>`,
+      to: data.to,
       subject: data.subject,
       html: data.html,
       text: data.text,
-    }),
-  });
-
-  if (!response.ok) {
-    const body = await response.text();
-    logger.error("Resend email request failed", {
-      status: response.status,
-      body,
     });
+  } catch (error) {
+    logger.error("Gmail SMTP email request failed", { error });
     throw new HttpsError(
       "internal",
       "Failed to send verification email",
@@ -320,7 +320,7 @@ function verificationEmailHtml(displayName: string, verificationUrl: string): st
  * Send a custom HTML email verification message for the currently signed-in user.
  */
 export const sendCustomVerificationEmail = onCall(
-  { ...callableOptions, secrets: [resendApiKey] },
+  { ...callableOptions, secrets: [gmailUser, gmailAppPassword] },
   async (request): Promise<{ success: boolean; message: string }> => {
     const callerAuth = requireAuth(request.auth);
     const userRecord = await admin.auth().getUser(callerAuth.uid);
@@ -359,7 +359,7 @@ export const sendCustomVerificationEmail = onCall(
     const displayName = userRecord.displayName || "there";
     const subject = "Verify your Rivers State Asset Management account";
 
-    await sendResendEmail({
+    await sendSmtpEmail({
       to: userRecord.email,
       subject,
       html: verificationEmailHtml(displayName, verificationUrl),
