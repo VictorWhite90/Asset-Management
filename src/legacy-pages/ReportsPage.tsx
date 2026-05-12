@@ -114,6 +114,36 @@ const statusStyle = (status: string) => {
 };
 
 // ─── Table header cell ────────────────────────────────────────────────────────
+const getUploaderStaffId = (asset: any) =>
+  asset.uploaderStaffId || asset.uploaderDisplayId || asset.displayId || asset.uuid || asset.uploadedBy || '';
+
+const getUploaderEmail = (asset: any) =>
+  asset.uploaderEmail || asset.uploadedByEmail || asset.email || '';
+
+const getUploaderIdentityExport = (asset: any) => {
+  const staffId = getUploaderStaffId(asset);
+  const email = getUploaderEmail(asset);
+  return [staffId, email].filter(Boolean).join('\n') || '---';
+};
+
+const UploaderIdentityCell: React.FC<{ asset: any }> = ({ asset }) => {
+  const staffId = getUploaderStaffId(asset);
+  const email = getUploaderEmail(asset);
+
+  return (
+    <Box>
+      <Typography sx={{ fontFamily: 'monospace', fontSize: '0.72rem', color: '#00ff88', lineHeight: 1.25 }}>
+        {staffId || '---'}
+      </Typography>
+      {email && (
+        <Typography sx={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.25, wordBreak: 'break-all' }}>
+          {email}
+        </Typography>
+      )}
+    </Box>
+  );
+};
+
 const TH: React.FC<{ children: React.ReactNode; minWidth?: number; align?: 'left' | 'center' | 'right' }> =
   ({ children, minWidth = 120, align = 'left' }) => (
     <TableCell align={align} sx={{
@@ -259,6 +289,7 @@ const StateGroup: React.FC<{
               <TableRow>
                 <TH minWidth={40} align="center">#</TH>
                 <TH minWidth={160}>Asset ID</TH>
+                <TH minWidth={220}>Uploaded By</TH>
                 <TH minWidth={220}>Description</TH>
                 <TH minWidth={140}>Category</TH>
                 <TH minWidth={200}>Location / Address</TH>
@@ -304,6 +335,11 @@ const StateGroup: React.FC<{
                         display: 'inline-block', letterSpacing: 0.5, whiteSpace: 'nowrap' }}>
                         {asset.assetId || asset.id || '—'}
                       </Typography>
+                    </TD>
+
+                    {/* Uploaded By */}
+                    <TD>
+                      <UploaderIdentityCell asset={asset} />
                     </TD>
 
                     {/* Description */}
@@ -412,7 +448,7 @@ const StateGroup: React.FC<{
 
               {/* Group subtotal row */}
               <TableRow sx={{ backgroundColor: 'rgba(0,135,81,0.1)', borderTop: '1px solid rgba(0,255,136,0.15)' }}>
-                <TableCell colSpan={9} sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                <TableCell colSpan={10} sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
                   <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(0,255,136,0.7)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                     {state} — Sub-total ({assets.length} assets)
                   </Typography>
@@ -574,7 +610,7 @@ const ReportsPage: React.FC = () => {
         const hasRemarks      = group.assets.some((a) => a.remarks);
 
         const head: string[] = [
-          '#', 'Asset ID', 'Description', 'Category', 'Location / Address',
+          '#', 'Asset ID', 'Uploaded By', 'Description', 'Category', 'Location / Address',
           'Ministry', 'Agency', 'Department', 'Year', 'Purchase Cost (₦)', 'Market Value (₦)', 'Condition', 'Status',
         ];
         if (hasLandTitle)  head.push('Land Title');
@@ -590,6 +626,7 @@ const ReportsPage: React.FC = () => {
           const row = [
             String(idx + 1),
             a.assetId || a.id || '—',
+            getUploaderIdentityExport(a),
             a.description || a.name || '—',
             a.category || a.type || '—',
             a.location || '—',
@@ -616,7 +653,7 @@ const ReportsPage: React.FC = () => {
         // Sub-total footer row
         const subtotalRow = new Array(head.length).fill('');
         subtotalRow[0] = 'SUBTOTAL';
-        subtotalRow[9] = formatCurrency(stateTotal);
+        subtotalRow[10] = formatCurrency(stateTotal);
 
         autoTable(doc, {
           startY: startY + 10,
@@ -699,7 +736,7 @@ const ReportsPage: React.FC = () => {
       // One sheet per reporting group
       groups.forEach((group) => {
         const headers = [
-          '#', 'Asset ID', 'Description', 'Category', 'State', 'Location / Address',
+          '#', 'Asset ID', 'Uploaded By', 'Description', 'Category', 'State', 'Location / Address',
           'Ministry', 'Agency', 'Department', 'Year Purchased', 'Purchase Cost (₦)', 'Market Value (₦)',
           'Condition', 'Status', 'Land Title Type', 'Survey Plan No.', 'Land Acquisition Purpose',
           'Equipment Type', 'Capacity', 'Item Type', 'Quantity', 'Remarks',
@@ -707,6 +744,7 @@ const ReportsPage: React.FC = () => {
         const rows = group.assets.map((a: any, idx: number) => [
           idx + 1,
           a.assetId || a.id || '',
+          getUploaderIdentityExport(a),
           a.description || a.name || '',
           a.category || a.type || '',
           a.state || '',
@@ -732,11 +770,11 @@ const ReportsPage: React.FC = () => {
         // Subtotal row
         const subtotal = new Array(headers.length).fill('');
         subtotal[0] = 'SUBTOTAL';
-        subtotal[10] = group.assets.reduce((s, a) => s + (Number(a.purchaseCost) || 0), 0);
-        subtotal[11] = group.assets.reduce((s, a) => s + (Number(a.marketValue) || 0), 0);
+        subtotal[11] = group.assets.reduce((s, a) => s + (Number(a.purchaseCost) || 0), 0);
+        subtotal[12] = group.assets.reduce((s, a) => s + (Number(a.marketValue) || 0), 0);
 
         const ws = XLSX.utils.aoa_to_sheet([headers, ...rows, subtotal]);
-        ws['!cols'] = headers.map((_, i) => ({ wch: [5,18,35,18,16,32,30,24,24,12,18,18,14,18,16,18,35,18,14,18,8,30][i] ?? 14 }));
+        ws['!cols'] = headers.map((_, i) => ({ wch: [5,18,28,35,18,16,32,30,24,24,12,18,18,14,18,16,18,35,18,14,18,8,30][i] ?? 14 }));
         // Safe sheet name (max 31 chars)
         const sheetName = group.state.substring(0, 28).replace(/[:\\/?*[\]]/g, '');
         XLSX.utils.book_append_sheet(wb, ws, sheetName);
@@ -773,9 +811,9 @@ const ReportsPage: React.FC = () => {
       const groups = groupAssetsForReport(data.assets || [], reportGroupingMode);
       groups.forEach((group) => {
         csv += `\n"=== ${group.state.toUpperCase()} (${group.assets.length} assets) ==="\n`;
-        csv += '#,Asset ID,Description,Category,State,Location,Ministry,Agency,Department,Year,Purchase Cost,Market Value,Condition,Status,Land Title,Survey Plan,Acq Purpose,Equip Type,Capacity,Item Type,Qty,Remarks\n';
+        csv += '#,Asset ID,Uploaded By,Description,Category,State,Location,Ministry,Agency,Department,Year,Purchase Cost,Market Value,Condition,Status,Land Title,Survey Plan,Acq Purpose,Equip Type,Capacity,Item Type,Qty,Remarks\n';
         group.assets.forEach((a: any, i: number) => {
-          csv += `${i+1},"${a.assetId||a.id||''}","${a.description||a.name||''}","${a.category||''}","${a.state||''}","${a.location||''}","${a.ministry||a.ministryName||''}","${a.agency||a.agencyName||''}","${a.department||''}","${a.purchasedDate?.year||''}",${a.purchaseCost||0},${a.marketValue||0},"${a.condition||a.assetCondition||a.currentCondition||a.conditionStatus||''}","${(statusStyle(a.status||'pending')).label}","${a.landTitleType||''}","${a.surveyPlanNumber||''}","${a.landAcquisitionPurpose||''}","${a.equipmentType||''}","${a.capacity||''}","${a.itemType||''}","${a.quantity??''}","${a.remarks||''}"\n`;
+          csv += `${i+1},"${a.assetId||a.id||''}","${getUploaderIdentityExport(a).replace(/\n/g, ' | ')}","${a.description||a.name||''}","${a.category||''}","${a.state||''}","${a.location||''}","${a.ministry||a.ministryName||''}","${a.agency||a.agencyName||''}","${a.department||''}","${a.purchasedDate?.year||''}",${a.purchaseCost||0},${a.marketValue||0},"${a.condition||a.assetCondition||a.currentCondition||a.conditionStatus||''}","${(statusStyle(a.status||'pending')).label}","${a.landTitleType||''}","${a.surveyPlanNumber||''}","${a.landAcquisitionPurpose||''}","${a.equipmentType||''}","${a.capacity||''}","${a.itemType||''}","${a.quantity??''}","${a.remarks||''}"\n`;
         });
       });
     }
@@ -795,6 +833,7 @@ const ReportsPage: React.FC = () => {
   const getGroupExportRows = (assets: any[]) => assets.map((a: any, idx: number) => [
     idx + 1,
     a.assetId || a.id || '',
+    getUploaderIdentityExport(a),
     a.description || a.name || '',
     a.category || a.type || '',
     a.state || '',
@@ -818,7 +857,7 @@ const ReportsPage: React.FC = () => {
   ]);
 
   const groupExportHeaders = [
-    '#', 'Asset ID', 'Description', 'Category', 'State', 'Location / Address',
+    '#', 'Asset ID', 'Uploaded By', 'Description', 'Category', 'State', 'Location / Address',
     'Ministry', 'Agency', 'Department', 'Year Purchased', 'Purchase Cost', 'Market Value',
     'Condition', 'Status', 'Land Title Type', 'Survey Plan No.', 'Land Acquisition Purpose',
     'Equipment Type', 'Capacity', 'Item Type', 'Quantity', 'Remarks',
@@ -888,10 +927,10 @@ const ReportsPage: React.FC = () => {
 
     const subtotal = new Array(groupExportHeaders.length).fill('');
     subtotal[0] = 'SUBTOTAL';
-    subtotal[10] = purchaseTotal;
-    subtotal[11] = marketTotal;
+    subtotal[11] = purchaseTotal;
+    subtotal[12] = marketTotal;
     const ws = XLSX.utils.aoa_to_sheet([groupExportHeaders, ...getGroupExportRows(group.assets), subtotal]);
-    ws['!cols'] = groupExportHeaders.map((_, i) => ({ wch: [5,18,35,18,16,32,30,24,24,14,18,18,14,18,16,18,35,18,14,18,8,30][i] ?? 14 }));
+    ws['!cols'] = groupExportHeaders.map((_, i) => ({ wch: [5,18,28,35,18,16,32,30,24,24,14,18,18,14,18,16,18,35,18,14,18,8,30][i] ?? 14 }));
     XLSX.utils.book_append_sheet(wb, ws, group.state.substring(0, 28).replace(/[:\\/?*[\]]/g, '') || 'Report');
     XLSX.writeFile(wb, getGroupFileName(group, 'xlsx'));
   };
@@ -1808,6 +1847,7 @@ const ReportsPage: React.FC = () => {
                                     <TableHead>
                                       <TableRow>
                                         <TableCell sx={miniHeadSx}>Asset ID</TableCell>
+                                        <TableCell sx={miniHeadSx}>Uploaded By</TableCell>
                                         <TableCell sx={miniHeadSx}>Description</TableCell>
                                         <TableCell sx={{ ...miniHeadSx, textAlign: 'right' }}>Market Value (₦)</TableCell>
                                         <TableCell sx={{ ...miniHeadSx, textAlign: 'right' }}>Purchase Cost (₦)</TableCell>
@@ -1821,6 +1861,9 @@ const ReportsPage: React.FC = () => {
                                           <TableRow key={asset.id || ai} sx={{ backgroundColor: ai % 2 === 0 ? 'rgba(0,22,10,0.5)' : 'rgba(0,38,18,0.3)', '&:last-child td': { borderBottom: 'none' } }}>
                                             <TableCell sx={{ ...miniCellSx, fontFamily: 'monospace', color: '#00ff88' }}>
                                               {asset.assetId || asset.id || '—'}
+                                            </TableCell>
+                                            <TableCell sx={miniCellSx}>
+                                              <UploaderIdentityCell asset={asset} />
                                             </TableCell>
                                             <TableCell sx={miniCellSx}>{asset.description || asset.name || '—'}</TableCell>
                                             <TableCell sx={{ ...miniCellSx, textAlign: 'right', fontWeight: 700, color: '#2196f3' }}>
@@ -1912,6 +1955,7 @@ const ReportsPage: React.FC = () => {
                   <TableRow>
                     <TH minWidth={40} align="center">#</TH>
                     <TH minWidth={140}>Asset ID</TH>
+                    <TH minWidth={220}>Uploaded By</TH>
                     <TH minWidth={220}>Description</TH>
                     <TH minWidth={110}>State</TH>
                     <TH minWidth={180}>Location</TH>
@@ -1939,6 +1983,9 @@ const ReportsPage: React.FC = () => {
                             <Typography sx={{ fontFamily: 'monospace', fontSize: '0.72rem', color: '#00ff88', background: 'rgba(0,255,136,0.07)', px: 0.8, py: 0.2, borderRadius: 0.5, border: '1px solid rgba(0,255,136,0.15)', display: 'inline-block', letterSpacing: 0.5 }}>
                               {asset.assetId || asset.id || '—'}
                             </Typography>
+                          </TD>
+                          <TD>
+                            <UploaderIdentityCell asset={asset} />
                           </TD>
                           <TD>
                             <Typography sx={{ fontSize: '0.78rem', lineHeight: 1.3 }}>
@@ -1972,7 +2019,7 @@ const ReportsPage: React.FC = () => {
                     })}
                   {/* Category subtotal */}
                   <TableRow sx={{ backgroundColor: 'rgba(0,135,81,0.1)', borderTop: '1px solid rgba(0,255,136,0.15)' }}>
-                    <TableCell colSpan={8} sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                    <TableCell colSpan={9} sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
                       <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(0,255,136,0.7)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                         {cat.name} — Sub-total ({cat.count} assets)
                       </Typography>

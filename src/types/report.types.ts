@@ -71,6 +71,8 @@ export interface AssetSummary {
   agency?: string | null;
   department?: string | null;
   condition?: string | null;
+  uploaderStaffId?: string | null;
+  uploaderEmail?: string | null;
   lastUpdated?: Date;
   [key: string]: any;
 }

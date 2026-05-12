@@ -45,6 +45,7 @@ export interface Asset {
   status: AssetStatus; // pending, approved, rejected
   uploadedBy: string; // userId of uploader
   uploaderDisplayId?: string; // Short display ID of uploader e.g. "EDU-STF-0001"
+  uploaderEmail?: string; // Email used by uploader when the asset was created
   uploadTimestamp: Timestamp;
   uploadedAt?: Timestamp; // Backward-compatible alias used by older reports/admin filters
 

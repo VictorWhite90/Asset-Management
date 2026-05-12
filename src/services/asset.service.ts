@@ -16,16 +16,13 @@ import { Category } from '@/types/category.types';
 import { COLLECTIONS, ERROR_MESSAGES } from '@/utils/constants';
 import { isValidAssetDate, sanitizeDocumentId, generateAssetId } from '@/utils/assetHelpers';
 import { logAction } from './auditLog.service';
-import { deploymentLabels, isStateDeployment } from '@/utils/deployment';
+import { deploymentLabels } from '@/utils/deployment';
 
 /**
  * Top-level admin dashboards (state vs federal) only show registry-eligible assets —
  * not pending uploads still in agency/ministry workflow.
  */
 export const assetsVisibleOnTopAdminRegistry = (assets: Asset[]): Asset[] => {
-  if (isStateDeployment) {
-    return assets.filter((a) => a.status === 'approved');
-  }
   return assets.filter(
     (a) => a.status === 'submitted_to_federal' || a.status === 'approved'
   );
@@ -174,6 +171,7 @@ export const createAsset = async (
       status: 'pending', // New uploads start as pending
       uploadedBy: userId,
       ...(uploaderDisplayId ? { uploaderDisplayId } : {}),
+      ...(userEmail ? { uploaderEmail: userEmail } : {}),
     };
 
     // Persist shared form fields for reporting and downstream workflows

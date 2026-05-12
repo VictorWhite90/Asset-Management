@@ -55,6 +55,13 @@ async function callFunction<T = CloudFunctionResponse>(
 }
 
 /**
+ * Send custom HTML email verification to the current user
+ */
+export const sendCustomVerificationEmailCF = async (): Promise<void> => {
+  await callFunction('sendCustomVerificationEmail');
+};
+
+/**
  * Federal Admin: Approve Ministry Admin
  */
 export const approveMinistryAdminCF = async (

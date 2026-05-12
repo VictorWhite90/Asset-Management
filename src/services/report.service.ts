@@ -3,7 +3,7 @@
  * Handles data aggregation and report generation for Federal and Ministry Admins
  */
 
-import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from './firebase';
 import { Asset } from '@/types/asset.types';
 import {
@@ -23,6 +23,12 @@ import {
 const ASSETS_COLLECTION = 'assets';
 const AUDIT_LOGS_COLLECTION = 'audit_logs';
 const MINISTRIES_COLLECTION = 'ministries';
+const USERS_COLLECTION = 'users';
+
+type UploaderIdentity = {
+  staffId: string;
+  email: string;
+};
 
 /**
  * Format currency in Nigerian Naira
@@ -34,6 +40,38 @@ export const formatCurrency = (amount: number): string => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
+};
+
+const getAssetUploaderStaffId = (asset: Asset): string => {
+  return asset.uploaderDisplayId || asset.displayId || asset.uuid || asset.uploadedBy || '';
+};
+
+const getAssetUploaderEmail = (asset: Asset): string => {
+  return asset.uploaderEmail || asset.uploadedByEmail || asset.email || '';
+};
+
+const fetchUploaderIdentities = async (assets: Asset[]): Promise<Map<string, UploaderIdentity>> => {
+  const uploaderIds = [...new Set(assets.map((asset) => asset.uploadedBy).filter(Boolean))];
+  const identityMap = new Map<string, UploaderIdentity>();
+
+  await Promise.all(
+    uploaderIds.map(async (uploaderId) => {
+      try {
+        const userDoc = await getDoc(doc(db, USERS_COLLECTION, uploaderId));
+        if (!userDoc.exists()) return;
+
+        const user = userDoc.data();
+        identityMap.set(uploaderId, {
+          staffId: user.displayId || user.uuid || uploaderId,
+          email: user.email || '',
+        });
+      } catch (error) {
+        console.warn('Unable to fetch uploader identity for report:', uploaderId, error);
+      }
+    })
+  );
+
+  return identityMap;
 };
 
 /**
@@ -242,6 +280,7 @@ export const generateAssetInventoryReport = async (
   userState?: string
 ): Promise<AssetInventoryData> => {
   const assets = await fetchAssetsForReport(filters, isMinistryAdmin, userMinistryId, userState);
+  const uploaderIdentities = await fetchUploaderIdentities(assets);
 
   const totalValue = assets.reduce((sum, a) => sum + (a.marketValue || a.purchaseCost || 0), 0);
 
@@ -367,6 +406,12 @@ export const generateAssetInventoryReport = async (
     remarks:         a.remarks ?? null,
     uploadedBy:      a.uploadedBy ?? null,
     createdBy:       a.uploadedBy ?? null,
+    uploaderStaffId: uploaderIdentities.get(a.uploadedBy)?.staffId
+                     || getAssetUploaderStaffId(a)
+                     || null,
+    uploaderEmail:   uploaderIdentities.get(a.uploadedBy)?.email
+                     || getAssetUploaderEmail(a)
+                     || null,
     createdAt:       a.uploadTimestamp ?? null,
  
     // ── Category-specific dynamic fields ──────────────────────────────────────

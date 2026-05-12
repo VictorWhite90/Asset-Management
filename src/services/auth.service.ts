@@ -1,7 +1,6 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendEmailVerification,
   sendPasswordResetEmail,
   updateProfile,
   User as FirebaseUser,
@@ -10,6 +9,7 @@ import { doc, setDoc, updateDoc, Timestamp, collection, query, where, getDocs, g
 import { auth, db } from './firebase';
 import { UserRegistrationData, User, MinistryAdminRegistrationData } from '@/types/user.types';
 import { COLLECTIONS, ERROR_MESSAGES } from '@/utils/constants';
+import { sendCustomVerificationEmailCF } from './cloudFunctions.service';
 
 /**
  * Register a new agency user
@@ -60,19 +60,12 @@ export const registerAgency = async (
     // Note: Ministry role assignment is handled by Cloud Functions when ministry admin approves
     // This ensures proper security and prevents permission errors during registration
 
-    // Send email verification with custom action URL to prevent spam
-    // This directs to our custom EmailActionPage for better UX
-    const actionCodeSettings = {
-      url: `${window.location.origin}/dashboard`,
-      handleCodeInApp: false,
-    };
-
-    await sendEmailVerification(user, actionCodeSettings);
+    await sendCustomVerificationEmailCF();
 
     return { user, userData };
   } catch (error: any) {
     console.error('Registration error:', error);
-    throw new Error(getAuthErrorMessage(error.code));
+    throw new Error(getAuthErrorMessage(error.code, error.message));
   }
 };
 
@@ -131,18 +124,12 @@ export const registerMinistryAdmin = async (
     // Note: Audit logging is handled by Cloud Functions for security
     // Client-side audit logging has been removed to prevent permission errors
 
-    // Send email verification
-    const actionCodeSettings = {
-      url: `${window.location.origin}/dashboard`,
-      handleCodeInApp: false,
-    };
-
-    await sendEmailVerification(user, actionCodeSettings);
+    await sendCustomVerificationEmailCF();
 
     return { user, userData };
   } catch (error: any) {
     console.error('Ministry admin registration error:', error);
-    throw new Error(getAuthErrorMessage(error.code));
+    throw new Error(getAuthErrorMessage(error.code, error.message));
   }
 };
 
@@ -158,7 +145,7 @@ export const loginUser = async (
     return userCredential.user;
   } catch (error: any) {
     console.error('Login error:', error);
-    throw new Error(getAuthErrorMessage(error.code));
+    throw new Error(getAuthErrorMessage(error.code, error.message));
   }
 };
 
@@ -170,7 +157,7 @@ export const resetPassword = async (email: string): Promise<void> => {
     await sendPasswordResetEmail(auth, email);
   } catch (error: any) {
     console.error('Password reset error:', error);
-    throw new Error(getAuthErrorMessage(error.code));
+    throw new Error(getAuthErrorMessage(error.code, error.message));
   }
 };
 
@@ -179,14 +166,13 @@ export const resetPassword = async (email: string): Promise<void> => {
  */
 export const resendVerificationEmail = async (user: FirebaseUser): Promise<void> => {
   try {
-    const actionCodeSettings = {
-      url: `${window.location.origin}/dashboard`,
-      handleCodeInApp: false,
-    };
-    await sendEmailVerification(user, actionCodeSettings);
+    if (!user) {
+      throw new Error('No authenticated user found');
+    }
+    await sendCustomVerificationEmailCF();
   } catch (error: any) {
     console.error('Email verification error:', error);
-    throw new Error(getAuthErrorMessage(error.code));
+    throw new Error(getAuthErrorMessage(error.code, error.message));
   }
 };
 
@@ -390,7 +376,7 @@ export const rejectMinistryAdmin = async (
 /**
  * Get user-friendly error messages
  */
-const getAuthErrorMessage = (errorCode: string): string => {
+const getAuthErrorMessage = (errorCode?: string, fallbackMessage?: string): string => {
   switch (errorCode) {
     case 'auth/email-already-in-use':
       return ERROR_MESSAGES.AUTH.EMAIL_IN_USE;
@@ -409,6 +395,6 @@ const getAuthErrorMessage = (errorCode: string): string => {
     case 'auth/network-request-failed':
       return ERROR_MESSAGES.AUTH.NETWORK_ERROR;
     default:
-      return 'An error occurred. Please try again.';
+      return fallbackMessage || 'An error occurred. Please try again.';
   }
 };

@@ -11,6 +11,7 @@ import {
   HttpsError,
   CallableRequest,
 } from "firebase-functions/v2/https";
+import { defineSecret, defineString } from "firebase-functions/params";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import {
@@ -36,6 +37,13 @@ const DEFAULT_MAX_APPROVERS = 5;
 const MAX_UPLOADERS_PER_STATE = 4;
 const MAX_APPROVERS_PER_STATE = 4;
 const callableOptions = { cors: true, invoker: "public" as const };
+const DEFAULT_APP_URL = "https://asset-management-rivers-state.vercel.app";
+const appUrlParam = defineString("APP_URL", { default: DEFAULT_APP_URL });
+const fromEmailParam = defineString("FROM_EMAIL", {
+  default: "Rivers State Asset Management System <onboarding@resend.dev>",
+});
+const resendApiKey = defineSecret("RESEND_API_KEY");
+const VERIFICATION_EMAIL_COOLDOWN_MS = 60 * 1000;
 
 // Types
 type UserRole = "agency" | "agency-approver" | "ministry-admin" | "admin";
@@ -208,7 +216,182 @@ async function logAction(data: {
     });
 }
 
+function buildVerificationActionUrl(firebaseLink: string): string {
+  const url = new URL(firebaseLink);
+  const mode = url.searchParams.get("mode") || "verifyEmail";
+  const oobCode = url.searchParams.get("oobCode");
+  const apiKey = url.searchParams.get("apiKey");
+  const lang = url.searchParams.get("lang");
+
+  if (!oobCode) {
+    throw new HttpsError(
+      "internal",
+      "Firebase did not return a verification code",
+    );
+  }
+
+  const appLink = new URL("/auth/action", getAppUrl());
+  appLink.searchParams.set("mode", mode);
+  appLink.searchParams.set("oobCode", oobCode);
+  if (apiKey) appLink.searchParams.set("apiKey", apiKey);
+  if (lang) appLink.searchParams.set("lang", lang);
+  return appLink.toString();
+}
+
+function getAppUrl(): string {
+  return appUrlParam.value().replace(/\/$/, "");
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+async function sendResendEmail(data: {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+}): Promise<void> {
+  const apiKey = resendApiKey.value();
+  if (!apiKey) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Email provider is not configured. Set the RESEND_API_KEY secret.",
+    );
+  }
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: fromEmailParam.value(),
+      to: [data.to],
+      subject: data.subject,
+      html: data.html,
+      text: data.text,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    logger.error("Resend email request failed", {
+      status: response.status,
+      body,
+    });
+    throw new HttpsError(
+      "internal",
+      "Failed to send verification email",
+    );
+  }
+}
+
+function verificationEmailHtml(displayName: string, verificationUrl: string): string {
+  const safeDisplayName = escapeHtml(displayName);
+  const safeVerificationUrl = escapeHtml(verificationUrl);
+
+  return `
+    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#102018;max-width:560px;margin:0 auto;padding:24px;">
+      <h2 style="color:#008751;margin:0 0 16px;">Verify your email address</h2>
+      <p>Hello ${safeDisplayName},</p>
+      <p>Please verify your email address to activate your Rivers State Asset Management account.</p>
+      <p style="margin:28px 0;">
+        <a href="${safeVerificationUrl}" style="background:#008751;color:#ffffff;padding:13px 20px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:700;">
+          Verify Email
+        </a>
+      </p>
+      <p>If the button does not work, copy and paste this link into your browser:</p>
+      <p style="word-break:break-all;color:#008751;">${safeVerificationUrl}</p>
+      <p style="color:#66706a;font-size:13px;margin-top:28px;">If you did not create this account, you can ignore this email.</p>
+    </div>
+  `;
+}
+
 // Callable Functions
+
+/**
+ * Send a custom HTML email verification message for the currently signed-in user.
+ */
+export const sendCustomVerificationEmail = onCall(
+  { ...callableOptions, secrets: [resendApiKey] },
+  async (request): Promise<{ success: boolean; message: string }> => {
+    const callerAuth = requireAuth(request.auth);
+    const userRecord = await admin.auth().getUser(callerAuth.uid);
+    const userRef = admin.firestore().collection(USERS_COLLECTION).doc(callerAuth.uid);
+    const userDoc = await userRef.get();
+    const lastSentAt = userDoc.data()?.lastVerificationEmailSentAt as
+      | admin.firestore.Timestamp
+      | undefined;
+
+    if (lastSentAt && Date.now() - lastSentAt.toMillis() < VERIFICATION_EMAIL_COOLDOWN_MS) {
+      throw new HttpsError(
+        "resource-exhausted",
+        "Please wait a minute before requesting another verification email.",
+      );
+    }
+
+    if (!userRecord.email) {
+      throw new HttpsError("failed-precondition", "User has no email address");
+    }
+
+    if (userRecord.emailVerified) {
+      return {
+        success: true,
+        message: "Email address is already verified",
+      };
+    }
+
+    const firebaseLink = await admin.auth().generateEmailVerificationLink(
+      userRecord.email,
+      {
+        url: `${getAppUrl()}/dashboard`,
+        handleCodeInApp: false,
+      },
+    );
+    const verificationUrl = buildVerificationActionUrl(firebaseLink);
+    const displayName = userRecord.displayName || "there";
+    const subject = "Verify your Rivers State Asset Management account";
+
+    await sendResendEmail({
+      to: userRecord.email,
+      subject,
+      html: verificationEmailHtml(displayName, verificationUrl),
+      text: [
+        `Hello ${displayName},`,
+        "",
+        "Please verify your email address to activate your Rivers State Asset Management account.",
+        "",
+        verificationUrl,
+        "",
+        "If you did not create this account, you can ignore this email.",
+      ].join("\n"),
+    });
+
+    await userRef.set(
+      {
+        lastVerificationEmailSentAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+
+    logger.info("Custom verification email sent", {
+      userId: callerAuth.uid,
+      email: userRecord.email,
+    });
+
+    return {
+      success: true,
+      message: "Verification email sent",
+    };
+  },
+);
 
 /**
  * Approve Ministry Admin (Federal Admin Only)

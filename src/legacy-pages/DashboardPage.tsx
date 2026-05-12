@@ -78,7 +78,7 @@ const DashboardPage: React.FC = () => {
         fetchedAssets = await getAgencyAssets(userData.userId);
       } else if (userData.role === 'ministry-admin' && userData.ownedMinistryId && isAccountVerified) {
         const ministryAssets = await getAllMinistryAssets(userData.ownedMinistryId);
-        fetchedAssets = ministryAssets.filter((a) => a.status === 'approved');
+        fetchedAssets = assetsVisibleOnTopAdminRegistry(ministryAssets);
         const staffCount = await getPendingStaffCount(userData.ownedMinistryId);
         setPendingStaffCount(staffCount);
       } else if (userData.role === 'agency-approver' && userData.state && isAccountVerified) {
@@ -108,9 +108,20 @@ const DashboardPage: React.FC = () => {
   const pendingMinistryReview = assets.filter((a) => a.status === 'pending_ministry_review').length;
 
   // Admin-specific derived stats
-  const uniqueMinistries = new Set(assets.map((a) => a.agencyName).filter(Boolean)).size;
+  const getReportingEntityName = (asset: Asset) => (
+    userData?.role === 'ministry-admin'
+      ? asset.staffAgencyName || asset.agency || asset.agencyName
+      : asset.agencyName
+  );
+  const reportingEntityNames = assets
+    .map(getReportingEntityName)
+    .filter((name): name is string => Boolean(name));
+  const uniqueMinistries = new Set(reportingEntityNames).size;
   const uniqueCategories = new Set(assets.map((a) => a.category).filter(Boolean)).size;
   const newSubmissions = assets.length; // total approved assets visible to federal admin
+  const reportingEntityLabel = userData?.role === 'ministry-admin' ? 'Agencies' : 'Ministries';
+  const reportingEntityCaption = userData?.role === 'ministry-admin' ? 'Reporting agencies' : 'Reporting ministries';
+  const totalAssetsCaption = userData?.role === 'ministry-admin' ? 'Across all agencies' : 'Across all ministries';
 
   // Category breakdown for bar chart
   const categoryBreakdown = Object.entries(
@@ -119,6 +130,20 @@ const DashboardPage: React.FC = () => {
       return acc;
     }, {})
   ).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const agencyBreakdown = Object.entries(
+    assets.reduce((acc: Record<string, number>, a) => {
+      const agency = getReportingEntityName(a) || 'Unspecified Agency';
+      acc[agency] = (acc[agency] || 0) + 1;
+      return acc;
+    }, {})
+  ).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const agencyMarketValueBreakdown = Object.entries(
+    assets.reduce((acc: Record<string, number>, a) => {
+      const agency = getReportingEntityName(a) || 'Unspecified Agency';
+      acc[agency] = (acc[agency] || 0) + (Number(a.marketValue) || 0);
+      return acc;
+    }, {})
+  ).sort((a, b) => b[1] - a[1]).slice(0, 7);
 
   const totalPurchaseCost = assets.reduce((sum, asset) => sum + asset.purchaseCost, 0);
   const totalMarketValue = assets.reduce(
@@ -698,6 +723,7 @@ const DashboardPage: React.FC = () => {
                             <Box>
                               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Total Assets</Typography>
                               <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{totalAssets}</Typography>
+                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>{totalAssetsCaption}</Typography>
                             </Box>
                             <TrendingUp sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
                           </Box>
@@ -710,9 +736,39 @@ const DashboardPage: React.FC = () => {
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Awaiting Review</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{pendingMinistryReview}</Typography>
-                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Needs your action</Typography>
+                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>{reportingEntityLabel}</Typography>
+                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{uniqueMinistries}</Typography>
+                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>{reportingEntityCaption}</Typography>
+                            </Box>
+                            <AccountBalance sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Card sx={{ background: 'linear-gradient(135deg, #e65100 0%, #bf360c 100%)', border: 'none' }}>
+                        <CardContent>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box>
+                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Asset Categories</Typography>
+                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{uniqueCategories}</Typography>
+                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Unique asset types</Typography>
+                            </Box>
+                            <Assessment sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Card sx={{ background: 'linear-gradient(135deg, #6a1b9a 0%, #4a148c 100%)', border: 'none' }}>
+                        <CardContent>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box>
+                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Approved Assets</Typography>
+                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{newSubmissions}</Typography>
+                              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Sent by agencies</Typography>
                             </Box>
                             <Schedule sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
                           </Box>
@@ -720,51 +776,23 @@ const DashboardPage: React.FC = () => {
                       </Card>
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', border: 'none' }}>
-                        <CardContent>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>{deploymentLabels.sentToTopAdmin}</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{approvedAssets}</Typography>
-                            </Box>
-                            <CheckCircle sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
-                          </Box>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card sx={{ background: 'linear-gradient(135deg, #c62828 0%, #8e0000 100%)', border: 'none' }}>
-                        <CardContent>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Box>
-                              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Rejected</Typography>
-                              <Typography variant="h4" sx={{ color: '#FFFFFF', fontWeight: 700 }}>{rejectedAssets}</Typography>
-                            </Box>
-                            <Cancel sx={{ fontSize: 48, color: 'rgba(255,255,255,0.3)' }} />
-                          </Box>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-
                     {/* Asset Chart for Ministry Admin */}
-                    {categoryBreakdown.length > 0 && (
+                    {agencyBreakdown.length > 0 && (
                       <Grid item xs={12} md={6}>
                         <Card>
                           <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                             <Typography variant="h6" sx={{ color: '#00ff88', mb: 2.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
-                              Assets by Category
+                              Assets by Agency
                             </Typography>
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                              {categoryBreakdown.map(([cat, count], idx) => {
+                              {agencyBreakdown.map(([agency, count], idx) => {
                                 const pct = totalAssets > 0 ? (count / totalAssets) * 100 : 0;
                                 const barColors = ['#00ff88', '#2196f3', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4'];
                                 const col = barColors[idx % barColors.length];
                                 return (
-                                  <Box key={cat}>
+                                  <Box key={agency}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
-                                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{cat}</Typography>
+                                      <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{agency}</Typography>
                                       <Typography sx={{ fontSize: '0.78rem', color: col, fontWeight: 700 }}>{count} asset{count !== 1 ? 's' : ''}</Typography>
                                     </Box>
                                     <Box sx={{ height: 9, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
@@ -779,37 +807,29 @@ const DashboardPage: React.FC = () => {
                       </Grid>
                     )}
 
-                    {/* Market Value by State for Ministry Admin */}
+                    {/* Market Value by Agency for Ministry Admin */}
                     {totalAssets > 0 && (
                       <Grid item xs={12} md={6}>
                         <Card>
                           <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                             <Typography variant="h6" sx={{ color: '#00ff88', mb: 0.5, fontSize: { xs: '0.95rem', sm: '1.1rem' }, fontWeight: 600 }}>
-                              Market Value by State
+                              Market Value by Agency
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.45)', display: 'block', mb: 2 }}>
-                              Current market value of assets per state
+                              Current market value of assets per agency
                             </Typography>
                             {(() => {
-                              const stateMap: Record<string, number> = {};
-                              assets.forEach((a) => {
-                                const st = a.state || 'Unspecified';
-                                stateMap[st] = (stateMap[st] || 0) + (Number(a.marketValue) || 0);
-                              });
-                              const stateData = Object.entries(stateMap)
-                                .sort((a, b) => b[1] - a[1])
-                                .slice(0, 7);
-                              if (stateData.length === 0) return (
+                              if (agencyMarketValueBreakdown.length === 0) return (
                                 <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.82rem' }}>No market value data yet</Typography>
                               );
-                              const maxVal = stateData[0][1];
+                              const maxVal = agencyMarketValueBreakdown[0][1];
                               const barColors = ['#2196f3', '#00bcd4', '#00ff88', '#ff9800', '#e91e63', '#9c27b0', '#4caf50'];
                               const chartH = 160;
                               return (
                                 <Box>
                                   {/* Vertical bar chart */}
                                   <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: chartH, px: 0.5, mb: 1 }}>
-                                    {stateData.map(([state, value], idx) => {
+                                    {agencyMarketValueBreakdown.map(([agency, value], idx) => {
                                       const col = barColors[idx % barColors.length];
                                       const barH = maxVal > 0 ? Math.max((value / maxVal) * chartH, 8) : 8;
                                       const formatted = value >= 1_000_000_000
@@ -818,7 +838,7 @@ const DashboardPage: React.FC = () => {
                                         ? `₦${(value / 1_000_000).toFixed(1)}M`
                                         : `₦${value.toLocaleString()}`;
                                       return (
-                                        <Box key={state} sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.4 }}>
+                                        <Box key={agency} sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.4 }}>
                                           {/* Value label on top */}
                                           <Typography sx={{ fontSize: '0.58rem', color: col, fontWeight: 700, lineHeight: 1, textAlign: 'center', whiteSpace: 'nowrap' }}>
                                             {formatted}
@@ -838,9 +858,9 @@ const DashboardPage: React.FC = () => {
                                   </Box>
                                   {/* X-axis baseline */}
                                   <Box sx={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.12)', mx: 0.5, mb: 0.8 }} />
-                                  {/* State labels */}
+                                  {/* Agency labels */}
                                   <Box sx={{ display: 'flex', gap: '6px', px: 0.5 }}>
-                                    {stateData.map(([state]) => (
+                                    {agencyMarketValueBreakdown.map(([state]) => (
                                       <Box key={state} sx={{ flex: 1, textAlign: 'center' }}>
                                         <Typography sx={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.2, wordBreak: 'break-word' }}>
                                           {state.length > 6 ? state.slice(0, 6) + '…' : state}
