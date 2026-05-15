@@ -240,6 +240,26 @@ function buildVerificationActionUrl(firebaseLink: string): string {
   return appLink.toString();
 }
 
+function buildPasswordResetActionUrl(firebaseLink: string): string {
+  const url = new URL(firebaseLink);
+  const oobCode = url.searchParams.get("oobCode");
+  const apiKey = url.searchParams.get("apiKey");
+  const lang = url.searchParams.get("lang");
+
+  if (!oobCode) {
+    throw new HttpsError(
+      "internal",
+      "Firebase did not return a password reset code",
+    );
+  }
+
+  const appLink = new URL("/reset-password", getAppUrl());
+  appLink.searchParams.set("oobCode", oobCode);
+  if (apiKey) appLink.searchParams.set("apiKey", apiKey);
+  if (lang) appLink.searchParams.set("lang", lang);
+  return appLink.toString();
+}
+
 function getAppUrl(): string {
   return appUrlParam.value().replace(/\/$/, "");
 }
@@ -310,6 +330,25 @@ function verificationEmailHtml(displayName: string, verificationUrl: string): st
       <p>If the button does not work, copy and paste this link into your browser:</p>
       <p style="word-break:break-all;color:#008751;">${safeVerificationUrl}</p>
       <p style="color:#66706a;font-size:13px;margin-top:28px;">If you did not create this account, you can ignore this email.</p>
+    </div>
+  `;
+}
+
+function passwordResetEmailHtml(resetUrl: string): string {
+  const safeResetUrl = escapeHtml(resetUrl);
+
+  return `
+    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#102018;max-width:560px;margin:0 auto;padding:24px;">
+      <h2 style="color:#008751;margin:0 0 16px;">Reset your password</h2>
+      <p>We received a request to reset the password for your Rivers State Asset Management account.</p>
+      <p style="margin:28px 0;">
+        <a href="${safeResetUrl}" style="background:#008751;color:#ffffff;padding:13px 20px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:700;">
+          Reset Password
+        </a>
+      </p>
+      <p>If the button does not work, copy and paste this link into your browser:</p>
+      <p style="word-break:break-all;color:#008751;">${safeResetUrl}</p>
+      <p style="color:#66706a;font-size:13px;margin-top:28px;">If you did not request this password reset, you can ignore this email.</p>
     </div>
   `;
 }
@@ -389,6 +428,71 @@ export const sendCustomVerificationEmail = onCall(
     return {
       success: true,
       message: "Verification email sent",
+    };
+  },
+);
+
+/**
+ * Send a custom HTML password reset email. Always returns success to avoid
+ * revealing whether an email address is registered.
+ */
+export const sendCustomPasswordResetEmail = onCall(
+  { ...callableOptions, secrets: [gmailUser, gmailAppPassword] },
+  async (request): Promise<{ success: boolean; message: string }> => {
+    const email = typeof request.data?.email === "string"
+      ? request.data.email.trim().toLowerCase()
+      : "";
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new HttpsError("invalid-argument", "A valid email address is required");
+    }
+
+    try {
+      await admin.auth().getUserByEmail(email);
+    } catch (error: any) {
+      if (error?.code === "auth/user-not-found") {
+        throw new HttpsError(
+          "not-found",
+          "No login account was found for this email. Please use the owner/account email used during registration, not the ministry official email.",
+        );
+      }
+      logger.error("Unable to check password reset email", { email, error });
+      throw new HttpsError("internal", "Unable to check this email address");
+    }
+
+    try {
+      const firebaseLink = await admin.auth().generatePasswordResetLink(
+        email,
+        {
+          url: `${getAppUrl()}/login`,
+          handleCodeInApp: false,
+        },
+      );
+      const resetUrl = buildPasswordResetActionUrl(firebaseLink);
+      const subject = "Reset your Rivers State Asset Management password";
+
+      await sendSmtpEmail({
+        to: email,
+        subject,
+        html: passwordResetEmailHtml(resetUrl),
+        text: [
+          "We received a request to reset the password for your Rivers State Asset Management account.",
+          "",
+          resetUrl,
+          "",
+          "If you did not request this password reset, you can ignore this email.",
+        ].join("\n"),
+      });
+
+      logger.info("Custom password reset email sent", { email });
+    } catch (error: any) {
+      logger.error("Custom password reset email failed", { email, error });
+      throw new HttpsError("internal", "Failed to send password reset email");
+    }
+
+    return {
+      success: true,
+      message: "If an account exists for this email, password reset instructions have been sent.",
     };
   },
 );

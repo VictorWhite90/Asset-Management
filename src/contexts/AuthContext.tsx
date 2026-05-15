@@ -61,6 +61,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // This ensures that if user verified email but hasn't visited VerifyEmailPage,
   // their Firestore document is still updated correctly
   const syncEmailVerification = async (user: FirebaseUser, data: User): Promise<User> => {
+    if (!data.emailVerified) {
+      try {
+        await user.reload();
+        await user.getIdToken(true);
+      } catch (error) {
+        console.warn('Failed to refresh email verification token:', error);
+      }
+    }
+
     // If email is verified in Firebase Auth but Firestore shows pending_verification
     // and user is agency staff, update to pending_ministry_approval
     if (

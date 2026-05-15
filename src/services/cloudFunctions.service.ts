@@ -62,6 +62,13 @@ export const sendCustomVerificationEmailCF = async (): Promise<void> => {
 };
 
 /**
+ * Send custom HTML password reset email
+ */
+export const sendCustomPasswordResetEmailCF = async (email: string): Promise<void> => {
+  await callFunction('sendCustomPasswordResetEmail', { email });
+};
+
+/**
  * Federal Admin: Approve Ministry Admin
  */
 export const approveMinistryAdminCF = async (

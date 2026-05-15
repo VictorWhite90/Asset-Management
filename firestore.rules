@@ -89,7 +89,7 @@ service cloud.firestore {
                     && (
                       // Normal profile updates (no sensitive fields)
                       !request.resource.data.diff(resource.data).affectedKeys()
-                           .hasAny(['role', 'accountStatus', 'state', 'isMinistryOwner', 'ownedMinistryId'])
+                           .hasAny(['role', 'accountStatus', 'emailVerified', 'state', 'isMinistryOwner', 'ownedMinistryId'])
                       ||
                       // Email verification sync: allow emailVerified and accountStatus update
                       // Only when setting emailVerified to true and accountStatus to pending_ministry_approval

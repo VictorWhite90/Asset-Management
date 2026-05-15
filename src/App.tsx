@@ -20,6 +20,7 @@ import RegisterPage from '@/legacy-pages/RegisterPage';
 import RegisterMinistryAdminPage from '@/legacy-pages/RegisterMinistryAdminPage';
 import MinistryAdminDashboardPage from '@/legacy-pages/MinistryAdminDashboardPage';
 import ForgotPasswordPage from '@/legacy-pages/ForgotPasswordPage';
+import ResetPasswordPage from '@/legacy-pages/ResetPasswordPage';
 import VerifyEmailPage from '@/legacy-pages/VerifyEmailPage';
 import EmailActionPage from '@/legacy-pages/EmailActionPage';
 import DashboardPage from '@/legacy-pages/DashboardPage';
@@ -293,6 +294,7 @@ function App() {
             <Route path="/register-staff" element={<RegisterPage />} />
             <Route path="/register-ministry-admin" element={<RegisterMinistryAdminPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/auth/action" element={<EmailActionPage />} />
 
             {/* Protected Routes */}

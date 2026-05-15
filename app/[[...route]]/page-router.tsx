@@ -10,6 +10,7 @@ import RegisterPage from '@/legacy-pages/RegisterPage';
 import RegisterMinistryAdminPage from '@/legacy-pages/RegisterMinistryAdminPage';
 import MinistryAdminDashboardPage from '@/legacy-pages/MinistryAdminDashboardPage';
 import ForgotPasswordPage from '@/legacy-pages/ForgotPasswordPage';
+import ResetPasswordPage from '@/legacy-pages/ResetPasswordPage';
 import VerifyEmailPage from '@/legacy-pages/VerifyEmailPage';
 import EmailActionPage from '@/legacy-pages/EmailActionPage';
 import DashboardPage from '@/legacy-pages/DashboardPage';
@@ -48,6 +49,7 @@ export default function ClientPageRouter() {
   if (pathname === '/register-staff') return <RegisterPage />;
   if (pathname === '/register-ministry-admin') return <RegisterMinistryAdminPage />;
   if (pathname === '/forgot-password') return <ForgotPasswordPage />;
+  if (pathname === '/reset-password') return <ResetPasswordPage />;
   if (pathname === '/auth/action') return <EmailActionPage />;
   if (pathname === '/verify-email') return withProtected(<VerifyEmailPage />);
   if (pathname === '/dashboard') return withProtected(<DashboardPage />);

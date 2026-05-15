@@ -144,6 +144,40 @@ const UploaderIdentityCell: React.FC<{ asset: any }> = ({ asset }) => {
   );
 };
 
+const mutedDash = <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>;
+
+const fieldValue = (value: any) => {
+  if (value === undefined || value === null || value === '') return mutedDash;
+  return String(value);
+};
+
+const extraFormFieldHeaders = [
+  'Building Type', 'Floors', 'Building Use', 'Make', 'Model', 'Vehicle Year',
+  'Registration No.', 'Engine No.', 'Chassis No.', 'Colour', 'Infrastructure Type',
+  'Length', 'Width', 'Extractive Type', 'Licence No.', 'Security Type', 'Face Value', 'Issuer',
+];
+
+const getExtraFormFieldValues = (a: any) => [
+  a.buildingType || '',
+  a.numberOfFloors || '',
+  a.buildingUse || '',
+  a.make || '',
+  a.model || '',
+  a.vehicleYear || '',
+  a.registrationNumber || '',
+  a.engineNumber || '',
+  a.chassisNumber || '',
+  a.colour || '',
+  a.infrastructureType || '',
+  a.length || '',
+  a.width || '',
+  a.extractiveType || '',
+  a.licenceNumber || '',
+  a.securityType || '',
+  a.faceValue || '',
+  a.issuer || '',
+];
+
 const TH: React.FC<{ children: React.ReactNode; minWidth?: number; align?: 'left' | 'center' | 'right' }> =
   ({ children, minWidth = 120, align = 'left' }) => (
     <TableCell align={align} sx={{
@@ -739,7 +773,7 @@ const ReportsPage: React.FC = () => {
           '#', 'Asset ID', 'Uploaded By', 'Description', 'Category', 'State', 'Location / Address',
           'Ministry', 'Agency', 'Department', 'Year Purchased', 'Purchase Cost (₦)', 'Market Value (₦)',
           'Condition', 'Status', 'Land Title Type', 'Survey Plan No.', 'Land Acquisition Purpose',
-          'Equipment Type', 'Capacity', 'Item Type', 'Quantity', 'Remarks',
+          'Equipment Type', 'Capacity', 'Item Type', 'Quantity', ...extraFormFieldHeaders, 'Remarks',
         ];
         const rows = group.assets.map((a: any, idx: number) => [
           idx + 1,
@@ -764,6 +798,7 @@ const ReportsPage: React.FC = () => {
           a.capacity || '',
           a.itemType || '',
           a.quantity ?? '',
+          ...getExtraFormFieldValues(a),
           a.remarks || '',
         ]);
 
@@ -811,9 +846,11 @@ const ReportsPage: React.FC = () => {
       const groups = groupAssetsForReport(data.assets || [], reportGroupingMode);
       groups.forEach((group) => {
         csv += `\n"=== ${group.state.toUpperCase()} (${group.assets.length} assets) ==="\n`;
-        csv += '#,Asset ID,Uploaded By,Description,Category,State,Location,Ministry,Agency,Department,Year,Purchase Cost,Market Value,Condition,Status,Land Title,Survey Plan,Acq Purpose,Equip Type,Capacity,Item Type,Qty,Remarks\n';
+        csv += `${groupExportHeaders.map((h) => `"${h}"`).join(',')}\n`;
         group.assets.forEach((a: any, i: number) => {
-          csv += `${i+1},"${a.assetId||a.id||''}","${getUploaderIdentityExport(a).replace(/\n/g, ' | ')}","${a.description||a.name||''}","${a.category||''}","${a.state||''}","${a.location||''}","${a.ministry||a.ministryName||''}","${a.agency||a.agencyName||''}","${a.department||''}","${a.purchasedDate?.year||''}",${a.purchaseCost||0},${a.marketValue||0},"${a.condition||a.assetCondition||a.currentCondition||a.conditionStatus||''}","${(statusStyle(a.status||'pending')).label}","${a.landTitleType||''}","${a.surveyPlanNumber||''}","${a.landAcquisitionPurpose||''}","${a.equipmentType||''}","${a.capacity||''}","${a.itemType||''}","${a.quantity??''}","${a.remarks||''}"\n`;
+          const row = getGroupExportRows([a])[0];
+          row[0] = i + 1;
+          csv += `${row.map((cell) => `"${String(cell ?? '').replace(/\n/g, ' | ').replace(/"/g, '""')}"`).join(',')}\n`;
         });
       });
     }
@@ -853,6 +890,7 @@ const ReportsPage: React.FC = () => {
     a.capacity || '',
     a.itemType || '',
     a.quantity ?? '',
+    ...getExtraFormFieldValues(a),
     a.remarks || '',
   ]);
 
@@ -860,7 +898,7 @@ const ReportsPage: React.FC = () => {
     '#', 'Asset ID', 'Uploaded By', 'Description', 'Category', 'State', 'Location / Address',
     'Ministry', 'Agency', 'Department', 'Year Purchased', 'Purchase Cost', 'Market Value',
     'Condition', 'Status', 'Land Title Type', 'Survey Plan No.', 'Land Acquisition Purpose',
-    'Equipment Type', 'Capacity', 'Item Type', 'Quantity', 'Remarks',
+    'Equipment Type', 'Capacity', 'Item Type', 'Quantity', ...extraFormFieldHeaders, 'Remarks',
   ];
 
   const handleExportGroupPDF = (group: ReportGroup) => {
@@ -1717,14 +1755,14 @@ const ReportsPage: React.FC = () => {
     const data = generatedReport.data as AssetInventoryData;
     const allAssets = data.assets || [];
 
-    // Group by category, sort by total market value desc
-    const catMap = new Map<string, any[]>();
+    // Group by agency first so market-value drilldowns open to agencies, then assets.
+    const agencyMap = new Map<string, any[]>();
     allAssets.forEach((a) => {
-      const cat = a.category || a.type || 'Uncategorized';
-      if (!catMap.has(cat)) catMap.set(cat, []);
-      catMap.get(cat)!.push(a);
+      const agency = a.agency || a.staffAgencyName || a.agencyName || 'Unspecified Agency';
+      if (!agencyMap.has(agency)) agencyMap.set(agency, []);
+      agencyMap.get(agency)!.push(a);
     });
-    const categories = Array.from(catMap.entries())
+    const agencies = Array.from(agencyMap.entries())
       .map(([name, assets]) => ({
         name,
         assets,
@@ -1733,7 +1771,7 @@ const ReportsPage: React.FC = () => {
         count: assets.length,
       }))
       .sort((a, b) => b.totalMV - a.totalMV);
-    const grandTotalMV = categories.reduce((s, c) => s + c.totalMV, 0);
+    const grandTotalMV = agencies.reduce((s, c) => s + c.totalMV, 0);
 
     const miniHeadSx = {
       fontSize: '0.63rem', fontWeight: 700, textTransform: 'uppercase' as const,
@@ -1752,12 +1790,12 @@ const ReportsPage: React.FC = () => {
     return (
       <Box>
         {/* ── Summary by Market Value ── */}
-        <SectionHeading icon={<ShowChart />} title="Summary by Market Value" count={categories.length} />
+        <SectionHeading icon={<ShowChart />} title="Summary by Market Value" count={agencies.length} />
         <TableContainer component={Paper} sx={{ mb: 4, border: '1px solid rgba(0,135,81,0.2)' }}>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TH minWidth={180}>Asset Category</TH>
+                <TH minWidth={180}>Agency</TH>
                 <TH minWidth={160} align="right">Total Market Value</TH>
                 <TH minWidth={70} align="center">Assets</TH>
                 <TH minWidth={120} align="center">% of Total</TH>
@@ -1765,24 +1803,14 @@ const ReportsPage: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {categories.map((cat, idx) => {
+              {agencies.map((cat, idx) => {
                 const pct = grandTotalMV > 0 ? ((cat.totalMV / grandTotalMV) * 100).toFixed(1) : '0.0';
                 const isExp = mvExpandedCats.has(cat.name);
 
-                // Group assets by state within this category
-                const stateMap = new Map<string, any[]>();
-                cat.assets.forEach((a) => {
-                  const st = a.state || 'Unspecified State';
-                  if (!stateMap.has(st)) stateMap.set(st, []);
-                  stateMap.get(st)!.push(a);
-                });
-                const stateGroups = Array.from(stateMap.entries())
-                  .sort(([a], [b]) => a.localeCompare(b))
-                  .map(([st, sa]) => ({
-                    state: st,
-                    assets: sa,
-                    totalMV: sa.reduce((s, a) => s + (Number(a.marketValue) || 0), 0),
-                  }));
+                const groupedAssets = groupByAgency(cat.assets).map((group) => ({
+                  ...group,
+                  totalMV: group.assets.reduce((s, a) => s + (Number(a.marketValue) || 0), 0),
+                }));
 
                 return (
                   <React.Fragment key={cat.name}>
@@ -1792,7 +1820,7 @@ const ReportsPage: React.FC = () => {
                     >
                       <TD>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Category sx={{ fontSize: 13, color: '#00ff88' }} />
+                          <AccountBalance sx={{ fontSize: 13, color: '#00ff88' }} />
                           <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: '#fff' }}>{cat.name}</Typography>
                         </Box>
                       </TD>
@@ -1818,21 +1846,21 @@ const ReportsPage: React.FC = () => {
                       </TD>
                     </TableRow>
 
-                    {/* Expandable: states + assets within this category */}
+                    {/* Expandable: agency assets */}
                     <TableRow>
                       <TableCell colSpan={5} sx={{ p: 0, borderBottom: isExp ? '2px solid rgba(33,150,243,0.2)' : 'none' }}>
                         <Collapse in={isExp} timeout="auto" unmountOnExit>
                           <Box sx={{ mx: 2, my: 1.5 }}>
-                            {stateGroups.map((sg) => (
+                            {groupedAssets.map((sg) => (
                               <Box key={sg.state} sx={{ mb: 2 }}>
-                                {/* State sub-header */}
+                                {/* Group sub-header */}
                                 <Box sx={{
                                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                   px: 1.5, py: 0.7, borderRadius: '4px 4px 0 0',
                                   background: 'rgba(0,75,40,0.5)', border: '1px solid rgba(0,255,136,0.12)', borderBottom: 'none',
                                 }}>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                                    <LocationOn sx={{ fontSize: 12, color: '#00ff88' }} />
+                                    <AccountBalance sx={{ fontSize: 12, color: '#00ff88' }} />
                                     <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.78rem' }}>{sg.state}</Typography>
                                     <Chip label={sg.assets.length} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.12)', color: '#00ff88', fontSize: '0.62rem', height: 16 }} />
                                   </Box>
@@ -1841,7 +1869,7 @@ const ReportsPage: React.FC = () => {
                                   </Typography>
                                 </Box>
 
-                                {/* Assets in this state for this category */}
+                                {/* Assets in this agency */}
                                 <TableContainer sx={{ border: '1px solid rgba(0,255,136,0.1)', borderTop: 'none', borderRadius: '0 0 4px 4px' }}>
                                   <Table size="small">
                                     <TableHead>
@@ -1910,12 +1938,12 @@ const ReportsPage: React.FC = () => {
         {/* ── Detailed by Market Value ── */}
         <SectionHeading icon={<BarChart />} title="Detailed Assets by Market Value" count={data.totalAssets} />
         <Typography sx={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)', mb: 2 }}>
-          Assets grouped by category and sorted by highest market value within each category.
+          Assets grouped by agency, with each agency's assets sorted by highest market value.
         </Typography>
 
-        {categories.map((cat) => (
+        {agencies.map((cat) => (
           <Box key={cat.name} sx={{ mb: 3 }}>
-            {/* Category header */}
+            {/* Agency header */}
             <Box sx={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               px: 2, py: 1.2, borderRadius: '6px 6px 0 0',
@@ -1923,7 +1951,7 @@ const ReportsPage: React.FC = () => {
               border: '1px solid rgba(0,255,136,0.2)', borderBottom: 'none',
             }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Category sx={{ fontSize: 16, color: '#00ff88' }} />
+                <AccountBalance sx={{ fontSize: 16, color: '#00ff88' }} />
                 <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.92rem', letterSpacing: 0.5 }}>
                   {cat.name.toUpperCase()}
                 </Typography>
@@ -1957,19 +1985,70 @@ const ReportsPage: React.FC = () => {
                     <TH minWidth={140}>Asset ID</TH>
                     <TH minWidth={220}>Uploaded By</TH>
                     <TH minWidth={220}>Description</TH>
+                    <TH minWidth={140}>Category</TH>
                     <TH minWidth={110}>State</TH>
                     <TH minWidth={180}>Location</TH>
                     <TH minWidth={200}>Ministry</TH>
                     <TH minWidth={160}>Agency</TH>
+                    <TH minWidth={160}>Department</TH>
+                    <TH minWidth={80} align="center">Year</TH>
                     <TH minWidth={120} align="center">Condition</TH>
+                    <TH minWidth={130} align="center">Status</TH>
                     <TH minWidth={140} align="right">Purchase Cost (₦)</TH>
                     <TH minWidth={160} align="right">Market Value (₦) ↓</TH>
+                    <TH minWidth={140}>Land Title Type</TH>
+                    <TH minWidth={160}>Survey Plan No.</TH>
+                    <TH minWidth={220}>Acquisition Purpose</TH>
+                    <TH minWidth={160}>Equipment Type</TH>
+                    <TH minWidth={120}>Capacity</TH>
+                    <TH minWidth={160}>Item Type</TH>
+                    <TH minWidth={100}>Quantity</TH>
+                    <TH minWidth={160}>Building Type</TH>
+                    <TH minWidth={120}>Floors</TH>
+                    <TH minWidth={160}>Building Use</TH>
+                    <TH minWidth={120}>Make</TH>
+                    <TH minWidth={120}>Model</TH>
+                    <TH minWidth={100}>Vehicle Year</TH>
+                    <TH minWidth={170}>Registration No.</TH>
+                    <TH minWidth={160}>Engine No.</TH>
+                    <TH minWidth={160}>Chassis No.</TH>
+                    <TH minWidth={120}>Colour</TH>
+                    <TH minWidth={180}>Infrastructure Type</TH>
+                    <TH minWidth={100}>Length</TH>
+                    <TH minWidth={100}>Width</TH>
+                    <TH minWidth={160}>Extractive Type</TH>
+                    <TH minWidth={150}>Licence No.</TH>
+                    <TH minWidth={160}>Security Type</TH>
+                    <TH minWidth={140}>Face Value</TH>
+                    <TH minWidth={160}>Issuer</TH>
+                    <TH minWidth={220}>Remarks</TH>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {[...cat.assets]
-                    .sort((a, b) => (Number(b.marketValue) || 0) - (Number(a.marketValue) || 0))
-                    .map((asset, ai) => {
+                  {groupByAgency(cat.assets).map((agencyGroup) => (
+                    <React.Fragment key={`${cat.name}-${agencyGroup.state}`}>
+                      <TableRow sx={{ backgroundColor: 'rgba(0,75,40,0.5)' }}>
+                        <TableCell colSpan={41} sx={{ py: 0.8, px: 1.5, borderBottom: '1px solid rgba(0,255,136,0.12)' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                              <AccountBalance sx={{ fontSize: 14, color: '#00ff88' }} />
+                              <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.82rem' }}>{agencyGroup.state}</Typography>
+                              <Chip label={`${agencyGroup.assets.length} asset${agencyGroup.assets.length !== 1 ? 's' : ''}`} size="small" sx={{ backgroundColor: 'rgba(0,255,136,0.12)', color: '#00ff88', fontSize: '0.62rem', height: 18 }} />
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: 3 }}>
+                              <Typography sx={{ fontWeight: 700, color: '#4caf50', fontSize: '0.75rem' }}>
+                                {formatCurrency(agencyGroup.assets.reduce((s, a) => s + (Number(a.purchaseCost) || 0), 0))}
+                              </Typography>
+                              <Typography sx={{ fontWeight: 700, color: '#2196f3', fontSize: '0.75rem' }}>
+                                {formatCurrency(agencyGroup.assets.reduce((s, a) => s + (Number(a.marketValue) || 0), 0))}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                      {[...agencyGroup.assets]
+                        .sort((a, b) => (Number(b.marketValue) || 0) - (Number(a.marketValue) || 0))
+                        .map((asset, ai) => {
                       const cond = asset.condition || asset.assetCondition || asset.currentCondition || asset.conditionStatus || null;
                       const cs = conditionStyle(cond);
                       return (
@@ -1992,10 +2071,13 @@ const ReportsPage: React.FC = () => {
                               {asset.description || asset.name || '—'}
                             </Typography>
                           </TD>
+                          <TD>{fieldValue(asset.category || asset.type)}</TD>
                           <TD>{asset.state || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
                           <TD>{asset.location || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
                           <TD>{asset.ministry || asset.ministryName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
                           <TD>{asset.agency || asset.agencyName || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}</TD>
+                          <TD>{fieldValue(asset.department)}</TD>
+                          <TD align="center">{fieldValue(asset.year || asset.purchasedDate?.year)}</TD>
                           <TD align="center">
                             {cond ? (
                               <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4, px: 0.8, py: 0.2, borderRadius: 0.8, backgroundColor: cs.bg, border: `1px solid ${cs.border}` }}>
@@ -2003,6 +2085,9 @@ const ReportsPage: React.FC = () => {
                                 <Typography sx={{ fontSize: '0.68rem', color: cs.color, fontWeight: 600, whiteSpace: 'nowrap' }}>{cond}</Typography>
                               </Box>
                             ) : <Typography sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>—</Typography>}
+                          </TD>
+                          <TD align="center">
+                            <Chip label={statusStyle(asset.status || 'pending').label} size="small" sx={{ backgroundColor: statusStyle(asset.status || 'pending').bg, color: statusStyle(asset.status || 'pending').color, fontSize: '0.68rem', height: 20 }} />
                           </TD>
                           <TD align="right">
                             <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#4caf50', whiteSpace: 'nowrap' }}>
@@ -2014,12 +2099,40 @@ const ReportsPage: React.FC = () => {
                               {asset.marketValue ? formatCurrency(Number(asset.marketValue)) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
                             </Typography>
                           </TD>
+                          <TD>{fieldValue(asset.landTitleType)}</TD>
+                          <TD>{fieldValue(asset.surveyPlanNumber)}</TD>
+                          <TD>{fieldValue(asset.landAcquisitionPurpose)}</TD>
+                          <TD>{fieldValue(asset.equipmentType)}</TD>
+                          <TD>{fieldValue(asset.capacity)}</TD>
+                          <TD>{fieldValue(asset.itemType)}</TD>
+                          <TD>{fieldValue(asset.quantity)}</TD>
+                          <TD>{fieldValue(asset.buildingType)}</TD>
+                          <TD>{fieldValue(asset.numberOfFloors)}</TD>
+                          <TD>{fieldValue(asset.buildingUse)}</TD>
+                          <TD>{fieldValue(asset.make)}</TD>
+                          <TD>{fieldValue(asset.model)}</TD>
+                          <TD>{fieldValue(asset.vehicleYear)}</TD>
+                          <TD>{fieldValue(asset.registrationNumber)}</TD>
+                          <TD>{fieldValue(asset.engineNumber)}</TD>
+                          <TD>{fieldValue(asset.chassisNumber)}</TD>
+                          <TD>{fieldValue(asset.colour)}</TD>
+                          <TD>{fieldValue(asset.infrastructureType)}</TD>
+                          <TD>{fieldValue(asset.length)}</TD>
+                          <TD>{fieldValue(asset.width)}</TD>
+                          <TD>{fieldValue(asset.extractiveType)}</TD>
+                          <TD>{fieldValue(asset.licenceNumber)}</TD>
+                          <TD>{fieldValue(asset.securityType)}</TD>
+                          <TD>{fieldValue(asset.faceValue)}</TD>
+                          <TD>{fieldValue(asset.issuer)}</TD>
+                          <TD>{fieldValue(asset.remarks)}</TD>
                         </TableRow>
                       );
-                    })}
-                  {/* Category subtotal */}
+                        })}
+                    </React.Fragment>
+                  ))}
+                  {/* Agency subtotal */}
                   <TableRow sx={{ backgroundColor: 'rgba(0,135,81,0.1)', borderTop: '1px solid rgba(0,255,136,0.15)' }}>
-                    <TableCell colSpan={9} sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
+                    <TableCell colSpan={13} sx={{ py: 0.8, px: 1.5, borderBottom: 'none' }}>
                       <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(0,255,136,0.7)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                         {cat.name} — Sub-total ({cat.count} assets)
                       </Typography>
@@ -2032,6 +2145,7 @@ const ReportsPage: React.FC = () => {
                         {cat.totalMV > 0 ? formatCurrency(cat.totalMV) : '—'}
                       </Typography>
                     </TableCell>
+                    <TableCell colSpan={26} sx={{ borderBottom: 'none' }} />
                   </TableRow>
                 </TableBody>
               </Table>
@@ -2042,13 +2156,13 @@ const ReportsPage: React.FC = () => {
         {/* Grand total footer */}
         <Box sx={{ mt: 2, p: 2, borderRadius: 1, background: 'linear-gradient(90deg,rgba(33,150,243,0.2),rgba(33,150,243,0.08))', border: '1px solid rgba(33,150,243,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
           <Typography sx={{ fontWeight: 700, color: '#2196f3', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-            Grand Total — {allAssets.length} Assets across {categories.length} Categor{categories.length !== 1 ? 'ies' : 'y'}
+            Grand Total — {allAssets.length} Assets across {agencies.length} Agenc{agencies.length !== 1 ? 'ies' : 'y'}
           </Typography>
           <Box sx={{ display: 'flex', gap: 4 }}>
             <Box sx={{ textAlign: 'right' }}>
               <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>Total Purchase Cost</Typography>
               <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#4caf50' }}>
-                {formatCurrency(categories.reduce((s, c) => s + c.totalPC, 0))}
+                {formatCurrency(agencies.reduce((s, c) => s + c.totalPC, 0))}
               </Typography>
             </Box>
             <Box sx={{ textAlign: 'right' }}>

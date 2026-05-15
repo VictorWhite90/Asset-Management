@@ -282,6 +282,83 @@ const DashboardPage: React.FC = () => {
           </Alert>
         )}
 
+        {/* Priority Actions */}
+        {userData?.role === 'admin' && currentUser?.emailVerified && (
+          <Paper
+            sx={{
+              p: { xs: 2, sm: 3 },
+              mb: 3,
+              background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.2) 0%, rgba(0, 135, 81, 0.05) 100%)',
+              borderLeft: '4px solid #008751',
+            }}
+          >
+            <Typography variant="h6" sx={{ color: '#00ff88', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+              {deploymentLabels.topAdminPanel}
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+              Manage all assets, ministries, and ministry admin verifications
+            </Typography>
+            <Grid container spacing={{ xs: 1.5, sm: 2 }}>
+              <Grid item xs={6} sm={6} md={3}>
+                <Button component={Link} to="/admin/assets" variant="contained" fullWidth startIcon={<ViewList />} size="medium" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}>
+                  View All Assets
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={6} md={3}>
+                <Button component={Link} to="/reports" variant="contained" fullWidth startIcon={<Assessment />} size="medium" sx={{ backgroundColor: '#b8860b', '&:hover': { backgroundColor: '#8b6914' }, fontSize: { xs: '0.7rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}>
+                  Generate Reports
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={6} md={3}>
+                <Badge badgeContent={pendingMinistryAdmins.length} color="error" sx={{ width: '100%', '& .MuiBadge-badge': { right: { xs: 8, sm: 16 }, top: { xs: 8, sm: 16 }, fontSize: { xs: '0.7rem', sm: '0.85rem' }, fontWeight: 700 } }}>
+                  <Button component={Link} to="/admin/verifications" variant="outlined" fullWidth startIcon={<Groups />} size="medium" sx={{ fontSize: { xs: '0.65rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}>
+                    Admin Verifications
+                  </Button>
+                </Badge>
+              </Grid>
+              <Grid item xs={6} sm={6} md={3}>
+                <Button component={Link} to="/admin/users" variant="outlined" fullWidth startIcon={<Person />} size="medium" sx={{ fontSize: { xs: '0.65rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}>
+                  Manage Admins
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        )}
+
+        {userData?.role === 'ministry-admin' &&
+         currentUser?.emailVerified &&
+         userData?.isMinistryOwner && (
+          <Paper
+            sx={{
+              p: { xs: 2, sm: 3 },
+              mb: 3,
+              background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.2) 0%, rgba(0, 135, 81, 0.05) 100%)',
+              borderLeft: '4px solid #008751',
+            }}
+          >
+            <Typography variant="h6" sx={{ color: '#00ff88', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+              Ministry Management
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+              Manage staff registrations and approvals for your ministry
+            </Typography>
+            <Grid container spacing={{ xs: 1.5, sm: 2 }}>
+              <Grid item xs={6} sm={6}>
+                <Badge badgeContent={pendingStaffCount} color="error" sx={{ width: '100%' }}>
+                  <Button component={Link} to="/ministry-admin/dashboard" variant="contained" fullWidth startIcon={<VerifiedUser />} size="medium" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}>
+                    Manage Staff
+                  </Button>
+                </Badge>
+              </Grid>
+              <Grid item xs={6} sm={6}>
+                <Button component={Link} to="/reports" variant="contained" fullWidth startIcon={<Assessment />} size="medium" sx={{ backgroundColor: '#b8860b', '&:hover': { backgroundColor: '#8b6914' }, fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}>
+                  Generate Reports
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        )}
+
         {/* Statistics Cards */}
         {currentUser?.emailVerified && (
           <>
@@ -825,10 +902,22 @@ const DashboardPage: React.FC = () => {
                               const maxVal = agencyMarketValueBreakdown[0][1];
                               const barColors = ['#2196f3', '#00bcd4', '#00ff88', '#ff9800', '#e91e63', '#9c27b0', '#4caf50'];
                               const chartH = 160;
+                              const barCount = agencyMarketValueBreakdown.length;
+                              const barWidth = Math.max(72, Math.min(160, Math.floor(620 / Math.max(barCount, 1))));
                               return (
-                                <Box>
+                                <Box sx={{ overflowX: 'auto', pb: 0.5 }}>
                                   {/* Vertical bar chart */}
-                                  <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: chartH, px: 0.5, mb: 1 }}>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      alignItems: 'flex-end',
+                                      justifyContent: barCount <= 3 ? 'center' : 'flex-start',
+                                      gap: { xs: 1, sm: 1.5 },
+                                      minHeight: chartH + 58,
+                                      minWidth: 'max-content',
+                                      px: 0.5,
+                                    }}
+                                  >
                                     {agencyMarketValueBreakdown.map(([agency, value], idx) => {
                                       const col = barColors[idx % barColors.length];
                                       const barH = maxVal > 0 ? Math.max((value / maxVal) * chartH, 8) : 8;
@@ -838,28 +927,55 @@ const DashboardPage: React.FC = () => {
                                         ? `₦${(value / 1_000_000).toFixed(1)}M`
                                         : `₦${value.toLocaleString()}`;
                                       return (
-                                        <Box key={agency} sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.4 }}>
+                                        <Box
+                                          key={agency}
+                                          sx={{
+                                            width: { xs: Math.min(barWidth, 112), sm: barWidth },
+                                            flex: '0 0 auto',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            gap: 0.6,
+                                          }}
+                                        >
                                           {/* Value label on top */}
                                           <Typography sx={{ fontSize: '0.58rem', color: col, fontWeight: 700, lineHeight: 1, textAlign: 'center', whiteSpace: 'nowrap' }}>
                                             {formatted}
                                           </Typography>
                                           {/* Bar */}
-                                          <Box sx={{
-                                            width: '100%', height: barH,
-                                            background: `linear-gradient(180deg, ${col}, ${col}88)`,
-                                            borderRadius: '4px 4px 0 0',
-                                            boxShadow: `0 0 10px ${col}55`,
-                                            transition: 'height 0.7s ease',
-                                            flexShrink: 0,
-                                          }} />
+                                          <Box sx={{ height: chartH, width: '100%', display: 'flex', alignItems: 'flex-end' }}>
+                                            <Box sx={{
+                                              width: '100%', height: barH,
+                                              background: `linear-gradient(180deg, ${col}, ${col}88)`,
+                                              borderRadius: '4px 4px 0 0',
+                                              boxShadow: `0 0 10px ${col}55`,
+                                              transition: 'height 0.7s ease',
+                                              flexShrink: 0,
+                                            }} />
+                                          </Box>
+                                          <Typography
+                                            sx={{
+                                              width: '100%',
+                                              pt: 0.7,
+                                              borderTop: '1px solid rgba(255,255,255,0.12)',
+                                              fontSize: { xs: '0.58rem', sm: '0.62rem' },
+                                              color: 'rgba(255,255,255,0.68)',
+                                              lineHeight: 1.25,
+                                              textAlign: 'center',
+                                              whiteSpace: 'normal',
+                                              overflowWrap: 'anywhere',
+                                            }}
+                                          >
+                                            {agency}
+                                          </Typography>
                                         </Box>
                                       );
                                     })}
                                   </Box>
                                   {/* X-axis baseline */}
-                                  <Box sx={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.12)', mx: 0.5, mb: 0.8 }} />
+                                  <Box sx={{ display: 'none' }} />
                                   {/* Agency labels */}
-                                  <Box sx={{ display: 'flex', gap: '6px', px: 0.5 }}>
+                                  <Box sx={{ display: 'none' }}>
                                     {agencyMarketValueBreakdown.map(([state]) => (
                                       <Box key={state} sx={{ flex: 1, textAlign: 'center' }}>
                                         <Typography sx={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.2, wordBreak: 'break-word' }}>
@@ -1131,51 +1247,6 @@ const DashboardPage: React.FC = () => {
           </>
         )}
 
-        {/* User Info Cards */}
-        <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={4}>
-            <Card>
-              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Person sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
-                  <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Ministry/Agency</Typography>
-                </Box>
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.85rem', sm: '1rem' }, wordBreak: 'break-word' }}>
-                  {userData?.agencyName || deploymentLabels.administrationFallback}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={4}>
-            <Card>
-              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Email sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
-                  <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Email</Typography>
-                </Box>
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.85rem', sm: '1rem' }, wordBreak: 'break-word' }}>
-                  {currentUser?.email || 'N/A'}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={4}>
-            <Card>
-              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <DashboardIcon sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
-                  <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Role</Typography>
-                </Box>
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.85rem', sm: '1rem' } }}>
-                  {getRoleDisplayName(userData?.role || '')}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-
         {/* Asset Management Actions (Agency Only) */}
         {userData?.role === 'agency' && currentUser?.emailVerified && (
           <Paper
@@ -1360,98 +1431,6 @@ const DashboardPage: React.FC = () => {
           </Paper>
         )}
 
-        {/* Admin Actions */}
-        {userData?.role === 'admin' && currentUser?.emailVerified && (
-          <Paper
-            sx={{
-              p: { xs: 2, sm: 3 },
-              mb: 3,
-              background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.2) 0%, rgba(0, 135, 81, 0.05) 100%)',
-              borderLeft: '4px solid #008751',
-            }}
-          >
-            <Typography variant="h6" sx={{ color: '#00ff88', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-              {deploymentLabels.topAdminPanel}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-              Manage all assets, ministries, and ministry admin verifications
-            </Typography>
-            <Grid container spacing={{ xs: 1.5, sm: 2 }}>
-              <Grid item xs={6} sm={6} md={3}>
-                <Button
-                  component={Link}
-                  to="/admin/assets"
-                  variant="contained"
-                  fullWidth
-                  startIcon={<ViewList />}
-                  size="medium"
-                  sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}
-                >
-                  View All Assets
-                </Button>
-              </Grid>
-              <Grid item xs={6} sm={6} md={3}>
-                <Button
-                  component={Link}
-                  to="/reports"
-                  variant="contained"
-                  fullWidth
-                  startIcon={<Assessment />}
-                  size="medium"
-                  sx={{
-                    backgroundColor: '#b8860b',
-                    '&:hover': { backgroundColor: '#8b6914' },
-                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    py: { xs: 1, sm: 1.5 },
-                  }}
-                >
-                  Generate Reports
-                </Button>
-              </Grid>
-              <Grid item xs={6} sm={6} md={3}>
-                <Badge
-                  badgeContent={pendingMinistryAdmins.length}
-                  color="error"
-                  sx={{
-                    width: '100%',
-                    '& .MuiBadge-badge': {
-                      right: { xs: 8, sm: 16 },
-                      top: { xs: 8, sm: 16 },
-                      fontSize: { xs: '0.7rem', sm: '0.85rem' },
-                      fontWeight: 700,
-                    }
-                  }}
-                >
-                  <Button
-                    component={Link}
-                    to="/admin/verifications"
-                    variant="outlined"
-                    fullWidth
-                    startIcon={<Groups />}
-                    size="medium"
-                    sx={{ fontSize: { xs: '0.65rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}
-                  >
-                    Admin Verifications
-                  </Button>
-                </Badge>
-              </Grid>
-              <Grid item xs={6} sm={6} md={3}>
-                <Button
-                  component={Link}
-                  to="/admin/users"
-                  variant="outlined"
-                  fullWidth
-                  startIcon={<Person />}
-                  size="medium"
-                  sx={{ fontSize: { xs: '0.65rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}
-                >
-                  Manage Admins
-                </Button>
-              </Grid>
-            </Grid>
-          </Paper>
-        )}
-
         {/* Ministry Admin - Pending Federal Admin Approval */}
         {userData?.role === 'ministry-admin' &&
          currentUser?.emailVerified &&
@@ -1504,61 +1483,50 @@ const DashboardPage: React.FC = () => {
           </Paper>
         )}
 
-        {/* Ministry Admin - Manage Staff */}
-        {userData?.role === 'ministry-admin' &&
-         currentUser?.emailVerified &&
-         userData?.isMinistryOwner && (
-          <Paper
-            sx={{
-              p: { xs: 2, sm: 3 },
-              mb: 3,
-              background: 'linear-gradient(135deg, rgba(0, 135, 81, 0.2) 0%, rgba(0, 135, 81, 0.05) 100%)',
-              borderLeft: '4px solid #008751',
-            }}
-          >
-            <Typography variant="h6" sx={{ color: '#00ff88', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-              Ministry Management
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-              Manage staff registrations and approvals for your ministry
-            </Typography>
-            <Grid container spacing={{ xs: 1.5, sm: 2 }}>
-              <Grid item xs={6} sm={6}>
-                <Badge badgeContent={pendingStaffCount} color="error" sx={{ width: '100%' }}>
-                  <Button
-                    component={Link}
-                    to="/ministry-admin/dashboard"
-                    variant="contained"
-                    fullWidth
-                    startIcon={<VerifiedUser />}
-                    size="medium"
-                    sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 1, sm: 1.5 } }}
-                  >
-                    Manage Staff
-                  </Button>
-                </Badge>
-              </Grid>
-              <Grid item xs={6} sm={6}>
-                <Button
-                  component={Link}
-                  to="/reports"
-                  variant="contained"
-                  fullWidth
-                  startIcon={<Assessment />}
-                  size="medium"
-                  sx={{
-                    backgroundColor: '#b8860b',
-                    '&:hover': { backgroundColor: '#8b6914' },
-                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                    py: { xs: 1, sm: 1.5 },
-                  }}
-                >
-                  Generate Reports
-                </Button>
-              </Grid>
-            </Grid>
-          </Paper>
-        )}
+        {/* User Info Cards */}
+        <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={4}>
+            <Card>
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Person sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
+                  <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Ministry/Agency</Typography>
+                </Box>
+                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.85rem', sm: '1rem' }, wordBreak: 'break-word' }}>
+                  {userData?.agencyName || deploymentLabels.administrationFallback}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <Card>
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Email sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
+                  <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Email</Typography>
+                </Box>
+                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.85rem', sm: '1rem' }, wordBreak: 'break-word' }}>
+                  {currentUser?.email || 'N/A'}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <Card>
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <DashboardIcon sx={{ mr: 1, color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
+                  <Typography variant="h6" sx={{ color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Role</Typography>
+                </Box>
+                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: { xs: '0.85rem', sm: '1rem' } }}>
+                  {getRoleDisplayName(userData?.role || '')}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
 
         {/* System Info */}
         <Paper sx={{ p: { xs: 2, sm: 3 } }}>

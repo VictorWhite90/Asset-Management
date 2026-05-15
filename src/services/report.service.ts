@@ -348,6 +348,7 @@ export const generateAssetInventoryReport = async (
 
   // ✅ Full asset summaries — preserve ALL raw fields the UI needs
  const assetSummaries = assets.map((a) => ({
+    ...a,
     // ── AssetSummary base fields (used by valuation/utilization tables) ──────
     id:              a.id || a.assetId,
     name:            a.description,

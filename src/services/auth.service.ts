@@ -1,7 +1,6 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendPasswordResetEmail,
   updateProfile,
   User as FirebaseUser,
 } from 'firebase/auth';
@@ -9,7 +8,7 @@ import { doc, setDoc, updateDoc, Timestamp, collection, query, where, getDocs, g
 import { auth, db } from './firebase';
 import { UserRegistrationData, User, MinistryAdminRegistrationData } from '@/types/user.types';
 import { COLLECTIONS, ERROR_MESSAGES } from '@/utils/constants';
-import { sendCustomVerificationEmailCF } from './cloudFunctions.service';
+import { sendCustomPasswordResetEmailCF, sendCustomVerificationEmailCF } from './cloudFunctions.service';
 
 /**
  * Register a new agency user
@@ -154,7 +153,7 @@ export const loginUser = async (
  */
 export const resetPassword = async (email: string): Promise<void> => {
   try {
-    await sendPasswordResetEmail(auth, email);
+    await sendCustomPasswordResetEmailCF(email);
   } catch (error: any) {
     console.error('Password reset error:', error);
     throw new Error(getAuthErrorMessage(error.code, error.message));
@@ -182,8 +181,9 @@ export const resendVerificationEmail = async (user: FirebaseUser): Promise<void>
  */
 export const syncEmailVerificationStatus = async (user: FirebaseUser): Promise<boolean> => {
   try {
-    // Reload user to get latest emailVerified status from Firebase Auth
+    // Reload user and force a fresh ID token so Firestore rules see email_verified=true.
     await user.reload();
+    await user.getIdToken(true);
 
     const isVerified = user.emailVerified;
 
